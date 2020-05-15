@@ -1,0 +1,147 @@
+/* multi-select style */
+.select2-results__options{
+   font-size:10px;
+}
+
+.select2-selection--single .select2-selection__placeholder {
+   font-size:10px;
+}
+
+.select2-selection__rendered {
+   font-size:10px;
+   font-weight: bold;
+   text-transform: capitalize;
+}
+
+
+/* it does not work */
+.selectFont{
+   font-size:10px;
+}
+
+div.leftcol{
+   float: left;
+   width: 12%;
+   padding-top: 100px;
+   margin-left: 10px;
+}
+
+div.tabDiv{
+   float: center;
+   max-width: 1200px;
+   min-width: 800px;
+   margin: 0 auto;
+   justify-content: center;
+   padding-top: 100px;
+}
+
+div.legDiv{
+   float: center;
+   justify-content: center;
+}
+
+
+td {
+   height: 28px;
+   width: 28px;
+   border: 1px solid;
+}
+
+p {
+   font-size:14px
+   font-weight: bold;
+   background-color:#FFFFFF;
+}
+
+
+.infoImage {
+   float: center;
+   height: 80px;
+   width: 80px;
+   cursor: pointer;
+}
+
+
+/* tabulator change for ilamb style */
+
+/* table frame settings */
+#dashboard-table{
+   border-radius: 10px;
+   text-align: left;
+   border-collapse: collapse;
+   border: 1px solid black;
+}
+
+
+.tabulator .tabulator-row:hover {
+   font-weight:bold;
+   border-bottom: 1.5px solid black;
+   border-top: 1.5px solid black;
+}
+
+/* calculate bottom */
+.tabulator-calcs .tabulator-cell{
+   width:28px;
+   height:288px;
+   writing-mode: vertical-rl;
+   text-orientation: mixed;
+   align-items:center;
+   justify-content:center;
+   font-size:12px;
+   font-weight:300;
+}
+
+.tabulator{
+   font-size: 12px;
+   borderColor: "#FFFFFF";
+}
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title{
+   white-space: nowrap;
+   text-overflow: clip;
+   justify-content: center;
+   font-size:12px;
+   font-weight:600;
+   color:black;
+   text-shadow: none;
+}
+
+
+/* main row */
+.tabulator-row{
+   border-collapse: collapse; 
+   border-bottom: 0.25px solid black;
+   border-top: 0.25px solid black;
+}
+
+
+/* main cell */
+.tabulator-row .tabulator-cell{
+   border-collapse: collapse; 
+   border-right: 0.25px solid black;
+   border-left: 0.25px solid black;
+   width:28px;
+   height:28px;
+}
+
+
+/* row and left col*/
+.tabulator-row .tabulator-frozen.tabulator-frozen-left{
+   border-right: 0.1px solid black;
+   border-left: 0.1px solid black;
+}
+
+.tabulator .tabulator-header .tabulator-frozen.tabulator-frozen-left{
+   border-right: 0.1px solid black;
+   border-left: 0.1px solid black;
+   float: center;
+   vertical-align: middle; 
+}
+
+.tabulator .tabulator-header .tabulator-col {
+   text-align:center;
+   border-right: 0.1px solid black;
+   border-left: 0.1px solid black;
+   border-bottom: 0.25px solid black;
+   border-top: 0.25px solid black;
+}

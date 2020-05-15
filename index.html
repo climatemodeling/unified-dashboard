@@ -1,0 +1,111 @@
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+
+
+<!-- js --!>
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.6.3/dist/js/tabulator.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.full.min.js"></script>
+<script type="text/javascript" src="select2.multi-checkboxes.js"></script>
+<script type="text/javascript" src="lmt_tool.js"></script>
+<script type="text/javascript" src="lmt_tab.js"></script>
+
+
+
+<!-- css--!>
+<link rel="stylesheet" href="https://unpkg.com/tabulator-tables@4.6.3/dist/css/tabulator.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css">
+<link rel="stylesheet" href="lmtstyle.css">
+
+
+</head>
+
+<body>
+   <div data-role="page" id="MeanState">
+       <div data-role="header" data-position="fixed" data-tap-toggle="false">
+           <h1 id="headline">LMT Unified Dashboard</h1>
+       </div>
+
+       <form>
+         <fieldset data-role="controlgroup" data-type="horizontal" data-mini="True">
+           <input type="checkbox" name="colorblind" id="colorblind" onchange="tableColor()" checked="true">
+           <label for="colorblind" >Colorblind colors</label>
+         </fieldset>
+       </form>
+
+       <!--form>
+         <fieldset data-role="controlgroup" data-type="horizontal" data-mini="True">
+           <input type="checkbox" name="transpose" id="transpose" onchange="Transpose()">
+           <label for="transpose">Transpose</label>
+         </fieldset>
+       </form-->
+
+
+       <!--label for="select-choice-mini" class="select">X axis (Column)</label>
+       <select name="select-choice-mini" id="select-choice-mini-x" data-mini="true" data-inline="true">
+       </select>
+
+       <label for="select-choice-mini" class="select">Y axis (Row)</label>
+       <select name="select-choice-mini" id="select-choice-mini-y" data-mini="true" data-inline="true">
+       </select>
+
+       <p>
+           <button data-role="none" onclick = "plotTable()" >Plot</button>
+       </p-->
+   </div>
+
+   <div>
+       <div class="leftcol">
+          <select class="hide-list" id="hlist" name="states[]" multiple="multiple" style="width:75%"> </select>
+
+          <hr>
+
+          <select class="select-choice-x" id="select-choice-mini-x" style="width:75%"> <option></option></select>
+          <select class="select-choice-y" id="select-choice-mini-y" style="width:75%"> <option></option></select>
+
+          <select class="select-choice-1" id="select-choice-mini-1" style="width:75%; display:none"> <option></option></select>
+          <select class="select-choice-2" id="select-choice-mini-2" style="width:75%; display:none"> <option></option></select>
+          <select class="select-choice-3" id="select-choice-mini-3" style="width:75%; display:none"> <option></option></select>
+          <select class="select-choice-4" id="select-choice-mini-4" style="width:75%; display:none"> <option></option></select>
+          <select class="select-choice-5" id="select-choice-mini-5" style="width:75%; display:none"> <option></option></select>
+          <select class="select-choice-6" id="select-choice-mini-6" style="width:75%; display:none"> <option></option></select>
+          <select class="select-choice-7" id="select-choice-mini-7" style="width:75%; display:none"> <option></option></select>
+          <select class="select-choice-8" id="select-choice-mini-8" style="width:75%; display:none"> <option></option></select>
+          <select class="select-choice-9" id="select-choice-mini-9" style="width:75%; display:none"> <option></option></select>
+
+
+       </div>
+
+       <div class="tabDiv">
+          <div id="dashboard-table"></div>
+       </div>
+   </div>
+
+
+   <center>
+       <div class="legDiv">
+       <p>Relative Scale
+       <table class="table-header-rotated" id="scoresLegend">
+         <tbody>
+           <tr>
+             <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+           </tr>
+         </tbody>
+       </table>
+       Worse Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Better Value
+       <table class="table-header-rotated" id="missingLegend">
+         <tbody>
+           <tr>
+             <td bgcolor="#808080"></td>
+           </tr>
+         </tbody>
+       </table>Missing Data or Error
+       </div>
+   </center>
+
+</body>
+
