@@ -445,9 +445,15 @@ var headerContextMenu = [
         action:function(e, column){
             column.hide();
             var columnField = column.getField();
-            console.log(columnField);
-            $('#hlist').val(columnField);
-            $('#hlist').trigger('change');
+            selData = $('#hlist').select2('data');
+            hideItems=[];
+            if (selData.length >= 1){
+               for (se of selData){
+                    hideItems.push(se.id);
+               }
+            }
+            hideItems.push(columnField);
+            $('#hlist').val(hideItems).trigger('change');
         }
     },
 ];
