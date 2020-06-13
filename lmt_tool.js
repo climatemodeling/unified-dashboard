@@ -68,7 +68,6 @@ function resolve_tree(tabJson){
 function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
 // convert cmec json (output.json) to tabulator json format 
 //
-//
 
   if (cmecJson.DIMENSIONS.json_structure.includes(dimX) && cmecJson.DIMENSIONS.json_structure.includes(dimY)){
      fixedDims = Object.keys(fixedDimsDict);
@@ -230,7 +229,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
      alert("the dimensions X and Y not in the json file");
   }
 }
-
 
 
 function transpose_tab_json(data){

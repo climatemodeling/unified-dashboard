@@ -28,8 +28,8 @@ div.leftcol{
 
 div.tabDiv{
    float: center;
-   max-width: 1200px;
-   min-width: 800px;
+   /*max-width: 1200px;
+   min-width: 800px;*/
    margin: 0 auto;
    justify-content: center;
    padding-top: 100px;
@@ -111,7 +111,7 @@ p {
 .tabulator-row{
    border-collapse: collapse; 
    border-bottom: 0.25px solid black;
-   border-top: 0.25px solid black;
+   border-top: 0.0px solid black;
 }
 
 
@@ -119,7 +119,7 @@ p {
 .tabulator-row .tabulator-cell{
    border-collapse: collapse; 
    border-right: 0.25px solid black;
-   border-left: 0.25px solid black;
+   border-left: 0.px solid black;
    width:28px;
    height:28px;
 }
@@ -128,12 +128,12 @@ p {
 /* row and left col*/
 .tabulator-row .tabulator-frozen.tabulator-frozen-left{
    border-right: 0.1px solid black;
-   border-left: 0.1px solid black;
+   border-left: 0.0px solid black;
 }
 
 .tabulator .tabulator-header .tabulator-frozen.tabulator-frozen-left{
    border-right: 0.1px solid black;
-   border-left: 0.1px solid black;
+   border-left: 0.0px solid black;
    float: center;
    vertical-align: middle; 
 }
@@ -141,7 +141,7 @@ p {
 .tabulator .tabulator-header .tabulator-col {
    text-align:center;
    border-right: 0.1px solid black;
-   border-left: 0.1px solid black;
+   border-left: 0.0px solid black;
    border-bottom: 0.25px solid black;
-   border-top: 0.25px solid black;
+   border-top: 0.px solid black;
 }
