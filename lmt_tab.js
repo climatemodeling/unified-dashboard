@@ -37,7 +37,8 @@ var tabOption = {
      movableColumns: true, //enable user movable columns
      //movableRows: true, //enable user movable columns
 
-     layout:"fitColumns",
+     //layout:"fitColumns",
+     layout:"fitData",
      tooltips: true,
 
      columnMinWidth:10,
@@ -178,6 +179,7 @@ $.getJSON( "output.json", function( data ) {
 
 $(document).on('jsonReady', function() {
 
+     document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
      table = new Tabulator("#dashboard-table", tabOption);
      draw_legend();
 
@@ -282,6 +284,7 @@ function menuShowHide(xDim, yDim) {
                    let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
                    tabOption.columns = setTabColumns(tabJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric');
 
+                   document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
                    table = new Tabulator("#dashboard-table", tabOption);
                    //table.setData(tabJson);
                    //table.setColumns(tabOption.columns);
@@ -365,7 +368,7 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
     var otherCol = { title:"col_name", field:"col-field", cssClass:"bgcolcor", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
-    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:160};
+    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
 
     firstCol.title = ydim.concat('/',xdim);
     firstCol.field = 'row_name';
