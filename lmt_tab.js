@@ -548,22 +548,12 @@ function  cellClickFuncGenetic(e, cell){
          }
 
 
-
-
          let baseurl = 'https://www.ilamb.org/CMIP5v6/historical/';
          console.log('click cell', colField, rowFirst);
 
          if (linkmetric != undefined) {
-
              console.log(linkmetric);
              var newWin = window.open(baseurl.concat(linkmetric,'.html#',linkmodel));
-
-             newWin.document.write("hello world");
-             console.log(newWin.document);
-             var sel = newWin.document.getElementById("MeanStateRegion");
-             console.log(newWin);
-             console.log(sel);
-             console.log(sel.value);
          }
 
          //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");
