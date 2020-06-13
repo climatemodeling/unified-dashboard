@@ -504,8 +504,8 @@ function  cellClickFuncGenetic(e, cell){
                   console.log(dim, selectVal);
 
                   if (dim == 'model'){linkmodel = selectVal;}
+                  if (dim == 'region'){linkmodel = selectVal;}
                   if (dim == 'metric'){
-
                       if (selectVal.includes('!!')) {
                           linkmetric = selectVal.replace(/\s/g, '').replace('::','/').replace('!!','/');
                           var benmarkname = selectVal.split('!!').slice(-1)[0];
@@ -522,6 +522,10 @@ function  cellClickFuncGenetic(e, cell){
 
          if ( xDimName == 'model' ){ linkmodel = colField; }
          if ( yDimName == 'model' ){ linkmodel = rowFirst; }
+
+         if ( xDimName == 'region' ){ linkregion = colField; }
+         if ( yDimName == 'region' ){ linkregion = rowFirst; }
+
 
          if ( xDimName == 'metric' ) {
 
@@ -553,11 +557,9 @@ function  cellClickFuncGenetic(e, cell){
 
          if (linkmetric != undefined) {
              console.log(linkmetric);
-             var newWin = window.open(baseurl.concat(linkmetric,'.html#',linkmodel));
+             var newWin = window.open(baseurl.concat(linkmetric,'.html#',linkmodel,'&region=', linkregion));
          }
 
          //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");
      }
-
-
 }
