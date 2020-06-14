@@ -2,9 +2,18 @@
 //
 //
 //
+//
+//
+var jsonFileUrl = "output.json";  // json file containing the benchmark results
+var corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
 
+if (jsonFileUrl.includes("http")){
+    jsonFileUrl = corsProxy + jsonFileUrl;
+}
+
+
+//global variables
 var cmecJson;
-
 var tabJson;
 var tabTreeJson;
 var table;
@@ -22,7 +31,7 @@ var tabOption = {
      reactiveData:true,
 
      //ajax loading
-     ajaxURL:"my.json",
+     ajaxURL: jsonFileUrl,
      ajaxConfig:{
           mode:"cors", //set request mode to cors
           credentials: "same-origin", //send cookies with the request from the matching origin
@@ -116,7 +125,7 @@ $(document).ready(function() {
 });
 
 
-$.getJSON( "output.json", function( data ) {
+$.getJSON( jsonFileUrl, function( data ) {
      cmecJson = data;
      var i = 1;
      for (dimn of cmecJson.DIMENSIONS.json_structure) {
@@ -130,9 +139,6 @@ $.getJSON( "output.json", function( data ) {
           selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
           dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
 
-          //$('.select-choice-'.concat(i.toString())).select2({
-          //    placeholder: 'Select '.concat(dimn),
-          //});
           i++;
      }
 
