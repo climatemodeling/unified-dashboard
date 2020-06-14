@@ -4,13 +4,17 @@
 //
 //
 //
-var jsonFileUrl = "output.json";  // json file containing the benchmark results
-var corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
+// user can change the vales of the following varaibles
+const jsonFileUrl = "output.json";  // json file containing the benchmark results
+const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
+const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
 
+
+
+// please do not make changes below
 if (jsonFileUrl.includes("http")){
     jsonFileUrl = corsProxy + jsonFileUrl;
 }
-
 
 //global variables
 var cmecJson;
@@ -192,6 +196,7 @@ $(document).on('jsonReady', function() {
 
      var xDimName='model';
      var yDimName='metric';
+     //menuShowHide(xDimName, yDimName);
 
      $('#select-choice-mini-x').on('select2:select', function (e) {
           var selectedValue = $(this).val(); // get the selected value
@@ -567,12 +572,11 @@ function  cellClickFuncGenetic(e, cell){
          }
 
 
-         let baseurl = 'https://www.ilamb.org/CMIP5v6/historical/';
          console.log('click cell', colField, rowFirst);
 
          if (linkmetric != undefined) {
              console.log(linkmetric);
-             var newWin = window.open(baseurl.concat(linkmetric,'.html#',linkmodel,'&region=', linkregion));
+             var newWin = window.open(baseUrl.concat(linkmetric,'.html#',linkmodel,'&region=', linkregion));
          }
 
          //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");

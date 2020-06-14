@@ -45,8 +45,6 @@ function resolve_tree(tabJson){
           }
           newline["_children"] = findchild;
 
-          console.log('yyy', rowline.row_name, parentName, findchild);
-          
           treeJson.push(newline);
        }
    }
@@ -58,7 +56,7 @@ function resolve_tree(tabJson){
 }
 
 
-// contains plain js to handle json files in different format
+// contains plain JS to handle json files in different format
 // CMEC json format
 // ILAMB json format, need other index.html to determine the model names
 // tabulator json format can be used by tabulator.js directrly
@@ -128,17 +126,13 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
 
             prevJson = Object.assign(nextJson, {});
 
-            console.log('next', nextJson);
-            console.log('prev', prevJson);
-
          }
-         console.log(prevJson);
+         //console.log(prevJson);
          // now write to tab json
          //
          // dimX and dimY
          let ix = cmecJson.DIMENSIONS.json_structure.indexOf(dimX);
          let iy = cmecJson.DIMENSIONS.json_structure.indexOf(dimY);
-
          console.log(ix, iy);
 
          let dmnms = cmecJson.DIMENSIONS.json_structure;
@@ -151,8 +145,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                 dmarr.push(fixedDimsDict[dm]);
              }
          }
-
-         console.log(dmarr, dimX, dimY);
 
          // xkeys and ykeys
          let sdict = prevJson;
@@ -174,8 +166,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
          }
 
 
-         //console.log(xKeys);
-         //console.log(yKeys);
          let tabJson = [];
          let tab_row = {};
          for (yk of yKeys){
@@ -197,9 +187,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                             }
                        }
                        else{
-                           //console.log('x', dm, xk, yk);
-                           //console.log('x', sdict);
-
                            if (dm in sdict){
                                sdict=sdict[dm];
                            }
@@ -213,13 +200,9 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
              }
              tabJson.push(tab_row);
          }
-         console.log(tabJson);
 
-         console.log(dimY);
          if (dimY == 'metric' && convertTree == 1){
-
              tabJson = resolve_tree(tabJson);
-
          }
 
          return tabJson;
@@ -231,6 +214,7 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
 }
 
 
+// traspose 
 function transpose_tab_json(data){
               var importedJSON = data;
               var newjson = [];
@@ -330,9 +314,6 @@ function add_options(optionList, selectID){
 
     var sel = document.getElementById(selectID);
 
-    //for (var i = sel.options.length-1; i >= 0; i--) {
-    //    sel.remove(i);
-    //}
     for (x of optionList){
         var opt = document.createElement('option');
         opt.value = x;
@@ -591,10 +572,10 @@ function setColumns(rowDict, addBottomTitle, myIcon, xdim, ydim){
            col.field=x;
            col.bottomCalcParams=x;
 
-           ftwgt=500;
-           ftsty="normal";
-           txdec="";
-           txcol="black";
+           ftwgt = 500;
+           ftsty = "normal";
+           txdec = "";
+           txcol = "black";
            col.titleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
 
            if( !addBottomTitle ){
@@ -608,8 +589,6 @@ function setColumns(rowDict, addBottomTitle, myIcon, xdim, ydim){
 
 
 //followings are for tabulator custom functions
-//
-//
 //
 var mytest = function(values, data, calcParams){
     //values - array of column values
