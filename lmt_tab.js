@@ -5,7 +5,7 @@
 //
 //
 // user can change the vales of the following varaibles
-const jsonFileUrl = "output.json";  // json file containing the benchmark results
+const jsonFileUrl = "my.json";  // json file containing the benchmark results
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
 const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
 
@@ -129,47 +129,79 @@ $(document).ready(function() {
 });
 
 
-$.getJSON( jsonFileUrl, function( data ) {
-     cmecJson = data;
-     var i = 1;
-     for (dimn of cmecJson.DIMENSIONS.json_structure) {
-          if (dimn == 'statistic'){
-              add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
-          }
-          else{
-              add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
-          }
+var jqxhr = $.getJSON( jsonFileUrl, {format: "json"})
+  .always(function(data) {
 
-          selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
-          dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
+     var jsonData = data;
 
-          i++;
+     let ydimField;
+
+     console.log(jsonData.SCHEMA, 'xxxxxxxx');
+
+     switch(jsonData.SCHEMA.name){
+     case "CMEC":
+         cmecJson = data;
+         for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
+              if (dimn == 'statistic'){
+                  add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+              }
+              else{
+                  add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
+              }
+
+              selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
+              dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
+         }
+
+
+         // default ilamb, for others need to be rethink of it
+         tabTreeJson = cmec2tab_json(data, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
+
+         // add options 
+         add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
+         add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
+
+
+         ydimField = "row_name";
+
+         break;
+
+     case "TABJSON":
+
+         var scoreboard = "Overall Score global";
+         tabTreeJson = filterScoreboard(data.RESULTS, scoreboard);
+
+         add_options(["model"], "select-choice-mini-x");
+         add_options(["metric"], "select-choice-mini-y");
+
+         var regions = [];
+         var statistics = [];
+
+         for (row of data.RESULTS){
+              regions.push(row.scoreboard.split(" ")[row.scoreboard.split(" ").length-1]);
+              statistics.push(row.scoreboard.split(" ").slice(0,-1).join(" "));
+         }
+
+         regions = [...new Set(regions)];
+         statistics = [...new Set(statistics)];
+         add_options(regions, 'select-choice-mini-0');
+         add_options(statistics, 'select-choice-mini-3');
+
+         selectIDbyDims['region'] = 'select-choice-mini-0';
+         selectIDbyDims['statistic'] = 'select-choice-mini-3'
+         ydimField = "metric";
+
+         break;
      }
 
-
-     // default ilamb, for others need to be rethink of it
-     tabTreeJson = cmec2tab_json(data, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
-
-     // add options 
-     add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
-     add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
-
      $('.select-choice-x').val('model');
-     //$('.select-choice-x').trigger('change');
      $('.select-choice-y').val('metric');
-     //$('.select-choice-y').trigger('metric');
-
      $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
      $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
 
      $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
      $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
-
-     console.log(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children'));
-     add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children'), 'hlist');
-
-     
-
+     add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
 
      // set tab column
      //
@@ -180,7 +212,7 @@ $.getJSON( jsonFileUrl, function( data ) {
      txdec = "";
      txcol = "black";
      let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
-     tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric');
+     tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
 
      // trigger an event to indicate that the json is ready
      $(document).trigger('jsonReady');
@@ -293,7 +325,7 @@ function menuShowHide(xDim, yDim) {
                    txdec = "";
                    txcol = "black";
                    let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
-                   tabOption.columns = setTabColumns(tabJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric');
+                   tabOption.columns = setTabColumns(tabJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', 'row_name');
 
                    document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
                    table = new Tabulator("#dashboard-table", tabOption);
@@ -373,7 +405,7 @@ var lmtTitleFormatter = function(cell, titleFormatterParams, onRendered){
 };
 
 
-var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleFormatterParams, xdim, ydim){
+var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleFormatterParams, xdim, ydim, ydimField){
 
     var Columns=[];
 
@@ -382,13 +414,14 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
     var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
 
     firstCol.title = ydim.concat('/',xdim);
-    firstCol.field = 'row_name';
+    //firstCol.field = 'row_name';
+    firstCol.field = ydimField;
 
     Columns.push(firstCol);
 
     var col={};
     for (x of Object.keys(tabJson[0])){
-        if ( x != 'row_name' && x != '_children'){
+        if ( x != 'row_name' && x != '_children' && x != 'metric'){
            col= Object.assign({}, otherCol);
 
            col.title=x;
