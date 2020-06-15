@@ -22,6 +22,9 @@ var tabJson;
 var tabTreeJson;
 var table;
 
+var ydimField;
+var jsonType;
+
 var selectIDbyDims = {};
 var dimBySelectIDs = {};
 
@@ -134,13 +137,11 @@ var jqxhr = $.getJSON( jsonFileUrl, {format: "json"})
 
      var jsonData = data;
 
-     let ydimField;
-
-     console.log(jsonData.SCHEMA, 'xxxxxxxx');
 
      switch(jsonData.SCHEMA.name){
      case "CMEC":
          cmecJson = data;
+         jsonType = "CMEC";
          for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
               if (dimn == 'statistic'){
                   add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
@@ -167,7 +168,7 @@ var jqxhr = $.getJSON( jsonFileUrl, {format: "json"})
          break;
 
      case "TABJSON":
-
+         jsonType = "TABJSON";
          var scoreboard = "Overall Score global";
          tabTreeJson = filterScoreboard(data.RESULTS, scoreboard);
 
@@ -537,7 +538,8 @@ function  cellClickFuncGenetic(e, cell){
      if ( thisrow.getTreeChildren().length == 0 ){
 
          var colField = thiscol.getField();
-         var rowFirst = thisrow.getCell('row_name').getValue();
+         //var rowFirst = thisrow.getCell('row_name').getValue();
+         var rowFirst = thisrow.getCell(ydimField).getValue();
 
          console.log($('#select-choice-mini-x').val());
          console.log($('#select-choice-mini-y').val());
@@ -548,8 +550,14 @@ function  cellClickFuncGenetic(e, cell){
 
          let linkmodel;
          let linkmetric;
+         let dims;
 
-         let dims = cmecJson.DIMENSIONS.json_structure;
+         if (jsonType == "CMEC"){
+             dims = cmecJson.DIMENSIONS.json_structure;
+         }
+         else{
+             dims = ["region", "model", "metric", "statistic"];
+         }
 
          for (dim of dims){
               selectVal = $('#'.concat(selectIDbyDims[dim])).val();
@@ -557,7 +565,7 @@ function  cellClickFuncGenetic(e, cell){
                   console.log(dim, selectVal);
 
                   if (dim == 'model'){linkmodel = selectVal;}
-                  if (dim == 'region'){linkmodel = selectVal;}
+                  if (dim == 'region'){linkregion = selectVal;}
                   if (dim == 'metric'){
                       if (selectVal.includes('!!')) {
                           linkmetric = selectVal.replace(/\s/g, '').replace('::','/').replace('!!','/');
@@ -596,8 +604,8 @@ function  cellClickFuncGenetic(e, cell){
 
          if ( yDimName == 'metric' ) {
 
-             var topmet = thisrow.getTreeParent().getTreeParent().getCell('row_name').getValue().replace(/\s/g, '');
-             var sndmet = thisrow.getTreeParent().getCell('row_name').getValue().replace(/\s/g, '');
+             var topmet = thisrow.getTreeParent().getTreeParent().getCell(ydimField).getValue().replace(/\s/g, '');
+             var sndmet = thisrow.getTreeParent().getCell(ydimField).getValue().replace(/\s/g, '');
              linkmetric = topmet.concat('/', sndmet, '/', rowFirst, '/', rowFirst);
 
              console.log('link', linkmetric);
@@ -609,7 +617,7 @@ function  cellClickFuncGenetic(e, cell){
 
          if (linkmetric != undefined) {
              console.log(linkmetric);
-             var newWin = window.open(baseUrl.concat(linkmetric,'.html#',linkmodel,'&region=', linkregion));
+             var newWin = window.open(baseUrl.concat(linkmetric,'.html?model=',linkmodel,'&region=', linkregion));
          }
 
          //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");
