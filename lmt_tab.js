@@ -5,7 +5,8 @@
 //
 //
 // user can change the vales of the following varaibles
-const jsonFileUrl = "my.json";  // json file containing the benchmark results
+var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/cmec_ilamb_example.json";  // json file containing the benchmark results
+//var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/tab_ilamb_example.json";  // json file containing the benchmark results
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
 const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
 
