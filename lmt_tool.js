@@ -175,16 +175,20 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                   sdict = prevJson;
                   for (dm of dmarr){
                        if (dimX === dm){
-                           sdict=sdict[xk];
+                           if (xk in sdict){
+                               sdict=sdict[xk];
+                           }
+                           else{
+                               sdict={};
+                           }
                        }
                        else if (dimY === dm){
-
                            if (yk in sdict){
                                sdict=sdict[yk];
                            }
                            else{
                                sdict={};
-                            }
+                           }
                        }
                        else{
                            if (dm in sdict){
@@ -196,7 +200,13 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
 
                        }
                   }
-                  tab_row[xk] = sdict;   
+
+                  if (sdict == null){
+                       tab_row[xk] = -999.;   
+                  }
+                  else{
+                       tab_row[xk] = sdict;   
+                  }
              }
              tabJson.push(tab_row);
          }
