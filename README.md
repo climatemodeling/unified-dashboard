@@ -6,7 +6,7 @@ the Land Model Testbed (LMT) Unified Dashboard illustrates the high-level result
 and benchmark software in a data table.  It treats the results as a function of multiple  
 independent inputs and shows the results in any combinations of two inputs.   
 
-The major functions of LMT Unified Dashboard include:
+### The major functions of LMT Unified Dashboard include:
 
 - CMEC JSON schema ready: it can parse JSON files in the CMEC JSON schema and show the result.
 - Column hide/show: columns in the table can be hided by right-clicking  over the column header 
@@ -27,6 +27,10 @@ So users can focus on the results in a higher level first and look at the detail
 - Column groups: distinguish columns  from the background colors on their header. 
 - Icon: Icon can be added in the top-right corner of the table.
 
+
+### Example Sites:
+- https://climatemodeling.github.io/unified-dashboard/
+- https://lmt.ornl.gov/unified_dashboard
 
 
 
