@@ -230,7 +230,13 @@ $(document).on('jsonReady', function() {
 
      var xDimName='model';
      var yDimName='metric';
-     //menuShowHide(xDimName, yDimName);
+
+     //for (dimn of Object.keys(selectIDbyDims)) {
+     //     if (dimn != xDimName && dimn != yDimName){
+     //        fixedDimsDict[dimn] = $("#".concat(selectIDbyDims[dimn])).val();
+     //     }
+     //}
+     menuShowHide(xDimName, yDimName, 0);
 
      $('#select-choice-mini-x').on('select2:select', function (e) {
           var selectedValue = $(this).val(); // get the selected value
@@ -242,7 +248,7 @@ $(document).on('jsonReady', function() {
                }
                else {
                   console.log('x side', xDimName, yDimName);
-                  menuShowHide(xDimName, yDimName);
+                  menuShowHide(xDimName, yDimName, 1);
                }
           }
      });
@@ -256,7 +262,7 @@ $(document).on('jsonReady', function() {
                }
                else{
                   console.log('y side', xDimName, yDimName);
-                  menuShowHide(xDimName, yDimName);
+                  menuShowHide(xDimName, yDimName, 1);
                }
           }
      }
@@ -265,40 +271,40 @@ $(document).on('jsonReady', function() {
 });
 
 
-function menuShowHide(xDim, yDim) {
+function menuShowHide(xDim, yDim, menuReset) {
 
      fixedDimsDict={};
 
      for (dimn of Object.keys(selectIDbyDims)) {
-
-
          if (xDim == dimn || yDim == dimn){
             $("#".concat(selectIDbyDims[dimn])).select2().next().hide();
          }
          else{
             //null fixedDimsDict
             //
-            console.log('reset dim', dimn, 'x', xDim, 'y', yDim);
-            fixedDimsDict[dimn] = null;
+            fixedDimsDict[dimn] = $("#".concat(selectIDbyDims[dimn])).val();
 
-            //clear selction 
-            $("#".concat(selectIDbyDims[dimn])).val(null).trigger('change');
-            //show it
-            $("#".concat(selectIDbyDims[dimn])).select2().next().show();
-            $("#".concat(selectIDbyDims[dimn])).select2({
-                placeholder: 'Select '.concat(dimn),
-            });
+            if (menuReset == 1){
+               //clear selction 
+               fixedDimsDict[dimn] = null;
+               $("#".concat(selectIDbyDims[dimn])).val(null).trigger('change');
+               //show it
+               $("#".concat(selectIDbyDims[dimn])).select2().next().show();
+               $("#".concat(selectIDbyDims[dimn])).select2({
+                   placeholder: 'Select '.concat(dimn),
+               });
 
-            //update hide list
-            var sel = document.getElementById('hlist');
-            for (var i = sel.options.length-1; i >= 0; i--) {
-                sel.remove(i);
-            }
-            if (xDim == 'statistic'){
-                add_options(cmecJson.DIMENSIONS.dimensions[xDim].indices, 'hlist');
-            }
-            else{
-                add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]), 'hlist');
+               //update hide list
+               var sel = document.getElementById('hlist');
+               for (var i = sel.options.length-1; i >= 0; i--) {
+                   sel.remove(i);
+               }
+               if (xDim == 'statistic'){
+                   add_options(cmecJson.DIMENSIONS.dimensions[xDim].indices, 'hlist');
+               }
+               else{
+                   add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]), 'hlist');
+               }
             }
 
 
