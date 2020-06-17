@@ -22,7 +22,7 @@
 div.leftcol{
    float: left;
    width: 12%;
-   padding-top: 100px;
+   padding-top: 200px;
    margin-left: 10px;
 }
 
@@ -145,3 +145,26 @@ p {
    border-bottom: 0.25px solid black;
    border-top: 0.px solid black;
 }
+
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.inputfile+label {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: white;
+    background-color: black;
+    display: inline-block;
+}
+
+.inputfile:focus+label,
+.inputfile+label:hover {
+    background-color: blue;
+}
+

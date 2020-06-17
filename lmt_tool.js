@@ -324,6 +324,11 @@ function add_options(optionList, selectID){
 
     var sel = document.getElementById(selectID);
 
+    for (var i = sel.options.length-1; i >= 0; i--) {
+        sel.remove(i);
+    }
+
+
     for (x of optionList){
         var opt = document.createElement('option');
         opt.value = x;
