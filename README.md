@@ -30,7 +30,7 @@ So users can focus on the results in a higher level first and look at the detail
 
 ### Example Sites:
 - https://climatemodeling.github.io/unified-dashboard/
-- https://lmt.ornl.gov/unified_dashboard
+- https://lmt.ornl.gov/unified-dashboard
 
 
 
