@@ -242,58 +242,67 @@ function loadlocJson() {
             alert ("please input json file like *.json");
         }
         else{
+
             var filePromise = readFile(file);
+
             filePromise.then (function(file){
+               try{
                    cmecJson = JSON.parse(file.content);
                    console.log(cmecJson.SCHEMA);
+               }
+               catch(err){
+                   alert(err.message);
+               }
 
-             jsonType = "CMEC";
-             for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
-                  if (dimn == 'statistic'){
-                      add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
-                  }
-                  else{
-                      add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
-                  }
+               //CMEC json schema validation will be added soon
 
-                  selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
-                  dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
-             }
+               jsonType = "CMEC";
+               for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
+                    if (dimn == 'statistic'){
+                        add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+                    }
+                    else{
+                        add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
+                    }
 
-
-             // default ilamb, for others need to be rethink of it
-             tabTreeJson = cmec2tab_json(cmecJson, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
-
-             // add options 
-             add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
-             add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
+                    selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
+                    dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
+               }
 
 
-             ydimField = "row_name";
+               // default ilamb, for others need to be rethink of it
+               tabTreeJson = cmec2tab_json(cmecJson, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
 
-         $('.select-choice-x').val('model');
-         $('.select-choice-y').val('metric');
-         $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
-         $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
+               // add options 
+               add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
+               add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
 
-         $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
-         $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
-         add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
+               ydimField = "row_name";
 
-         // set tab column
-         //
-         tabOption.data = tabTreeJson;
-         bgcol = "#0063B2FF";
-         ftwgt = 500;
-         ftsty = "normal";
-         txdec = "";
-         txcol = "black";
-         let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
-         tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
+               $('.select-choice-x').val('model');
+               $('.select-choice-y').val('metric');
+               $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
+               $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
 
-         // trigger an event to indicate that the json is ready
-         $(document).trigger('jsonReady');
-            });
+               $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
+               $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
+               add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
+
+               // set tab column
+               //
+               tabOption.data = tabTreeJson;
+               bgcol = "#0063B2FF";
+               ftwgt = 500;
+               ftsty = "normal";
+               txdec = "";
+               txcol = "black";
+               let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
+               tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
+
+               // trigger an event to indicate that the json is ready
+               $(document).trigger('jsonReady');
+            })
+            .catch(err => alert(err));
         }
     }
 }
@@ -328,47 +337,60 @@ function readFile(file) {
 $(document).on('jsonReady', function() {
 
      document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
-     table = new Tabulator("#dashboard-table", tabOption);
-     draw_legend();
 
 
-     var xDimName='model';
-     var yDimName='metric';
+     try{
+        table = new Tabulator("#dashboard-table", tabOption);
+        draw_legend();
+     }
+     catch(err){
+        alert('Error when rending the table:', err.message);
+     }
 
-     //for (dimn of Object.keys(selectIDbyDims)) {
-     //     if (dimn != xDimName && dimn != yDimName){
-     //        fixedDimsDict[dimn] = $("#".concat(selectIDbyDims[dimn])).val();
-     //     }
-     //}
-     menuShowHide(xDimName, yDimName, 0);
 
-     $('#select-choice-mini-x').on('select2:select', function (e) {
-          var selectedValue = $(this).val(); // get the selected value
-          xDimName = selectedValue;
-          if (xDimName != undefined && yDimName != undefined) {
 
-               if (xDimName == yDimName){
-                  alert (" x and y must be different ");
-               }
-               else {
-                  console.log('x side', xDimName, yDimName);
-                  menuShowHide(xDimName, yDimName, 1);
-               }
-          }
-     });
-     
-     document.getElementById('select-choice-mini-y').onchange = function () {
-          var selectedValue = this.options[this.selectedIndex].value; // get the selected value
-          yDimName = selectedValue;
-          if (xDimName != undefined && yDimName != undefined){
-               if (xDimName == yDimName){
-                  alert (" x and y must be different ");
-               }
-               else{
-                  console.log('y side', xDimName, yDimName);
-                  menuShowHide(xDimName, yDimName, 1);
-               }
-          }
+     try{
+        var xDimName='model';
+        var yDimName='metric';
+
+        //for (dimn of Object.keys(selectIDbyDims)) {
+        //     if (dimn != xDimName && dimn != yDimName){
+        //        fixedDimsDict[dimn] = $("#".concat(selectIDbyDims[dimn])).val();
+        //     }
+        //}
+        menuShowHide(xDimName, yDimName, 0);
+
+        $('#select-choice-mini-x').on('select2:select', function (e) {
+             var selectedValue = $(this).val(); // get the selected value
+             xDimName = selectedValue;
+             if (xDimName != undefined && yDimName != undefined) {
+
+                  if (xDimName == yDimName){
+                     alert (" x and y must be different ");
+                  }
+                  else {
+                     console.log('x side', xDimName, yDimName);
+                     menuShowHide(xDimName, yDimName, 1);
+                  }
+             }
+        });
+        
+        document.getElementById('select-choice-mini-y').onchange = function () {
+             var selectedValue = this.options[this.selectedIndex].value; // get the selected value
+             yDimName = selectedValue;
+             if (xDimName != undefined && yDimName != undefined){
+                  if (xDimName == yDimName){
+                     alert (" x and y must be different ");
+                  }
+                  else{
+                     console.log('y side', xDimName, yDimName);
+                     menuShowHide(xDimName, yDimName, 1);
+                  }
+             }
+        }
+     }
+     catch(err){
+        alert('Error when handling the table:', err.message);
      }
 
      
