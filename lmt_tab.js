@@ -734,4 +734,7 @@ function  cellClickFuncGenetic(e, cell){
 
          //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");
      }
+     else{
+         alert ("333 clickable cell only for lowest level metric");
+    }
 }
