@@ -5,7 +5,8 @@
 //
 //
 // user can change the vales of the following varaibles
-var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/cmec_ilamb_example.json";  // json file containing the benchmark results
+//var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/cmec_ilamb_example.json";  // json file containing the benchmark results
+jsonFileUrl = "";
 //var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/tab_ilamb_example.json";  // json file containing the benchmark results
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
 const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
@@ -37,6 +38,8 @@ var tabOption = {
      dataTreeStartExpanded:[true, false],
 
      reactiveData:true,
+
+     placeholder:"No Data Available",
 
      //ajax loading
      ajaxURL: jsonFileUrl,
@@ -133,6 +136,7 @@ $(document).ready(function() {
 });
 
 
+if (jsonFileUrl !== ""){
 var jqxhr = $.getJSON( jsonFileUrl, {format: "json"})
   .always(function(data) {
 
@@ -219,6 +223,106 @@ var jqxhr = $.getJSON( jsonFileUrl, {format: "json"})
      // trigger an event to indicate that the json is ready
      $(document).trigger('jsonReady');
 });
+}
+
+
+// load local json files
+
+function loadlocJson() {
+    var file = document.getElementById('file').files[0];
+
+    if (! file){
+       alert ('please input file');
+       table.setColumns([]);
+       table.clearData();
+    }
+    else{
+
+        if (! (file.type.includes("json"))){
+            alert ("please input json file like *.json");
+        }
+        else{
+            var filePromise = readFile(file);
+            filePromise.then (function(file){
+                   cmecJson = JSON.parse(file.content);
+                   console.log(cmecJson.SCHEMA);
+
+             jsonType = "CMEC";
+             for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
+                  if (dimn == 'statistic'){
+                      add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+                  }
+                  else{
+                      add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
+                  }
+
+                  selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
+                  dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
+             }
+
+
+             // default ilamb, for others need to be rethink of it
+             tabTreeJson = cmec2tab_json(cmecJson, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
+
+             // add options 
+             add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
+             add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
+
+
+             ydimField = "row_name";
+
+         $('.select-choice-x').val('model');
+         $('.select-choice-y').val('metric');
+         $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
+         $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
+
+         $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
+         $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
+         add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
+
+         // set tab column
+         //
+         tabOption.data = tabTreeJson;
+         bgcol = "#0063B2FF";
+         ftwgt = 500;
+         ftsty = "normal";
+         txdec = "";
+         txcol = "black";
+         let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
+         tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
+
+         // trigger an event to indicate that the json is ready
+         $(document).trigger('jsonReady');
+            });
+        }
+    }
+}
+
+
+function readFile(file) {
+   return new Promise(function (resolve, reject) {
+      var fileReader = new FileReader();
+
+      fileReader.addEventListener('load', function (event) {
+         var content = event.target.result;
+
+         // Strip out the information about the mime type of the file and the encoding
+         // at the beginning of the file (e.g. data:image/gif;base64,).
+         //content = atob(content.replace(/^(.+,)/, ''));
+
+         resolve({
+            filename: file.name,
+            content: content
+         });
+      });
+
+      fileReader.addEventListener('error', function (error) {
+         reject(error);
+      });
+
+      fileReader.readAsText(file);
+   });
+}
 
 
 $(document).on('jsonReady', function() {

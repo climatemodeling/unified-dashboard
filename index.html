@@ -30,6 +30,10 @@
            <h1 id="headline">LMT Unified Dashboard</h1>
        </div>
 
+         <!--fieldset data-role="controlgroup" data-type="horizontal" data-mini="True"-->
+         <input name="file" id="file" type="file" data-mini="True" data-clear-btn="true" onchange="loadlocJson()"/> 
+         <!--/fieldset-->
+
        <form>
          <fieldset data-role="controlgroup" data-type="horizontal" data-mini="True">
            <input type="checkbox" name="colorblind" id="colorblind" onchange="tableColor()" checked="true">
@@ -60,6 +64,9 @@
 
    <div>
        <div class="leftcol">
+
+
+
           <select class="hide-list" id="hlist" name="states[]" multiple="multiple" style="width:75%"> </select>
 
           <hr>
