@@ -381,6 +381,7 @@ function menuShowHide(xDim, yDim, menuReset) {
 
      for (dimn of Object.keys(selectIDbyDims)) {
          if (xDim == dimn || yDim == dimn){
+            $("#".concat(selectIDbyDims[dimn])).val(null).trigger('change');
             $("#".concat(selectIDbyDims[dimn])).select2().next().hide();
          }
          else{
@@ -685,7 +686,7 @@ function  cellClickFuncGenetic(e, cell){
                           console.log(linkmetric);
                       }
                       else{
-                          alert ("clickable cell only for lowest level metric");
+                          alert ("111 clickable cell only for lowest level metric");
                       }
                   }
                       
@@ -708,7 +709,7 @@ function  cellClickFuncGenetic(e, cell){
              }
              else{
 
-                 alert ("clickable cell only for lowest level metric");
+                 alert ("222 clickable cell only for lowest level metric");
 
              }
          }
