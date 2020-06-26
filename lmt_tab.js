@@ -32,6 +32,7 @@ var dimBySelectIDs = {};
 
 
 var fixedDimsDict = {};
+var valsFirstCol = [];
 
 var tabOption = {
      dataTree:true,
@@ -399,6 +400,9 @@ $(document).on('jsonReady', function() {
 
 function menuShowHide(xDim, yDim, menuReset) {
 
+
+     valsFirstCol.length = 0;
+
      fixedDimsDict={};
 
      for (dimn of Object.keys(selectIDbyDims)) {
@@ -546,7 +550,7 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
     var otherCol = { title:"col_name", field:"col-field", cssClass:"bgcolcor", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
-    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
+    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor};
 
     firstCol.title = ydim.concat('/',xdim);
     //firstCol.field = 'row_name';
@@ -758,5 +762,59 @@ function  cellClickFuncGenetic(e, cell){
      }
      else{
          alert ("333 clickable cell only for lowest level metric");
-    }
+     }
 }
+
+const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
+
+//background color of first column
+function setFirstColBgColor(cell, formatterParams){
+
+     var value = cell.getValue();
+
+     if(! cell.getRow().getTreeParent()){
+         var chrow = cell.getRow().getTreeChildren();
+         //chrow.forEach(function(r){
+         //    switch(value){
+         //      case "Ecosystem and Carbon Cycle":
+         //        setmetricbg(r, cell, value, "#ECFFE6");
+         //        break;
+         //      case "Hydrology Cycle":
+         //        setmetricbg(r, cell, value, "#E6F9FF");
+         //        break;
+         //      case "Radiation and Energy Cycle":
+         //        setmetricbg(r, cell, value, "#FFECE6");
+         //        break;
+         //      case "Forcings":
+         //        setmetricbg(r, cell, value, "#EDEDED");
+         //        break;
+         //      case "Relationships":
+         //        setmetricbg(r, cell, value, "#FFF2E5");
+         //        break;
+         //    }
+         //});
+         valsFirstCol.push(value);
+         valsFirstCol = [... new Set(valsFirstCol)];
+         chrow.forEach(function(r){
+             var k = (valsFirstCol.length - 1) % bgColorGroup.length;
+             setmetricbg(r, cell, value, bgColorGroup[k]);
+         });
+     }
+     return value;
+}
+
+
+function setmetricbg(r, cell, value, bgcolor){
+     var r, cell, value, bgcolor;
+     cell.getElement().style.backgroundColor = bgcolor;
+     r.getElement().style.backgroundColor = bgcolor;
+     var gdrow = r.getTreeChildren();
+     if (gdrow.length > 0){
+         gdrow.forEach(function(g){
+             g.getElement().style.backgroundColor = bgcolor;
+             g.getElement().style.color = "#98AFC7";
+         });
+     }
+     return value;
+}
+
