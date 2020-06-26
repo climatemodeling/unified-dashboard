@@ -12,6 +12,9 @@ const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remo
 const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
 
 
+const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
+
+const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"]
 
 // please do not make changes below
 if (jsonFileUrl.includes("http")){
@@ -32,7 +35,10 @@ var dimBySelectIDs = {};
 
 
 var fixedDimsDict = {};
-var valsFirstCol = [];
+var grpsFirstCol = [];
+
+var grpsModelSrc = {};
+var grpsTopMetric = [];
 
 var tabOption = {
      dataTree:true,
@@ -219,6 +225,7 @@ var jqxhr = $.getJSON( jsonFileUrl, {format: "json"})
      txdec = "";
      txcol = "black";
      let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
+     grpsFirstCol.length = 0;
      tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
 
      // trigger an event to indicate that the json is ready
@@ -258,6 +265,27 @@ function loadlocJson() {
                //CMEC json schema validation will be added soon
 
                jsonType = "CMEC";
+
+               //Get model groups
+               //
+               var t = [];
+               for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
+                   t.push(cmecJson.DIMENSIONS.dimensions.model[x].Source);
+               }
+               t = [...new Set(t)];
+               for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
+                   grpsModelSrc[x] = t.indexOf(cmecJson.DIMENSIONS.dimensions.model[x].Source);
+               }
+               
+               var t = [];
+               for (x of Object.keys(cmecJson.DIMENSIONS.dimensions.metric)){
+                   if  ( ! (x.includes('::') || x.includes('!!')) ){
+                       t.push(x);
+                   }
+               }
+               grpsTopMetric = [...new Set(t)];
+              
+
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
                     if (dimn == 'statistic'){
                         add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
@@ -298,6 +326,7 @@ function loadlocJson() {
                txdec = "";
                txcol = "black";
                let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
+               grpsFirstCol.length = 0;
                tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
 
                // trigger an event to indicate that the json is ready
@@ -401,8 +430,6 @@ $(document).on('jsonReady', function() {
 function menuShowHide(xDim, yDim, menuReset) {
 
 
-     valsFirstCol.length = 0;
-
      fixedDimsDict={};
 
      for (dimn of Object.keys(selectIDbyDims)) {
@@ -458,13 +485,17 @@ function menuShowHide(xDim, yDim, menuReset) {
                    tabJson = cmec2tab_json(cmecJson, xDim, yDim, fixedDimsDict, cvtTree);
 
                    tabOption.data = tabJson;
+
                    bgcol = "#0063B2FF";
                    ftwgt = 500;
                    ftsty = "normal";
                    txdec = "";
                    txcol = "black";
+
+                  
                    let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
-                   tabOption.columns = setTabColumns(tabJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', 'row_name');
+                   grpsFirstCol.length = 0;
+                   tabOption.columns = setTabColumns(tabJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, xDim, yDim, 'row_name');
 
                    document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
                    table = new Tabulator("#dashboard-table", tabOption);
@@ -535,6 +566,8 @@ var lmtTitleFormatter = function(cell, titleFormatterParams, onRendered){
            cell.getElement().parentElement.parentElement.style.textDecoration = titleFormatterParams.txdec;
            cell.getElement().parentElement.parentElement.style.color = titleFormatterParams.color;
 
+           $('.tabulator-col-title').css("color", titleFormatterParams.color);
+
            //cell.getElement()["style"] = {};
            //cell.getElement()["style"]["color"] = titleFormatterParams.color;
 
@@ -550,7 +583,7 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
     var otherCol = { title:"col_name", field:"col-field", cssClass:"bgcolcor", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
-    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor};
+    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
     firstCol.title = ydim.concat('/',xdim);
     //firstCol.field = 'row_name';
@@ -567,10 +600,31 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
            col.field=x;
            col.bottomCalcParams=x;
 
-           ftwgt=500;
-           ftsty="normal";
-           txdec="";
-           txcol="black";
+           if (xdim == "model"){
+              var k =  grpsModelSrc[x] % bgColorGroupFirstRow.length
+              bgcol = bgColorGroupFirstRow[k];
+              ftwgt = 600;
+              ftsty = "normal";
+              txdec = "";
+              txcol = "white";
+           }
+           else if (xdim == "metric"){
+
+              for (let [idxmet, topmet] of grpsTopMetric.entries()){
+                  if (x.includes(topmet)){
+                      var k = idxmet %  bgColorGroup.length;
+                      bgcol =  bgColorGroup[k];
+                  }
+              }
+              console.log('xxx');
+           }
+           else{
+              bgcol = "#9CC3D5";
+              ftwgt=600;
+              ftsty="normal";
+              txdec="";
+              txcol="white";
+           }
            col.titleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
 
            if( !addBottomTitle ){
@@ -653,7 +707,8 @@ function tableColor(){
         cmap = GnRd;
 
      }
-
+    
+     grpsFirstCol.length = 0;
      table.redraw(true);
      draw_legend();
 
@@ -765,7 +820,6 @@ function  cellClickFuncGenetic(e, cell){
      }
 }
 
-const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
 
 //background color of first column
 function setFirstColBgColor(cell, formatterParams){
@@ -773,38 +827,37 @@ function setFirstColBgColor(cell, formatterParams){
      var value = cell.getValue();
 
      if(! cell.getRow().getTreeParent()){
-         var chrow = cell.getRow().getTreeChildren();
-         //chrow.forEach(function(r){
-         //    switch(value){
-         //      case "Ecosystem and Carbon Cycle":
-         //        setmetricbg(r, cell, value, "#ECFFE6");
-         //        break;
-         //      case "Hydrology Cycle":
-         //        setmetricbg(r, cell, value, "#E6F9FF");
-         //        break;
-         //      case "Radiation and Energy Cycle":
-         //        setmetricbg(r, cell, value, "#FFECE6");
-         //        break;
-         //      case "Forcings":
-         //        setmetricbg(r, cell, value, "#EDEDED");
-         //        break;
-         //      case "Relationships":
-         //        setmetricbg(r, cell, value, "#FFF2E5");
-         //        break;
-         //    }
-         //});
-         valsFirstCol.push(value);
-         valsFirstCol = [... new Set(valsFirstCol)];
-         chrow.forEach(function(r){
-             var k = (valsFirstCol.length - 1) % bgColorGroup.length;
-             setmetricbg(r, cell, value, bgColorGroup[k]);
-         });
+
+         if (formatterParams.yDim == "metric"){
+             fgFontColor = "#0808ff";
+         }
+         else if (formatterParams.yDim == "model"){
+             fgFontColor = "white"
+         }
+         else {
+             fgFontColor = "black"
+         }
+
+         if (formatterParams.yDim == "metric"){
+             var chrow = cell.getRow().getTreeChildren();
+             grpsFirstCol.push(value);
+             grpsFirstCol = [... new Set(grpsFirstCol)];
+             chrow.forEach(function(r){
+                 var k = (grpsFirstCol.length - 1) % bgColorGroup.length;
+                 setmetricbg(r, cell, value, bgColorGroup[k], fgFontColor);
+             });
+         }
+         else if (formatterParams.yDim == "model"){
+             fgFontColor = "white"
+             var k = grpsModelSrc[value] % bgColorGroupFirstRow.length;
+             setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgFontColor);
+         }
      }
      return value;
 }
 
 
-function setmetricbg(r, cell, value, bgcolor){
+function setmetricbg(r, cell, value, bgcolor, fgcolor){
      var r, cell, value, bgcolor;
      cell.getElement().style.backgroundColor = bgcolor;
      r.getElement().style.backgroundColor = bgcolor;
@@ -812,8 +865,11 @@ function setmetricbg(r, cell, value, bgcolor){
      if (gdrow.length > 0){
          gdrow.forEach(function(g){
              g.getElement().style.backgroundColor = bgcolor;
-             g.getElement().style.color = "#98AFC7";
+             g.getElement().style.color = fgcolor;
          });
+     }
+     else{
+         r.getElement().style.color = fgcolor;
      }
      return value;
 }
