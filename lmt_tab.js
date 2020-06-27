@@ -709,6 +709,10 @@ function tableColor(){
      }
     
      grpsFirstCol.length = 0;
+     //var tempData = JSON.parse(JSON.stringify(table.getData())); 
+     var tempData = table.getData(); 
+     table.clearData();
+     table.setData(tempData);
      table.redraw(true);
      draw_legend();
 
@@ -822,37 +826,45 @@ function  cellClickFuncGenetic(e, cell){
 
 
 //background color of first column
-function setFirstColBgColor(cell, formatterParams){
+function setFirstColBgColor(cell, formatterParams, onRendered){
 
      var value = cell.getValue();
+     onRendered(function(){
 
-     if(! cell.getRow().getTreeParent()){
+        if(! cell.getRow().getTreeParent()){
 
-         if (formatterParams.yDim == "metric"){
-             fgFontColor = "#0808ff";
-         }
-         else if (formatterParams.yDim == "model"){
-             fgFontColor = "white"
-         }
-         else {
-             fgFontColor = "black"
-         }
+            console.log(value, 'xxxxx');
 
-         if (formatterParams.yDim == "metric"){
-             var chrow = cell.getRow().getTreeChildren();
-             grpsFirstCol.push(value);
-             grpsFirstCol = [... new Set(grpsFirstCol)];
-             chrow.forEach(function(r){
-                 var k = (grpsFirstCol.length - 1) % bgColorGroup.length;
-                 setmetricbg(r, cell, value, bgColorGroup[k], fgFontColor);
-             });
-         }
-         else if (formatterParams.yDim == "model"){
-             fgFontColor = "white"
-             var k = grpsModelSrc[value] % bgColorGroupFirstRow.length;
-             setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgFontColor);
-         }
-     }
+            if (formatterParams.yDim == "metric"){
+                fgFontColor = "#0808ff";
+            }
+            else if (formatterParams.yDim == "model"){
+                fgFontColor = "white"
+            }
+            else {
+                fgFontColor = "black"
+            }
+
+            if (formatterParams.yDim == "metric"){
+                var chrow = cell.getRow().getTreeChildren();
+
+                if (! (grpsFirstCol.includes(value))){
+                    grpsFirstCol.push(value);
+                    //grpsFirstCol = [... new Set(grpsFirstCol)];
+                }
+                chrow.forEach(function(r){
+                    //var k = (grpsFirstCol.length - 1) % bgColorGroup.length;
+                    var k = grpsFirstCol.indexOf(value) % bgColorGroup.length;
+                    setmetricbg(r, cell, value, bgColorGroup[k], fgFontColor);
+                });
+            }
+            else if (formatterParams.yDim == "model"){
+                fgFontColor = "white"
+                var k = grpsModelSrc[value] % bgColorGroupFirstRow.length;
+                setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgFontColor);
+            }
+        }
+     });
      return value;
 }
 
@@ -873,4 +885,13 @@ function setmetricbg(r, cell, value, bgcolor, fgcolor){
      }
      return value;
 }
+
+$(window).on('beforeunload', function(){
+    // your logic here`enter code here`
+    //const cb = document.querySelector('input[name="colorblind"]');
+    
+    //cb.checked = "true";
+    //console.log('xxx', cb, cb.value);
+    $('#colorblind').prop('checked', true);
+});
 
