@@ -72,6 +72,9 @@ p {
    border: 1px solid black;
 }
 
+.tabulator .tabulator-headers {
+   border-bottom: 0.px solid black;
+}
 
 .tabulator .tabulator-row:hover {
    font-weight:bold;
@@ -111,7 +114,7 @@ p {
 .tabulator-row{
    border-collapse: collapse; 
    border-bottom: 0.25px solid black;
-   border-top: 0.0px solid black;
+   border-top: 0.25px solid black;
 }
 
 
@@ -142,9 +145,10 @@ p {
    text-align:center;
    border-right: 0.1px solid black;
    border-left: 0.0px solid black;
-   border-bottom: 0.25px solid black;
-   border-top: 0.px solid black;
+   border-bottom: 0.px solid black;
+   border-top: 0.25px solid black;
 }
+
 
 .inputfile {
 	width: 0.1px;
