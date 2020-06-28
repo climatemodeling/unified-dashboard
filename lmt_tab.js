@@ -46,6 +46,8 @@ var tabOption = {
 
      reactiveData:true,
 
+     headerSortTristate:true,
+
      placeholder:"No Data Available",
 
      //ajax loading
