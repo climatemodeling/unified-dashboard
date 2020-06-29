@@ -1,14 +1,14 @@
 /* multi-select style */
 .select2-results__options{
-   font-size:10px;
+   font-size:small;
 }
 
 .select2-selection--single .select2-selection__placeholder {
-   font-size:10px;
+   font-size:small;
 }
 
 .select2-selection__rendered {
-   font-size:10px;
+   font-size:small;
    font-weight: bold;
    text-transform: capitalize;
 }
@@ -32,7 +32,7 @@ div.tabDiv{
    min-width: 350px;
    margin: 0 auto;
    justify-content: center;
-   padding-top: 100px;
+   padding-top: 10px;
 }
 
 div.legDiv{
@@ -172,3 +172,57 @@ p {
     background-color: blue;
 }
 
+
+#ck-button {
+    position: relative;
+    margin-bottom:20px;
+    background-color:#EFEFEF;
+    border-radius:4px;
+    border:1px solid #D0D0D0;
+    overflow:auto;
+    float:left;
+    width:75%;
+}
+
+
+#ck-button label {
+    float:left;
+    width:100%;
+}
+
+#ck-button label span {
+    text-align:center;
+    padding:8.75px 8.75px;
+    font-size: small;
+    display:block;
+}
+
+#ck-button label input {
+    position:absolute;
+    top:-20px;
+}
+
+#ck-button input:checked + span {
+    background-color:#38c;
+    color:#fff;
+    font-weight:600;
+}
+
+#file {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: blue;
+}
+
+#sidemenuicon {
+    font-size:30px;
+    cursor:pointer;
+    text-align:left;
+    display:block; 
+    float:left;
+    padding-top:10px;
+    padding-left:6px;
+    color: darkgreen;
+    font-weight:600;
+}

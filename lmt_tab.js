@@ -87,6 +87,7 @@ var tabOption = {
 
 
 $(document).ready(function() {
+     $('#file').val('');
      //initial the multiselct box
      $('.hide-list').select2MultiCheckboxes({
          placeholder: 'Select an option',
@@ -142,6 +143,21 @@ $(document).ready(function() {
      
           table.showColumn(lastSelectedItem) ////toggle the visibility of the "name" column
      });
+
+
+
+      var doc = window.document;
+      var slideout = new Slideout({
+        'panel': doc.getElementById('panel'),
+        'menu': doc.getElementById('menu'),
+      });
+
+      window.onload = function() {
+        document.querySelector('.js-slideout-toggle').addEventListener('click', function() {
+          slideout.toggle();
+        });
+      }
+
 });
 
 
@@ -895,5 +911,6 @@ $(window).on('beforeunload', function(){
     //cb.checked = "true";
     //console.log('xxx', cb, cb.value);
     $('#colorblind').prop('checked', true);
+    $('#file').val('');
 });
 
