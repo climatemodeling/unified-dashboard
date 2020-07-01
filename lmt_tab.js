@@ -81,6 +81,12 @@ var tabOption = {
      rowContextMenu:rowMenu,
 
      cellClick:cellClickFuncGenetic,
+ 
+     //rowClick: function(e, row){
+     //   if (row.getTreeChildren().length != 0) {
+     //       row.treeToggle();
+     //   }
+     //},
      columns:[],
 
 };
@@ -915,7 +921,13 @@ function  cellClickFuncGenetic(e, cell){
          //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");
      }
      else{
-         alert ("333 clickable cell only for lowest level metric");
+
+         if (cell.getRow().getCell(ydimField).getValue() == cell.getValue()){
+            cell.getRow().treeToggle();
+         }
+         else{
+            alert ("333 clickable cell only for lowest level metric");
+         }
      }
 }
 
@@ -990,4 +1002,15 @@ $(window).on('beforeunload', function(){
     $('#colorblind').prop('checked', true);
     $('#file').val('');
 });
+
+
+//function expandCollapse(action){
+//  if (action == "expand"){
+//  	tabOption.dataTreeStartExpanded = [true, false];
+//  }
+//  else{
+//  	tabOption.dataTreeStartExpanded = false;
+//  }
+//  table = new Tabulator("#dashboard-table", option=tabOption);
+//}
 
