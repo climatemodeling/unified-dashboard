@@ -6,7 +6,7 @@
 //
 // user can change the vales of the following varaibles
 //var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/cmec_ilamb_example.json";  // json file containing the benchmark results
-jsonFileUrl = "";
+jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/";
 //var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/tab_ilamb_example.json";  // json file containing the benchmark results
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
 const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
@@ -81,12 +81,19 @@ var tabOption = {
      rowContextMenu:rowMenu,
 
      cellClick:cellClickFuncGenetic,
+ 
+     //rowClick: function(e, row){
+     //   if (row.getTreeChildren().length != 0) {
+     //       row.treeToggle();
+     //   }
+     //},
      columns:[],
 
 };
 
 
 $(document).ready(function() {
+     $('#file').val('');
      //initial the multiselct box
      $('.hide-list').select2MultiCheckboxes({
          placeholder: 'Select an option',
@@ -142,103 +149,195 @@ $(document).ready(function() {
      
           table.showColumn(lastSelectedItem) ////toggle the visibility of the "name" column
      });
+
+
+
+      var doc = window.document;
+      var slideout = new Slideout({
+        'panel': doc.getElementById('panel'),
+        'menu': doc.getElementById('menu'),
+      });
+
+      window.onload = function() {
+        document.querySelector('.js-slideout-toggle').addEventListener('click', function() {
+          slideout.toggle();
+        });
+      }
+     $('.select-choice-ex').select2({
+         placeholder: 'Select examples',
+     });
+     $('.select-choice-ex').val(null).trigger('change');
+
+
+     //document.getElementById('select-choice-mini-ex').onchange = function(){
+
+     $('#select-choice-mini-ex').on('select2:select', function() {
+         //let jsfUrl = this.options[this.selectedIndex].value;
+         let jsfUrl = $(this).val();
+         console.log(jsfUrl);
+         
+         jsfUrl = jsonFileUrl + jsfUrl;
+         loadrmtJson(jsfUrl);
+     });
+
 });
 
 
-if (jsonFileUrl !== ""){
-var jqxhr = $.getJSON( jsonFileUrl, {format: "json"})
-  .always(function(data) {
+function loadrmtJson(jsfUrl) {
+   if (jsfUrl !== ""){
 
-     var jsonData = data;
+     document.getElementById('file').value = '';
+     table.clearData();
 
+     var jqxhr = $.getJSON( jsfUrl, {format: "json"})
+       .done(function(data) {
+     
+          var jsonData = data;
+     
+          switch(jsonData.SCHEMA.name){
+          case "CMEC":
+              cmecJson = data;
+              jsonType = "CMEC";
 
-     switch(jsonData.SCHEMA.name){
-     case "CMEC":
-         cmecJson = data;
-         jsonType = "CMEC";
-         for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
-              if (dimn == 'statistic'){
-                  add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+              prepareTab(cmecJson);
+
+              break;
+     
+          case "TABJSON":
+              jsonType = "TABJSON";
+              var scoreboard = "Overall Score global";
+              tabTreeJson = filterScoreboard(data.RESULTS, scoreboard);
+     
+              add_options(["model"], "select-choice-mini-x");
+              add_options(["metric"], "select-choice-mini-y");
+     
+              var regions = [];
+              var statistics = [];
+     
+              for (row of data.RESULTS){
+                   regions.push(row.scoreboard.split(" ")[row.scoreboard.split(" ").length-1]);
+                   statistics.push(row.scoreboard.split(" ").slice(0,-1).join(" "));
               }
-              else{
-                  add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
-              }
+     
+              regions = [...new Set(regions)];
+              statistics = [...new Set(statistics)];
+              add_options(regions, 'select-choice-mini-0');
+              add_options(statistics, 'select-choice-mini-3');
+     
+              selectIDbyDims['region'] = 'select-choice-mini-0';
+              selectIDbyDims['statistic'] = 'select-choice-mini-3'
+              ydimField = "metric";
+     
+     
+              $('.select-choice-x').val('model');
+              $('.select-choice-y').val('metric');
+              $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
+              $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
+     
+              $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
+              $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
+              add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
+     
+              // set tab column
+              //
+              tabOption.data = tabTreeJson;
+              bgcol = "#0063B2FF";
+              ftwgt = 500;
+              ftsty = "normal";
+              txdec = "";
+              txcol = "black";
+              let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
+              grpsFirstCol.length = 0;
+              tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
 
-              selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
-              dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
-         }
-
-
-         // default ilamb, for others need to be rethink of it
-         tabTreeJson = cmec2tab_json(data, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
-
-         // add options 
-         add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
-         add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
-
-
-         ydimField = "row_name";
-
-         break;
-
-     case "TABJSON":
-         jsonType = "TABJSON";
-         var scoreboard = "Overall Score global";
-         tabTreeJson = filterScoreboard(data.RESULTS, scoreboard);
-
-         add_options(["model"], "select-choice-mini-x");
-         add_options(["metric"], "select-choice-mini-y");
-
-         var regions = [];
-         var statistics = [];
-
-         for (row of data.RESULTS){
-              regions.push(row.scoreboard.split(" ")[row.scoreboard.split(" ").length-1]);
-              statistics.push(row.scoreboard.split(" ").slice(0,-1).join(" "));
-         }
-
-         regions = [...new Set(regions)];
-         statistics = [...new Set(statistics)];
-         add_options(regions, 'select-choice-mini-0');
-         add_options(statistics, 'select-choice-mini-3');
-
-         selectIDbyDims['region'] = 'select-choice-mini-0';
-         selectIDbyDims['statistic'] = 'select-choice-mini-3'
-         ydimField = "metric";
-
-         break;
-     }
-
-     $('.select-choice-x').val('model');
-     $('.select-choice-y').val('metric');
-     $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
-     $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
-
-     $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
-     $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
-     add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
-
-     // set tab column
-     //
-     tabOption.data = tabTreeJson;
-     bgcol = "#0063B2FF";
-     ftwgt = 500;
-     ftsty = "normal";
-     txdec = "";
-     txcol = "black";
-     let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
-     grpsFirstCol.length = 0;
-     tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
-
-     // trigger an event to indicate that the json is ready
-     $(document).trigger('jsonReady');
-});
+              break;
+          }
+     
+          // trigger an event to indicate that the json is ready
+          $(document).trigger('jsonReady');
+     })
+     .fail(function( jqxhr, textStatus, error ) {
+         var err = textStatus + ", " + error;
+         alert( "Request " + jsfUrl + "\nFailed: " + err );
+     });
+   }
 }
 
+
+function prepareTab(cJson) {
+
+   //Get model groups
+   //
+   var t = [];
+   for (x of (Object.keys(cJson.DIMENSIONS.dimensions.model))){
+       t.push(cJson.DIMENSIONS.dimensions.model[x].Source);
+   }
+   t = [...new Set(t)];
+   for (x of (Object.keys(cJson.DIMENSIONS.dimensions.model))){
+       grpsModelSrc[x] = t.indexOf(cJson.DIMENSIONS.dimensions.model[x].Source);
+   }
+   var t = [];
+   for (x of Object.keys(cJson.DIMENSIONS.dimensions.metric)){
+       if  ( ! (x.includes('::') || x.includes('!!')) ){
+           t.push(x);
+       }
+   }
+   grpsTopMetric = [...new Set(t)];
+
+
+   for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
+        if (dimn == 'statistic'){
+            add_options(cJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+        }
+        else{
+            add_options(Object.keys(cJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
+        }
+
+        selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
+        dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
+   }
+
+
+   // default ilamb, for others need to be rethink of it
+   tabTreeJson = cmec2tab_json(cJson, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
+
+   // add options 
+   add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-x");
+   add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-y");
+
+   ydimField = "row_name";
+
+   $('.select-choice-x').val('model');
+   $('.select-choice-y').val('metric');
+   $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
+   $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
+
+   $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
+   $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
+   add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
+
+   // set tab column
+   //
+   tabOption.data = tabTreeJson;
+   bgcol = "#0063B2FF";
+   ftwgt = 500;
+   ftsty = "normal";
+   txdec = "";
+   txcol = "black";
+   let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
+   grpsFirstCol.length = 0;
+   tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
+
+}
 
 // load local json files
 
 function loadlocJson() {
+
+
+    $('.select-choice-ex').val(null).trigger('change');
+
+
     var file = document.getElementById('file').files[0];
 
     if (! file){
@@ -822,7 +921,13 @@ function  cellClickFuncGenetic(e, cell){
          //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");
      }
      else{
-         alert ("333 clickable cell only for lowest level metric");
+
+         if (cell.getRow().getCell(ydimField).getValue() == cell.getValue()){
+            cell.getRow().treeToggle();
+         }
+         else{
+            alert ("333 clickable cell only for lowest level metric");
+         }
      }
 }
 
@@ -895,5 +1000,17 @@ $(window).on('beforeunload', function(){
     //cb.checked = "true";
     //console.log('xxx', cb, cb.value);
     $('#colorblind').prop('checked', true);
+    $('#file').val('');
 });
+
+
+//function expandCollapse(action){
+//  if (action == "expand"){
+//  	tabOption.dataTreeStartExpanded = [true, false];
+//  }
+//  else{
+//  	tabOption.dataTreeStartExpanded = false;
+//  }
+//  table = new Tabulator("#dashboard-table", option=tabOption);
+//}
 

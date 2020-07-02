@@ -6,74 +6,51 @@
    <!-- js --!>
    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.7/dist/js/tabulator.min.js"></script>
    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-   <script type="text/javascript" src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.full.min.js"></script>
    <script type="text/javascript" src="select2.multi-checkboxes.js"></script>
    <script type="text/javascript" src="lmt_tool.js"></script>
    <script type="text/javascript" src="lmt_tab.js"></script>
-   
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/slideout/1.0.1/slideout.min.js"></script>
    
    
    <!-- css--!>
    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@4.7/dist/css/tabulator.min.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-   <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css">
    <link rel="stylesheet" href="lmtstyle.css">
+   <link rel="stylesheet" href="slideout_index.css">
+   <link rel="stylesheet" href="slideout_test.css">
 
 
 </head>
 
 <body>
-   <div data-role="page" id="MeanState">
-       <div data-role="header" data-position="fixed" data-tap-toggle="false">
-           <h1 id="headline">LMT Unified Dashboard</h1>
-       </div>
 
-         <!--fieldset data-role="controlgroup" data-type="horizontal" data-mini="True"-->
-         <input name="file" id="file" type="file" data-mini="True" data-clear-btn="true" onchange="loadlocJson()"/> 
-         <!--/fieldset-->
+    <nav id="menu" class="menu">
+      <a href="https://www.bgc-feedbacks.org" target="_blank">
+        <header class="menu-header">
+          <span class="menu-header-title">Settings</span>
+        </header>
+      </a>
 
-       <form>
-         <fieldset data-role="controlgroup" data-type="horizontal" data-mini="True">
-           <input type="checkbox" name="colorblind" id="colorblind" onchange="tableColor()" checked="true">
-           <label for="colorblind" >Colorblind colors</label>
-         </fieldset>
-       </form>
+      <section class="menu-section">
+         <div id="ck-button">
+             <label>
+                <input type="checkbox" name="colorblind" id="colorblind" class="mybtn" onchange="tableColor()" checked="true"><span>Colorblind colors</span>
+             </label>
+         </div>
+      </section>
 
-       <!--form>
-         <fieldset data-role="controlgroup" data-type="horizontal" data-mini="True">
-           <input type="checkbox" name="transpose" id="transpose" onchange="Transpose()">
-           <label for="transpose">Transpose</label>
-         </fieldset>
-       </form-->
-
-
-       <!--label for="select-choice-mini" class="select">X axis (Column)</label>
-       <select name="select-choice-mini" id="select-choice-mini-x" data-mini="true" data-inline="true">
-       </select>
-
-       <label for="select-choice-mini" class="select">Y axis (Row)</label>
-       <select name="select-choice-mini" id="select-choice-mini-y" data-mini="true" data-inline="true">
-       </select>
-
-       <p>
-           <button data-role="none" onclick = "plotTable()" >Plot</button>
-       </p-->
-   </div>
-
-   <div>
-       <div class="leftcol">
-
-
-
+      <section class="menu-section">
           <select class="hide-list" id="hlist" name="states[]" multiple="multiple" style="width:75%"> </select>
+      </section>
 
-          <hr>
-
+      <section class="menu-section">
           <select class="select-choice-x" id="select-choice-mini-x" style="width:75%"> <option></option></select>
           <select class="select-choice-y" id="select-choice-mini-y" style="width:75%"> <option></option></select>
+      </section>
 
+      <section class="menu-section">
           <select class="select-choice-1" id="select-choice-mini-0" style="width:75%; display:none"> <option></option></select>
           <select class="select-choice-2" id="select-choice-mini-1" style="width:75%; display:none"> <option></option></select>
           <select class="select-choice-3" id="select-choice-mini-2" style="width:75%; display:none"> <option></option></select>
@@ -84,15 +61,42 @@
           <select class="select-choice-8" id="select-choice-mini-7" style="width:75%; display:none"> <option></option></select>
           <select class="select-choice-9" id="select-choice-mini-8" style="width:75%; display:none"> <option></option></select>
           <select class="select-choice-9" id="select-choice-mini-9" style="width:75%; display:none"> <option></option></select>
+      </section>
 
+      <hr>
+      <section class="menu-section">
+          <h3 class="menu-section-title">Examples</h3>
+          <select class="select-choice-ex" id="select-choice-mini-ex" style="width:75%"> 
+             <option value="cmec_ilamb_example_addsource.json"> CMEC ILAMB</option>
+             <option value="cmec_pmp_example_addsource.json"> CMEC PMP</option>
+          </select>
+      </section>
 
-       </div>
+      <!--hr>
+      <section class="menu-section">
+          <button type="button" onclick="expandCollapse('expand');">Expand</button>
+          <button type="button" onclick="expandCollapse('collapse');">Collapse</button> 
+      </section-->
+    </nav>
 
-       <div class="tabDiv" id="mytab">
+    <main id="panel" class="panel">
+      <header class="panel-header">
+        <!--button class="btn-hamburger js-slideout-toggle"></button-->
+        <span id="sidemenuicon" class="js-slideout-toggle">&#9776</span>
+        <h1 class="title">LMT Unified Dashboard</h1>
+      </header>
+
+      <section style="text-align:center">
+        <input name="file" id="file" type="file" onchange="loadlocJson()"/> 
+      </section>
+
+      <section>
+        <div class="tabDiv" id="mytab">
           <div id="dashboard-table"></div>
-       </div>
-   </div>
+        </div>
+      </section>
 
+    </main>
 
    <center>
        <div class="legDiv">
@@ -114,6 +118,5 @@
        </table>Missing Data or Error
        </div>
    </center>
-
 </body>
-
+</html>
