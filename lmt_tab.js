@@ -48,7 +48,7 @@ var tabOption = {
 
      headerSortTristate:true,
 
-     placeholder:"No Data Available",
+     placeholder:"Loading Data",
 
      //ajax loading
      ajaxURL: jsonFileUrl,
@@ -360,12 +360,14 @@ function loadlocJson() {
                    console.log(cmecJson.SCHEMA);
                }
                catch(err){
-                   alert(err.message);
+                   alert('xxx', err.message);
                }
+
 
                //CMEC json schema validation will be added soon
 
                jsonType = "CMEC";
+
 
                //Get model groups
                //
@@ -386,9 +388,9 @@ function loadlocJson() {
                }
                grpsTopMetric = [...new Set(t)];
               
-
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
                     if (dimn == 'statistic'){
+                        console.log(dimn, cmecJson.DIMENSIONS.dimensions[dimn].indices);
                         add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
                     }
                     else{
@@ -399,9 +401,12 @@ function loadlocJson() {
                     dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
                }
 
-
                // default ilamb, for others need to be rethink of it
-               tabTreeJson = cmec2tab_json(cmecJson, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
+               //
+               let inifxdm1 = Object.keys(cmecJson.DIMENSIONS.dimensions['region'])[0];
+               let inifxdm2 = cmecJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+
+               tabTreeJson = cmec2tab_json(cmecJson, 'model', 'metric', {'region':inifxdm1, 'statistic':inifxdm2}, 1);
 
                // add options 
                add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
@@ -412,10 +417,10 @@ function loadlocJson() {
                $('.select-choice-x').val('model');
                $('.select-choice-y').val('metric');
                $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
-               $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
+               $('#'.concat(selectIDbyDims['region'])).val(inifxdm1).trigger('change');
 
                $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
-               $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
+               $('#'.concat(selectIDbyDims['statistic'])).val(inifxdm2).trigger('change');
                add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
 
                // set tab column
