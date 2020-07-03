@@ -451,8 +451,8 @@ function loadlocJson() {
 
                // trigger an event to indicate that the json is ready
                $(document).trigger('jsonReady');
-            });
-            //.catch(err => alert(err));
+            })
+            .catch(err => alert(err));
         }
     }
 }
