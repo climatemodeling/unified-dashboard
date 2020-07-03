@@ -444,10 +444,10 @@ function loadlocJson() {
                ftwgt = 500;
                ftsty = "normal";
                txdec = "";
-               txcol = "black";
+               txcol = "white";
                let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
                grpsFirstCol.length = 0;
-               tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
+               tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, ini_xdim, ini_ydim, ydimField);
 
                // trigger an event to indicate that the json is ready
                $(document).trigger('jsonReady');
@@ -496,8 +496,6 @@ $(document).on('jsonReady', function() {
      catch(err){
         alert('Error when rending the table:', err.message);
      }
-
-
 
      try{
         var xDimName = cmecJson.DIMENSIONS.json_structure[0];
@@ -701,7 +699,7 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
     var Columns=[];
 
-    var otherCol = { title:"col_name", field:"col-field", cssClass:"bgcolcor", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
+    var otherCol = { title:"col_name", field:"col-field", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
     var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
@@ -739,7 +737,8 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
               console.log('xxx');
            }
            else{
-              bgcol = "#9CC3D5";
+              //bgcol = "#9CC3D5";
+              bgcol = "#0063B2FF";
               ftwgt=600;
               ftsty="normal";
               txdec="";
