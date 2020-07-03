@@ -371,22 +371,26 @@ function loadlocJson() {
 
                //Get model groups
                //
-               var t = [];
-               for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
-                   t.push(cmecJson.DIMENSIONS.dimensions.model[x].Source);
-               }
-               t = [...new Set(t)];
-               for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
-                   grpsModelSrc[x] = t.indexOf(cmecJson.DIMENSIONS.dimensions.model[x].Source);
-               }
-               
-               var t = [];
-               for (x of Object.keys(cmecJson.DIMENSIONS.dimensions.metric)){
-                   if  ( ! (x.includes('::') || x.includes('!!')) ){
-                       t.push(x);
+               //
+               if (cmecJson.DIMENSIONS.json_structure.includes('model')){
+                   var t = [];
+                   for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
+                       t.push(cmecJson.DIMENSIONS.dimensions.model[x].Source);
+                   }
+                   t = [...new Set(t)];
+                   for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
+                       grpsModelSrc[x] = t.indexOf(cmecJson.DIMENSIONS.dimensions.model[x].Source);
                    }
                }
-               grpsTopMetric = [...new Set(t)];
+               if (cmecJson.DIMENSIONS.json_structure.includes('metric')){
+                   var t = [];
+                   for (x of Object.keys(cmecJson.DIMENSIONS.dimensions.metric)){
+                       if  ( ! (x.includes('::') || x.includes('!!')) ){
+                           t.push(x);
+                       }
+                   }
+                   grpsTopMetric = [...new Set(t)];
+               }
               
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
                     if (dimn == 'statistic'){
@@ -403,24 +407,34 @@ function loadlocJson() {
 
                // default ilamb, for others need to be rethink of it
                //
-               let inifxdm1 = Object.keys(cmecJson.DIMENSIONS.dimensions['region'])[0];
-               let inifxdm2 = cmecJson.DIMENSIONS.dimensions['statistic']['indices'][0];
 
-               tabTreeJson = cmec2tab_json(cmecJson, 'model', 'metric', {'region':inifxdm1, 'statistic':inifxdm2}, 1);
+
+               let ini_xdim = cmecJson.DIMENSIONS.json_structure[0];
+               let ini_ydim = cmecJson.DIMENSIONS.json_structure[1];
+               let ini_fxdm = {};
+               for (fxdim of cmecJson.DIMENSIONS.json_structure.slice(2, cmecJson.DIMENSIONS.json_structure.length)) {
+                   if (fxdim == 'statistic'){
+                      ini_fxdm[fxdim] = cmecJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+                   } 
+                   else {
+                      ini_fxdm[fxdim] = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdim])[0];
+                   }
+               }
+
+               tabTreeJson = cmec2tab_json(cmecJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
                // add options 
                add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
                add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
-
                ydimField = "row_name";
+               $('.select-choice-x').val(ini_xdim);
+               $('.select-choice-y').val(ini_ydim);
 
-               $('.select-choice-x').val('model');
-               $('.select-choice-y').val('metric');
-               $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
-               $('#'.concat(selectIDbyDims['region'])).val(inifxdm1).trigger('change');
-
-               $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
-               $('#'.concat(selectIDbyDims['statistic'])).val(inifxdm2).trigger('change');
+               for (fxdim of Object.keys(ini_fxdm)) {
+                   console.log('xxx', fxdim, ini_fxdm[fxdim], selectIDbyDims[fxdim]);
+                   $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
+                   $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
+               }
                add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
 
                // set tab column
@@ -437,8 +451,8 @@ function loadlocJson() {
 
                // trigger an event to indicate that the json is ready
                $(document).trigger('jsonReady');
-            })
-            .catch(err => alert(err));
+            });
+            //.catch(err => alert(err));
         }
     }
 }
@@ -486,8 +500,8 @@ $(document).on('jsonReady', function() {
 
 
      try{
-        var xDimName='model';
-        var yDimName='metric';
+        var xDimName = cmecJson.DIMENSIONS.json_structure[0];
+        var yDimName = cmecJson.DIMENSIONS.json_structure[1];
 
         //for (dimn of Object.keys(selectIDbyDims)) {
         //     if (dimn != xDimName && dimn != yDimName){
