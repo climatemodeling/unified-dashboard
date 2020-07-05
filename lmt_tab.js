@@ -40,6 +40,9 @@ var grpsFirstCol = [];
 var grpsModelSrc = {};
 var grpsTopMetric = [];
 
+var isJsonReady = false;
+var isTableBuilt = false;
+
 var tabOption = {
      dataTree:true,
      dataTreeStartExpanded:[true, false],
@@ -68,7 +71,15 @@ var tabOption = {
 
      //layout:"fitColumns",
      layout:"fitData",
-     tooltips: true,
+     //tooltips: true,
+     tooltips: function(cell){
+        //cell - cell component
+
+        //function should return a string for the tooltip of false to hide the tooltip
+        //return  cell.getColumn().getField() + " - " + cell.getValue(); //return cells "field - value";
+        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        //return cell.getValue().toFixed(2);
+     },
 
      columnMinWidth:10,
      nestedFieldSeparator:"|", 
@@ -121,7 +132,6 @@ $(document).ready(function() {
      //        placeholder: 'Select Dimension',
      //    });
      //}
-
      table = new Tabulator("#dashboard-table", option={});
 
      $('.hide-list').on("select2:select", function (e) {
@@ -182,6 +192,51 @@ $(document).ready(function() {
 
 });
 
+
+function hideshowtp(){
+
+     console.log('in showhide');
+     if ($("#tooltips[type=checkbox]").is(":checked")) { 
+        tabOption.tooltips = function(cell){
+        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        };
+     }
+     else{
+        tabOption.tooltips = false;
+     }
+     console.log('build!!!!');
+     //$("#dashboard-table").tabulator("destroy");
+
+     //table.destroy();
+     //table.redraw(true);
+     table.clearData();
+     table = new Tabulator("#dashboard-table", tabOption);
+}
+
+
+function toggleCellValue() {
+     if ($("#cellvalue[type=checkbox]").is(":checked")) { 
+
+         for (x of tabOption.columns) {
+             if (x.field != "row_name"){
+                 x["formatterParams"] = {"showCellValue":true};
+             }
+         }
+
+         console.log(tabOption.columns);
+     }
+     else {
+
+         for (x of tabOption.columns) {
+             if (x.field != "row_name"){
+                 x["formatterParams"] = {"showCellValue":false};
+             }
+         }
+     }
+     table.clearData();
+     table = new Tabulator("#dashboard-table", tabOption);
+
+}
 
 function loadrmtJson(jsfUrl) {
    if (jsfUrl !== ""){
@@ -486,10 +541,21 @@ function readFile(file) {
 
 $(document).on('jsonReady', function() {
 
+     isJsonReady = true;
+
      document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
 
 
      try{
+        if ($("#tooltips[type=checkbox]").is(":checked")) { 
+           tabOption.tooltips = function(cell){
+           return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+           };
+        }
+        else{
+           tabOption.tooltips = false;
+        }
+
         table = new Tabulator("#dashboard-table", tabOption);
         draw_legend();
      }
@@ -616,6 +682,16 @@ function menuShowHide(xDim, yDim, menuReset) {
                    tabOption.columns = setTabColumns(tabJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, xDim, yDim, 'row_name');
 
                    document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
+
+
+                   if ($("#tooltips[type=checkbox]").is(":checked")) { 
+                      tabOption.tooltips = function(cell){
+                      return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+                      };
+                   }
+                   else{
+                      tabOption.tooltips = false;
+                   }
                    table = new Tabulator("#dashboard-table", tabOption);
                    //table.setData(tabJson);
                    //table.setColumns(tabOption.columns);
@@ -656,7 +732,7 @@ var bottomCalcFunc = function(values, data, calcParams){
 };
 
 
-var lmtCellColorFormatter = function(cell){
+var lmtCellColorFormatter = function(cell, formatterParams, onRendered){
      var clr = "#808080";
      let nc = cmap.length;
      if(cell.getValue() > -900){
@@ -671,6 +747,11 @@ var lmtCellColorFormatter = function(cell){
          clr = cmap[ind];
      }
      cell.getElement().style.backgroundColor = clr;
+
+     if (formatterParams.showCellValue && cell.getValue() > -900){
+         cell.getElement().style.color = "black";
+        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+     }
 };
 
 
@@ -1019,6 +1100,8 @@ $(window).on('beforeunload', function(){
     //console.log('xxx', cb, cb.value);
     $('#colorblind').prop('checked', true);
     $('#file').val('');
+    $('#cellvalue').prop('checked', false);
+    isJsonReady = false;
 });
 
 

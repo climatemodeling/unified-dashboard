@@ -67,7 +67,7 @@ p {
 /* table frame settings */
 #dashboard-table{
    border-radius: 10px;
-   text-align: left;
+   text-align: center;
    border-collapse: collapse;
    border: 1px solid black;
 }
@@ -95,7 +95,7 @@ p {
 }
 
 .tabulator{
-   font-size: 12px;
+   font-size: 8px;
    borderColor: "#FFFFFF";
 }
 
@@ -132,7 +132,10 @@ p {
 .tabulator-row .tabulator-frozen.tabulator-frozen-left{
    border-right: 0.1px solid black;
    border-left: 0.0px solid black;
+   font-size: 12px;
+   text-align: left;
 }
+
 
 .tabulator .tabulator-header .tabulator-frozen.tabulator-frozen-left{
    border-right: 0.1px solid black;
@@ -225,4 +228,10 @@ p {
     padding-left:6px;
     color: darkgreen;
     font-weight:600;
+}
+
+.margin-r{
+    margin-right:10px;
+    vertical-align: top;
+    line-height:1.6;
 }

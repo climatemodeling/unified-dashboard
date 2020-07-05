@@ -13,12 +13,30 @@ const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6db
 var cmap = PuOr;
 
 
+function resolve_tree_alt(tabJson){
+   var treeJson=[];
+   const flattenJson = Object.assign(tabJson, {});
+   for (rowline of flattenJson){
+        var newline = {}
+        var temp = rowline.row_name.split(/::|!!/);
+        for (t of temp) {
+             var cdict = rowline;
+             cdict.row_name = temp.slice(-1)[0];
+        }
+
+        if (temp.length == 1){
+           newline = rowline;
+           newline["_children"]=[];
+        }
+   }
+   return treeJson;
+}
+
+
 function resolve_tree(tabJson){
 
    var treeJson=[];
-
    const flattenJson = Object.assign(tabJson, {});
-
    for (rowline of flattenJson){
        var newline = {};
        if (! (rowline.row_name.includes('::')) && ! (rowline.row_name.includes('!!'))){
@@ -45,13 +63,11 @@ function resolve_tree(tabJson){
           }
           newline["_children"] = findchild;
 
+          console.log(newline);
           treeJson.push(newline);
        }
    }
-
-
    console.log(treeJson);
-
    return treeJson;
 }
 
@@ -320,6 +336,7 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
              tabJson.push(tab_row);
          }
 
+         console.log('xxx', tabJson);
          if (dimY == 'metric' && convertTree == 1){
              tabJson = resolve_tree(tabJson);
          }

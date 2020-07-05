@@ -20,6 +20,7 @@
    <link rel="stylesheet" href="lmtstyle.css">
    <link rel="stylesheet" href="slideout_index.css">
    <link rel="stylesheet" href="slideout_test.css">
+   <link rel="stylesheet" href="checkbox.min.css">
 
 
 </head>
@@ -71,6 +72,18 @@
              <option value="cmec_pmp_example_addsource.json"> CMEC PMP</option>
           </select>
       </section>
+
+      <label class="el-switch">
+          <span class="margin-r">Tooltips</span>
+          <input type="checkbox" name="switch" id="tooltips" onchange="hideshowtp()" checked hidden>
+          <span class="el-switch-style"></span>
+      </label>
+
+      <label class="el-switch">
+          <span class="margin-r">Cell Value</span>
+          <input type="checkbox" name="switch" id="cellvalue" onchange="toggleCellValue()" hidden>
+          <span class="el-switch-style"></span>
+      </label>
 
       <!--hr>
       <section class="menu-section">
