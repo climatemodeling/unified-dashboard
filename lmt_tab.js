@@ -40,6 +40,9 @@ var grpsFirstCol = [];
 var grpsModelSrc = {};
 var grpsTopMetric = [];
 
+var isJsonReady = false;
+var isTableBuilt = false;
+
 var tabOption = {
      dataTree:true,
      dataTreeStartExpanded:[true, false],
@@ -48,7 +51,7 @@ var tabOption = {
 
      headerSortTristate:true,
 
-     placeholder:"No Data Available",
+     placeholder:"Loading Data",
 
      //ajax loading
      ajaxURL: jsonFileUrl,
@@ -68,7 +71,15 @@ var tabOption = {
 
      //layout:"fitColumns",
      layout:"fitData",
-     tooltips: true,
+     //tooltips: true,
+     tooltips: function(cell){
+        //cell - cell component
+
+        //function should return a string for the tooltip of false to hide the tooltip
+        //return  cell.getColumn().getField() + " - " + cell.getValue(); //return cells "field - value";
+        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        //return cell.getValue().toFixed(2);
+     },
 
      columnMinWidth:10,
      nestedFieldSeparator:"|", 
@@ -121,7 +132,6 @@ $(document).ready(function() {
      //        placeholder: 'Select Dimension',
      //    });
      //}
-
      table = new Tabulator("#dashboard-table", option={});
 
      $('.hide-list').on("select2:select", function (e) {
@@ -182,6 +192,51 @@ $(document).ready(function() {
 
 });
 
+
+function hideshowtp(){
+
+     console.log('in showhide');
+     if ($("#tooltips[type=checkbox]").is(":checked")) { 
+        tabOption.tooltips = function(cell){
+        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        };
+     }
+     else{
+        tabOption.tooltips = false;
+     }
+     console.log('build!!!!');
+     //$("#dashboard-table").tabulator("destroy");
+
+     //table.destroy();
+     //table.redraw(true);
+     table.clearData();
+     table = new Tabulator("#dashboard-table", tabOption);
+}
+
+
+function toggleCellValue() {
+     if ($("#cellvalue[type=checkbox]").is(":checked")) { 
+
+         for (x of tabOption.columns) {
+             if (x.field != "row_name"){
+                 x["formatterParams"] = {"showCellValue":true};
+             }
+         }
+
+         console.log(tabOption.columns);
+     }
+     else {
+
+         for (x of tabOption.columns) {
+             if (x.field != "row_name"){
+                 x["formatterParams"] = {"showCellValue":false};
+             }
+         }
+     }
+     table.clearData();
+     table = new Tabulator("#dashboard-table", tabOption);
+
+}
 
 function loadrmtJson(jsfUrl) {
    if (jsfUrl !== ""){
@@ -360,35 +415,41 @@ function loadlocJson() {
                    console.log(cmecJson.SCHEMA);
                }
                catch(err){
-                   alert(err.message);
+                   alert('xxx', err.message);
                }
+
 
                //CMEC json schema validation will be added soon
 
                jsonType = "CMEC";
 
+
                //Get model groups
                //
-               var t = [];
-               for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
-                   t.push(cmecJson.DIMENSIONS.dimensions.model[x].Source);
-               }
-               t = [...new Set(t)];
-               for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
-                   grpsModelSrc[x] = t.indexOf(cmecJson.DIMENSIONS.dimensions.model[x].Source);
-               }
-               
-               var t = [];
-               for (x of Object.keys(cmecJson.DIMENSIONS.dimensions.metric)){
-                   if  ( ! (x.includes('::') || x.includes('!!')) ){
-                       t.push(x);
+               //
+               if (cmecJson.DIMENSIONS.json_structure.includes('model')){
+                   var t = [];
+                   for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
+                       t.push(cmecJson.DIMENSIONS.dimensions.model[x].Source);
+                   }
+                   t = [...new Set(t)];
+                   for (x of (Object.keys(cmecJson.DIMENSIONS.dimensions.model))){
+                       grpsModelSrc[x] = t.indexOf(cmecJson.DIMENSIONS.dimensions.model[x].Source);
                    }
                }
-               grpsTopMetric = [...new Set(t)];
+               if (cmecJson.DIMENSIONS.json_structure.includes('metric')){
+                   var t = [];
+                   for (x of Object.keys(cmecJson.DIMENSIONS.dimensions.metric)){
+                       if  ( ! (x.includes('::') || x.includes('!!')) ){
+                           t.push(x);
+                       }
+                   }
+                   grpsTopMetric = [...new Set(t)];
+               }
               
-
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
                     if (dimn == 'statistic'){
+                        console.log(dimn, cmecJson.DIMENSIONS.dimensions[dimn].indices);
                         add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
                     }
                     else{
@@ -399,23 +460,36 @@ function loadlocJson() {
                     dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
                }
 
-
                // default ilamb, for others need to be rethink of it
-               tabTreeJson = cmec2tab_json(cmecJson, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
+               //
+
+
+               let ini_xdim = cmecJson.DIMENSIONS.json_structure[0];
+               let ini_ydim = cmecJson.DIMENSIONS.json_structure[1];
+               let ini_fxdm = {};
+               for (fxdim of cmecJson.DIMENSIONS.json_structure.slice(2, cmecJson.DIMENSIONS.json_structure.length)) {
+                   if (fxdim == 'statistic'){
+                      ini_fxdm[fxdim] = cmecJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+                   } 
+                   else {
+                      ini_fxdm[fxdim] = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdim])[0];
+                   }
+               }
+
+               tabTreeJson = cmec2tab_json(cmecJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
                // add options 
                add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
                add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
-
                ydimField = "row_name";
+               $('.select-choice-x').val(ini_xdim);
+               $('.select-choice-y').val(ini_ydim);
 
-               $('.select-choice-x').val('model');
-               $('.select-choice-y').val('metric');
-               $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
-               $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
-
-               $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
-               $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
+               for (fxdim of Object.keys(ini_fxdm)) {
+                   console.log('xxx', fxdim, ini_fxdm[fxdim], selectIDbyDims[fxdim]);
+                   $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
+                   $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
+               }
                add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
 
                // set tab column
@@ -425,10 +499,10 @@ function loadlocJson() {
                ftwgt = 500;
                ftsty = "normal";
                txdec = "";
-               txcol = "black";
+               txcol = "white";
                let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
                grpsFirstCol.length = 0;
-               tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
+               tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, ini_xdim, ini_ydim, ydimField);
 
                // trigger an event to indicate that the json is ready
                $(document).trigger('jsonReady');
@@ -467,10 +541,21 @@ function readFile(file) {
 
 $(document).on('jsonReady', function() {
 
+     isJsonReady = true;
+
      document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
 
 
      try{
+        if ($("#tooltips[type=checkbox]").is(":checked")) { 
+           tabOption.tooltips = function(cell){
+           return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+           };
+        }
+        else{
+           tabOption.tooltips = false;
+        }
+
         table = new Tabulator("#dashboard-table", tabOption);
         draw_legend();
      }
@@ -478,11 +563,9 @@ $(document).on('jsonReady', function() {
         alert('Error when rending the table:', err.message);
      }
 
-
-
      try{
-        var xDimName='model';
-        var yDimName='metric';
+        var xDimName = cmecJson.DIMENSIONS.json_structure[0];
+        var yDimName = cmecJson.DIMENSIONS.json_structure[1];
 
         //for (dimn of Object.keys(selectIDbyDims)) {
         //     if (dimn != xDimName && dimn != yDimName){
@@ -599,6 +682,16 @@ function menuShowHide(xDim, yDim, menuReset) {
                    tabOption.columns = setTabColumns(tabJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, xDim, yDim, 'row_name');
 
                    document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
+
+
+                   if ($("#tooltips[type=checkbox]").is(":checked")) { 
+                      tabOption.tooltips = function(cell){
+                      return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+                      };
+                   }
+                   else{
+                      tabOption.tooltips = false;
+                   }
                    table = new Tabulator("#dashboard-table", tabOption);
                    //table.setData(tabJson);
                    //table.setColumns(tabOption.columns);
@@ -639,7 +732,7 @@ var bottomCalcFunc = function(values, data, calcParams){
 };
 
 
-var lmtCellColorFormatter = function(cell){
+var lmtCellColorFormatter = function(cell, formatterParams, onRendered){
      var clr = "#808080";
      let nc = cmap.length;
      if(cell.getValue() > -900){
@@ -654,6 +747,11 @@ var lmtCellColorFormatter = function(cell){
          clr = cmap[ind];
      }
      cell.getElement().style.backgroundColor = clr;
+
+     if (formatterParams.showCellValue && cell.getValue() > -900){
+         cell.getElement().style.color = "black";
+        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+     }
 };
 
 
@@ -682,7 +780,7 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
     var Columns=[];
 
-    var otherCol = { title:"col_name", field:"col-field", cssClass:"bgcolcor", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
+    var otherCol = { title:"col_name", field:"col-field", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
     var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
@@ -720,7 +818,8 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
               console.log('xxx');
            }
            else{
-              bgcol = "#9CC3D5";
+              //bgcol = "#9CC3D5";
+              bgcol = "#0063B2FF";
               ftwgt=600;
               ftsty="normal";
               txdec="";
@@ -1001,6 +1100,8 @@ $(window).on('beforeunload', function(){
     //console.log('xxx', cb, cb.value);
     $('#colorblind').prop('checked', true);
     $('#file').val('');
+    $('#cellvalue').prop('checked', false);
+    isJsonReady = false;
 });
 
 
