@@ -82,17 +82,7 @@ p {
    border-top: 1.5px solid black;
 }
 
-/* calculate bottom */
-.tabulator-calcs .tabulator-cell{
-   width:28px;
-   height:288px;
-   writing-mode: vertical-rl;
-   text-orientation: mixed;
-   align-items:center;
-   justify-content:center;
-   font-size:12px;
-   font-weight:300;
-}
+
 
 .tabulator{
    font-size: 8px;
@@ -136,7 +126,6 @@ p {
    text-align: left;
 }
 
-
 .tabulator .tabulator-header .tabulator-frozen.tabulator-frozen-left{
    border-right: 0.1px solid black;
    border-left: 0.0px solid black;
@@ -152,6 +141,19 @@ p {
    border-top: 0.25px solid black;
 }
 
+
+/* calculate bottom */
+.tabulator-calcs .tabulator-cell{
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight: 600;
+  width:28px;
+  height:auto;
+  overflow:auto;
+}
 
 .inputfile {
 	width: 0.1px;
@@ -233,5 +235,21 @@ p {
 .margin-r{
     margin-right:10px;
     vertical-align: top;
-    line-height:1.6;
+    line-height:inherit;
+    font-size: 11px;
+    font-weight: 800;
+    padding-right:60px;
 }
+.el-switch-style {
+    margin-left: 10px;
+}
+
+select[class^="select-choice-"]{
+    margin-left: 10px;
+}
+
+
+.select2-container .select2-selection--single {
+    margin-left: 10px;
+}
+
