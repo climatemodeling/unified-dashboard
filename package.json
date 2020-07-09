@@ -1,0 +1,38 @@
+{
+  "name": "lmt_unified_dashboard",
+  "version": "1.0.0",
+  "description": "LMT Unified Dashboard to show benchmarking results",
+  "main": "lmt_tab.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify --standalone lmtmodule src/js/lmt_tab.js > dist/dist.js && uglifyjs dist/dist.js --compress --output dist/dist.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/climatemodeling/unified-dashboard.git"
+  },
+  "keywords": [
+    "dashboard",
+    "model",
+    "benchmarking",
+    "earth",
+    "system",
+    "models"
+  ],
+  "author": "Min Xu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/climatemodeling/unified-dashboard/issues"
+  },
+  "homepage": "https://github.com/climatemodeling/unified-dashboard#readme",
+
+  "devDependencies" : {
+     "tabulator-tables": "^4.7.1",
+     "jquery": "^3.5.1", 
+     "select2": "^4.0.13",
+     "slideout": "^1.0.1",
+     "browserify": "^16.5.1",
+     "uglify-es": "^3.3.9"
+
+  }
+}
