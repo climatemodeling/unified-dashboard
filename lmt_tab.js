@@ -214,9 +214,8 @@ function hideshowtp(){
 }
 
 
-function toggleCellValue() {
+function toggleCellValue(genTab) {
      if ($("#cellvalue[type=checkbox]").is(":checked")) { 
-
          for (x of tabOption.columns) {
              if (x.field != "row_name"){
                  x["formatterParams"] = {"showCellValue":true};
@@ -233,10 +232,54 @@ function toggleCellValue() {
              }
          }
      }
-     table.clearData();
-     table = new Tabulator("#dashboard-table", tabOption);
+
+     if (genTab){
+        table.clearData();
+        table = new Tabulator("#dashboard-table", tabOption);
+     }
 
 }
+
+function toggleBottomTitle(genTab) {
+    if ($("#bottomtitle[type=checkbox]").is(":checked")) { 
+         for (x of tabOption.columns) {
+             if (x.field != "row_name"){
+                 x["bottomCalc"] = bottomCalcFunc;
+             }
+         }
+         console.log(tabOption.columns);
+     }
+     else {
+
+         for (x of tabOption.columns) {
+             if (x.field != "row_name"){
+                 delete x['bottomCalc'];
+             }
+         }
+     }
+
+     if (genTab) {
+        table.clearData();
+        table = new Tabulator("#dashboard-table", tabOption);
+     }
+}
+
+
+function toggleTopTitle(genTab) {
+    if ($("#toptitle[type=checkbox]").is(":checked")) { 
+         console.log(tabOption.columns);
+         tabOption["headerVisible"] = true;
+    }
+    else {
+         tabOption["headerVisible"] = false;
+    }
+
+    if (genTab) {
+        table.clearData();
+        table = new Tabulator("#dashboard-table", tabOption);
+    }
+}
+
 
 function loadrmtJson(jsfUrl) {
    if (jsfUrl !== ""){
@@ -322,22 +365,27 @@ function loadrmtJson(jsfUrl) {
 function prepareTab(cJson) {
 
    //Get model groups
-   //
-   var t = [];
-   for (x of (Object.keys(cJson.DIMENSIONS.dimensions.model))){
-       t.push(cJson.DIMENSIONS.dimensions.model[x].Source);
-   }
-   t = [...new Set(t)];
-   for (x of (Object.keys(cJson.DIMENSIONS.dimensions.model))){
-       grpsModelSrc[x] = t.indexOf(cJson.DIMENSIONS.dimensions.model[x].Source);
-   }
-   var t = [];
-   for (x of Object.keys(cJson.DIMENSIONS.dimensions.metric)){
-       if  ( ! (x.includes('::') || x.includes('!!')) ){
-           t.push(x);
+   if (cJson.DIMENSIONS.json_structure.includes('model')){
+       var t = [];
+       for (x of (Object.keys(cJson.DIMENSIONS.dimensions.model))){
+           t.push(cJson.DIMENSIONS.dimensions.model[x].Source);
+       }
+       t = [...new Set(t)];
+       for (x of (Object.keys(cJson.DIMENSIONS.dimensions.model))){
+           grpsModelSrc[x] = t.indexOf(cJson.DIMENSIONS.dimensions.model[x].Source);
        }
    }
-   grpsTopMetric = [...new Set(t)];
+   if (cJson.DIMENSIONS.json_structure.includes('metric')){
+       var t = [];
+       for (x of Object.keys(cJson.DIMENSIONS.dimensions.metric)){
+           if  ( ! (x.includes('::') || x.includes('!!')) ){
+               t.push(x);
+           }
+       }
+       grpsTopMetric = [...new Set(t)];
+   }
+
+
 
 
    for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
@@ -352,23 +400,40 @@ function prepareTab(cJson) {
         dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
    }
 
-
    // default ilamb, for others need to be rethink of it
-   tabTreeJson = cmec2tab_json(cJson, 'model', 'metric', {'region':'global', 'statistic':'Overall Score'}, 1);
+
+   let ini_xdim = cJson.DIMENSIONS.json_structure[0];
+   let ini_ydim = cJson.DIMENSIONS.json_structure[1];
+   let ini_fxdm = {};
+   for (fxdim of cJson.DIMENSIONS.json_structure.slice(2, cJson.DIMENSIONS.json_structure.length)) {
+       if (fxdim == 'statistic'){
+          ini_fxdm[fxdim] = cJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+       }
+       else {
+          ini_fxdm[fxdim] = Object.keys(cJson.DIMENSIONS.dimensions[fxdim])[0];
+       }
+   }
+
+   tabTreeJson = cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
    // add options 
    add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-x");
    add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-y");
-
    ydimField = "row_name";
+   $('.select-choice-x').val(ini_xdim);
+   $('.select-choice-y').val(ini_ydim);
 
-   $('.select-choice-x').val('model');
-   $('.select-choice-y').val('metric');
+
    $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
    $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
 
-   $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
-   $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
+
+
+   for (fxdim of Object.keys(ini_fxdm)) {
+       console.log('xxx', fxdim, ini_fxdm[fxdim], selectIDbyDims[fxdim]);
+       $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
+       $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
+   }
    add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
 
    // set tab column
@@ -378,10 +443,10 @@ function prepareTab(cJson) {
    ftwgt = 500;
    ftsty = "normal";
    txdec = "";
-   txcol = "black";
+   txcol = "white";
    let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
    grpsFirstCol.length = 0;
-   tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, 'model', 'metric', ydimField);
+   tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, ini_xdim, ini_ydim, ydimField);
 
 }
 
@@ -692,6 +757,12 @@ function menuShowHide(xDim, yDim, menuReset) {
                    else{
                       tabOption.tooltips = false;
                    }
+
+                   //check the switches
+                   toggleCellValue(false);
+                   toggleBottomTitle(false);
+                   toggleTopTitle(false);
+
                    table = new Tabulator("#dashboard-table", tabOption);
                    //table.setData(tabJson);
                    //table.setColumns(tabOption.columns);
@@ -1101,6 +1172,8 @@ $(window).on('beforeunload', function(){
     $('#colorblind').prop('checked', true);
     $('#file').val('');
     $('#cellvalue').prop('checked', false);
+    $('#bottomtitle').prop('checked', false);
+    $('#toptitle').prop('checked', true);
     isJsonReady = false;
 });
 
