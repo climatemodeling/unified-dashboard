@@ -1,6 +1,5 @@
-
+module.exports = {add_options:add_options, cmec2tab_json:cmec2tab_json};
 //mxu define some dimension declaratiopn should be provided by json in future
-//
 //
 
 var dimensionJSON = ["metric", "region", "scoreboard", "model"];
