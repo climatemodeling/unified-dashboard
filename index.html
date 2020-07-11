@@ -73,18 +73,32 @@
           </select>
       </section>
 
-      <label class="el-switch">
-          <span class="margin-r">Tooltips</span>
-          <input type="checkbox" name="switch" id="tooltips" onchange="hideshowtp()" checked hidden>
-          <span class="el-switch-style"></span>
-      </label>
+      <section class="menu-section">
+          <h3 class="menu-section-title">Switch</h3>
+          <label class="el-switch el-switch-sm">
+              <input type="checkbox" name="switch" id="tooltips" onchange="hideshowtp()" checked hidden>
+              <span class="el-switch-style"></span>
+              <span class="margin-r">Tooltips</span>
+          </label>
 
-      <label class="el-switch">
-          <span class="margin-r">Cell Value</span>
-          <input type="checkbox" name="switch" id="cellvalue" onchange="toggleCellValue()" hidden>
-          <span class="el-switch-style"></span>
-      </label>
+          <label class="el-switch el-switch-sm">
+              <input type="checkbox" name="switch" id="cellvalue" onchange="toggleCellValue(true)" hidden>
+              <span class="el-switch-style"></span>
+              <span class="margin-r">Cell Value</span>
+          </label>
 
+          <label class="el-switch el-switch-sm">
+              <input type="checkbox" name="switch" id="bottomtitle" onchange="toggleBottomTitle(true)" hidden>
+              <span class="el-switch-style"></span>
+              <span class="margin-r">Bottom Title</span>
+          </label>
+
+          <label class="el-switch el-switch-sm">
+              <input type="checkbox" name="switch" id="toptitle" onchange="toggleTopTitle(true)" checked hidden>
+              <span class="el-switch-style"></span>
+              <span class="margin-r">Top Title</span>
+          </label>
+      </section>
       <!--hr>
       <section class="menu-section">
           <button type="button" onclick="expandCollapse('expand');">Expand</button>
