@@ -7,6 +7,7 @@
  * inspired by : https://github.com/select2/select2/issues/411
  * License     : MIT
  */
+var $ = require( "jquery" );
 (function($) {
   var S2MultiCheckboxes = function(options, element) {
     var self = this;
@@ -77,4 +78,4 @@
       });
     }
   });
-})(jQuery);
+})($);

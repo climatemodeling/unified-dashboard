@@ -1,9 +1,24 @@
+//
+// require modules
+
+var $ = require( "jquery" );
+var Tabulator = require('tabulator-tables');
+var select2 = require('select2')(); // note you're calling a function here!
+var select2MultiCheckboxes = require('./select2.multi-checkboxes.js');
+var lmt_tool = require('./lmt_tool.js');
+var Slideout = require('slideout');
+
+var css = require('../css/lmtstyle.css');
+
+//globalize functions
+window.loadlocJson = loadlocJson;
+window.toggleTooltips = toggleTooltips;
+window.toggleCellValue = toggleCellValue;
+window.toggleBottomTitle = toggleBottomTitle;
+window.toggleTopTitle = toggleTopTitle;
+
+
 // major js to control the tabulator for LMT unified dashboard
-//
-//
-//
-//
-//
 // user can change the vales of the following varaibles
 //var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/cmec_ilamb_example.json";  // json file containing the benchmark results
 jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/";
@@ -15,6 +30,12 @@ const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
 const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
 
 const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"]
+// color used default
+const PuOr = ['#b35806','#e08214','#fdb863','#fee0b6','#f7f7f7','#d8daeb','#b2abd2','#8073ac','#542788'];
+const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6dba0','#5aae61','#1b7837'];
+var cmap = PuOr;
+//
+//
 
 // please do not make changes below
 if (jsonFileUrl.includes("http")){
@@ -168,11 +189,11 @@ $(document).ready(function() {
         'menu': doc.getElementById('menu'),
       });
 
-      window.onload = function() {
+      //window.onload = function() {
         document.querySelector('.js-slideout-toggle').addEventListener('click', function() {
           slideout.toggle();
         });
-      }
+      //}
      $('.select-choice-ex').select2({
          placeholder: 'Select examples',
      });
@@ -193,7 +214,7 @@ $(document).ready(function() {
 });
 
 
-function hideshowtp(){
+function toggleTooltips(genTab){
 
      console.log('in showhide');
      if ($("#tooltips[type=checkbox]").is(":checked")) { 
@@ -209,8 +230,10 @@ function hideshowtp(){
 
      //table.destroy();
      //table.redraw(true);
-     table.clearData();
-     table = new Tabulator("#dashboard-table", tabOption);
+     if (genTab){
+        table.clearData();
+        table = new Tabulator("#dashboard-table", tabOption);
+     }
 }
 
 
@@ -306,8 +329,8 @@ function loadrmtJson(jsfUrl) {
               var scoreboard = "Overall Score global";
               tabTreeJson = filterScoreboard(data.RESULTS, scoreboard);
      
-              add_options(["model"], "select-choice-mini-x");
-              add_options(["metric"], "select-choice-mini-y");
+              lmt_tool.add_options(["model"], "select-choice-mini-x");
+              lmt_tool.add_options(["metric"], "select-choice-mini-y");
      
               var regions = [];
               var statistics = [];
@@ -319,8 +342,8 @@ function loadrmtJson(jsfUrl) {
      
               regions = [...new Set(regions)];
               statistics = [...new Set(statistics)];
-              add_options(regions, 'select-choice-mini-0');
-              add_options(statistics, 'select-choice-mini-3');
+              lmt_tool.add_options(regions, 'select-choice-mini-0');
+              lmt_tool.add_options(statistics, 'select-choice-mini-3');
      
               selectIDbyDims['region'] = 'select-choice-mini-0';
               selectIDbyDims['statistic'] = 'select-choice-mini-3'
@@ -334,7 +357,7 @@ function loadrmtJson(jsfUrl) {
      
               $('#'.concat(selectIDbyDims['statistic'])).select2({ placeholder: 'Select region',});
               $('#'.concat(selectIDbyDims['statistic'])).val('Overall Score').trigger('change');
-              add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
+              lmt_tool.add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
      
               // set tab column
               //
@@ -390,10 +413,10 @@ function prepareTab(cJson) {
 
    for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
         if (dimn == 'statistic'){
-            add_options(cJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+            lmt_tool.add_options(cJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
         }
         else{
-            add_options(Object.keys(cJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
+            lmt_tool.add_options(Object.keys(cJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
         }
 
         selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
@@ -414,11 +437,11 @@ function prepareTab(cJson) {
        }
    }
 
-   tabTreeJson = cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
+   tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
    // add options 
-   add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-x");
-   add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-y");
+   lmt_tool.add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-x");
+   lmt_tool.add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-y");
    ydimField = "row_name";
    $('.select-choice-x').val(ini_xdim);
    $('.select-choice-y').val(ini_ydim);
@@ -434,7 +457,7 @@ function prepareTab(cJson) {
        $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
        $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
    }
-   add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
+   lmt_tool.add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
 
    // set tab column
    //
@@ -515,10 +538,10 @@ function loadlocJson() {
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
                     if (dimn == 'statistic'){
                         console.log(dimn, cmecJson.DIMENSIONS.dimensions[dimn].indices);
-                        add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+                        lmt_tool.add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
                     }
                     else{
-                        add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
+                        lmt_tool.add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
                     }
 
                     selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
@@ -541,11 +564,11 @@ function loadlocJson() {
                    }
                }
 
-               tabTreeJson = cmec2tab_json(cmecJson, ini_xdim, ini_ydim, ini_fxdm, 1);
+               tabTreeJson = lmt_tool.cmec2tab_json(cmecJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
                // add options 
-               add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
-               add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
+               lmt_tool.add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
+               lmt_tool.add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
                ydimField = "row_name";
                $('.select-choice-x').val(ini_xdim);
                $('.select-choice-y').val(ini_ydim);
@@ -555,7 +578,7 @@ function loadlocJson() {
                    $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
                    $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
                }
-               add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
+               lmt_tool.add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
 
                // set tab column
                //
@@ -612,14 +635,7 @@ $(document).on('jsonReady', function() {
 
 
      try{
-        if ($("#tooltips[type=checkbox]").is(":checked")) { 
-           tabOption.tooltips = function(cell){
-           return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
-           };
-        }
-        else{
-           tabOption.tooltips = false;
-        }
+        toggleTooltips(false);
 
         table = new Tabulator("#dashboard-table", tabOption);
         draw_legend();
@@ -707,10 +723,10 @@ function menuShowHide(xDim, yDim, menuReset) {
                    sel.remove(i);
                }
                if (xDim == 'statistic'){
-                   add_options(cmecJson.DIMENSIONS.dimensions[xDim].indices, 'hlist');
+                   lmt_tool.add_options(cmecJson.DIMENSIONS.dimensions[xDim].indices, 'hlist');
                }
                else{
-                   add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]), 'hlist');
+                   lmt_tool.add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]), 'hlist');
                }
             }
 
@@ -731,7 +747,7 @@ function menuShowHide(xDim, yDim, menuReset) {
 
                    console.log(xDim, yDim, 'before call');
                    console.log(fixedDimsDict);
-                   tabJson = cmec2tab_json(cmecJson, xDim, yDim, fixedDimsDict, cvtTree);
+                   tabJson = lmt_tool.cmec2tab_json(cmecJson, xDim, yDim, fixedDimsDict, cvtTree);
 
                    tabOption.data = tabJson;
 
@@ -749,14 +765,7 @@ function menuShowHide(xDim, yDim, menuReset) {
                    document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
 
 
-                   if ($("#tooltips[type=checkbox]").is(":checked")) { 
-                      tabOption.tooltips = function(cell){
-                      return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
-                      };
-                   }
-                   else{
-                      tabOption.tooltips = false;
-                   }
+                   toggleTooltips(false);
 
                    //check the switches
                    toggleCellValue(false);
@@ -1174,6 +1183,7 @@ $(window).on('beforeunload', function(){
     $('#cellvalue').prop('checked', false);
     $('#bottomtitle').prop('checked', false);
     $('#toptitle').prop('checked', true);
+    $('#tooltips').prop('checked', true);
     isJsonReady = false;
 });
 

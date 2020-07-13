@@ -1,3 +1,10 @@
+@import url('https://unpkg.com/tabulator-tables@4.7/dist/css/tabulator.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css');
+@import url('slideout_index.css');
+@import url('slideout_test.css');
+@import url('checkbox.min.css');
+
 /* multi-select style */
 .select2-results__options{
    font-size:small;
