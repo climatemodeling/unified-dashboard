@@ -16,6 +16,7 @@ window.toggleTooltips = toggleTooltips;
 window.toggleCellValue = toggleCellValue;
 window.toggleBottomTitle = toggleBottomTitle;
 window.toggleTopTitle = toggleTopTitle;
+window.tableColor = tableColor;
 
 
 // major js to control the tabulator for LMT unified dashboard
