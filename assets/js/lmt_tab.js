@@ -233,6 +233,9 @@ $(document).ready(function() {
 
      document.getElementById('select-choice-mini-sca').onchange = function (){
 
+         console.log('xum1', tabTempJson.length);
+         console.log('xum2', tabTempJson);
+
          if (tabTempJson.length > 0) {
              console.log('from save');
              var tempData = deepCopyFunction(tabTempJson); 
@@ -240,6 +243,8 @@ $(document).ready(function() {
          else {
              console.log('from data');
              var tempData = table.getData(); 
+
+             console.log(tempData);
              tabTempJson = deepCopyFunction(tempData);
          }
 
@@ -263,8 +268,14 @@ $(document).ready(function() {
              console.log('xxxnewdata', newData);
          }
          else {
+             for (data of tempData) {
+                 if ("_children" in data && data._children.length > 0){
+                    alert("cannot normalize along the colum with tree structures");
+                    throw new Error("cannot normalize along the colum with tree structures");
+                 }
+             }
+
              var colData = {};
-             
              for (col_name of Object.keys(tempData[0])){
                  if (col_name != 'row_name') {
                     for (data of tempData){
@@ -805,17 +816,17 @@ $(document).on('jsonReady', function() {
      document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
 
 
-     //try{
+     try{
         toggleTooltips(false);
 
         table = new Tabulator("#dashboard-table", tabOption);
         draw_legend();
-     //}
-     //catch(err){
-     //   alert('Error when rending the table:', err.message);
-     //}
+     }
+     catch(err){
+        alert('Error when rending the table:', err.message);
+     }
 
-     //try{
+     try{
         var xDimName = cmecJson.DIMENSIONS.json_structure[0];
         var yDimName = cmecJson.DIMENSIONS.json_structure[1];
 
@@ -854,10 +865,10 @@ $(document).on('jsonReady', function() {
                   }
              }
         }
-     //}
-     //catch(err){
-     //   alert('Error when handling the table:', err.message);
-     //}
+     }
+     catch(err){
+        alert('Error when handling the table:', err.message);
+     }
 
      
 });
@@ -867,11 +878,17 @@ function menuShowHide(xDim, yDim, menuReset) {
 
      //trying to reset scaling and normalizing part
      //
-     tabTempJson = [];
      $('.scarow').prop('checked', true);
      $('.scacol').prop('checked', false);
-     $('#select-choice-mini-sca').val("0").trigger('change');
-     $('#select-choice-mini-map').val("0").trigger('change');
+     //$('#select-choice-mini-sca').val("0").trigger('change');
+     //$('#select-choice-mini-map').val("0").trigger('change');
+     $('#select-choice-mini-sca').val("0");
+     $('#select-choice-mini-sca').trigger('change.select2');
+     $('#select-choice-mini-map').val("0");
+     $('#select-choice-mini-map').trigger('change.select2');
+
+     tabTempJson = [];
+     console.log('xum5', tabTempJson);
 
      fixedDimsDict={};
 
@@ -951,6 +968,8 @@ function menuShowHide(xDim, yDim, menuReset) {
                    toggleTopTitle(false);
 
                    table = new Tabulator("#dashboard-table", tabOption);
+
+                   console.log('xum3', tabTempJson);
                    //table.setData(tabJson);
                    //table.setColumns(tabOption.columns);
                    //table.redraw();
@@ -1080,12 +1099,11 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
          vMax =  1.0;
      }
 
-     console.log('yyy', formatterParams.scaopt);
+     //console.log('yyy', formatterParams.scaopt);
 
      var clr = "#808080";
      let nc = cmap.length;
      if(cell.getValue() > -900){
-         console.log('test');
          var ind = Math.round((vMax - cell.getValue()) * nc / (vMax - vMin))
          ind = Math.min(Math.max(ind,0),nc-1);
          clr = cmap[ind];
@@ -1377,8 +1395,6 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
      onRendered(function(){
 
         if(! cell.getRow().getTreeParent()){
-
-            console.log(value, 'xxxxx');
 
             if (formatterParams.yDim == "metric"){
                 fgFontColor = "#0808ff";
