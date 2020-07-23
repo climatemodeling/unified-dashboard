@@ -1014,22 +1014,33 @@ var lmtCellColorFormatter = colorILAMB;
 function colorILAMB(cell, formatterParams, onRendered){
      var clr = "#808080";
      let nc = cmap.length;
-     if(cell.getValue() > -900){
-         var ae = Math.abs(cell.getValue());
+
+     if (Array.isArray(cell.getValue())) {
+         origVal = cell.getValue()[0];
+         normVal = cell.getValue()[1];
+     }
+     else {
+         origVal = cell.getValue();
+         normVal = cell.getValue();
+     }
+
+     
+     if(normVal > -900){
+         var ae = Math.abs(normVal);
          var ind;
          if(ae>=0.25){
-              ind = Math.round(2*cell.getValue()+4);
+              ind = Math.round(2*normVal+4);
          }else{
-              ind = Math.round(4*cell.getValue()+4);
+              ind = Math.round(4*normVal+4);
          }
          ind = Math.min(Math.max(ind,0),nc-1);
          clr = cmap[ind];
      }
      cell.getElement().style.backgroundColor = clr;
 
-     if (formatterParams.showCellValue && cell.getValue() > -900){
+     if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
-        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        return Math.round((origVal + Number.EPSILON) * 100) / 100;
      }
 };
 
@@ -1059,18 +1070,28 @@ function colorLinear(cell, formatterParams, onRendered) {
 
      console.log('xxx', formatterParams.scaopt);
 
+     if (Array.isArray(cell.getValue())) {
+         origVal = cell.getValue()[0];
+         normVal = cell.getValue()[1];
+     }
+     else {
+         origVal = cell.getValue();
+         normVal = cell.getValue();
+     }
+
+
      var clr = "#808080";
      let nc = cmap.length;
-     if(cell.getValue() > -900){
-         var ind = Math.round((cell.getValue() - vMin) * nc / (vMax - vMin))
+     if(normVal > -900){
+         var ind = Math.round((normVal - vMin) * nc / (vMax - vMin))
          ind = Math.min(Math.max(ind,0),nc-1);
          clr = cmap[ind];
      }
      cell.getElement().style.backgroundColor = clr;
 
-     if (formatterParams.showCellValue && cell.getValue() > -900){
+     if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
-        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        return Math.round((origVal + Number.EPSILON) * 100) / 100;
      }
 }
 
@@ -1100,19 +1121,28 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
      }
 
      //console.log('yyy', formatterParams.scaopt);
+     //
+     if (Array.isArray(cell.getValue())) {
+         origVal = cell.getValue()[0];
+         normVal = cell.getValue()[1];
+     }
+     else {
+         origVal = cell.getValue();
+         normVal = cell.getValue();
+     }
 
      var clr = "#808080";
      let nc = cmap.length;
-     if(cell.getValue() > -900){
-         var ind = Math.round((vMax - cell.getValue()) * nc / (vMax - vMin))
+     if(normVal > -900){
+         var ind = Math.round((vMax - normVal) * nc / (vMax - vMin))
          ind = Math.min(Math.max(ind,0),nc-1);
          clr = cmap[ind];
      }
      cell.getElement().style.backgroundColor = clr;
 
-     if (formatterParams.showCellValue && cell.getValue() > -900){
+     if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
-        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        return Math.round((origVal + Number.EPSILON) * 100) / 100;
      }
 }
 
@@ -1617,7 +1647,7 @@ function normalizer(normMethod, data){
 
     var i = 0;
     for (k of kmp) {
-        normData[k] = normArray[i];
+        normData[k] = [data[k], normArray[i]];
         i = i + 1;
     }
     return normData;
