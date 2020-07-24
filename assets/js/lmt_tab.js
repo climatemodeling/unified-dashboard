@@ -17,6 +17,7 @@ window.toggleCellValue = toggleCellValue;
 window.toggleBottomTitle = toggleBottomTitle;
 window.toggleTopTitle = toggleTopTitle;
 window.tableColor = tableColor;
+window.expandCollapse = expandCollapse;
 
 
 // major js to control the tabulator for LMT unified dashboard
@@ -120,6 +121,9 @@ var tabOption = {
      //       row.treeToggle();
      //   }
      //},
+     dataTreeStartExpanded:function(row, level){
+        return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
+     },
      columns:[],
 
 };
@@ -1189,13 +1193,106 @@ $(window).on('beforeunload', function(){
 });
 
 
-//function expandCollapse(action){
-//  if (action == "expand"){
-//  	tabOption.dataTreeStartExpanded = [true, false];
-//  }
-//  else{
-//  	tabOption.dataTreeStartExpanded = false;
-//  }
-//  table = new Tabulator("#dashboard-table", option=tabOption);
+//var rowLevs = 0;
+//function rowExpand(rows, treeLevs) {
+//    for (row of rows) {
+//        if (row.getTreeChildren()) {
+//
+//            if (row == rows[0]) {
+//                rowLevs = rowLevs + 1;
+//            }
+//            if (rowLevs == treeLevs) {
+//                row.treeExpand();
+//            }
+//            else {
+//                rowExpand(row.getTreeChildren(), treeLevs);
+//            }
+//        }
+//        if (rowLevs  
+//    }
+//
+//
+//    treeLevs = treeLevs - 1;
+//    for (row of rows) {
+//        if (treeLevs > 0){
+//           if (row.getTreeChildren) {
+//               rowExpand(row.getTreeChildren(), treeLevs);
+//           }
+//        }
+//        else{
+//           row.treeExpand();
+//           return levsExpl;
+//
+//        }
+//    }
+//}
+//
+//function rowCollapse(rows, treeLevs) {
+//    treeLevs = treeLevs - 1;
+//    for (row of rows) {
+//        console.log(row);
+//        row.treeCollapse();
+//        if (row.getTreeParent() && treeLevs > 0) {
+//            rowExpand(row.getTreeChildren(), treeLevs);
+//        }
+//    }
 //}
 
+
+
+function findMaxLevels() {
+    var maxLevels = 0;
+    var rows = table.getRows();
+    maxLevels = rowLevels(rows, 0);
+    return maxLevels;
+}
+   
+
+function rowLevels(rows, nlevs) {
+    var ylevs = nlevs + 1;
+    var xlevs = nlevs + 1;
+    var tlevs = xlevs;
+    var mlevs;
+    for (row of rows) {
+        if (row.getTreeChildren().length > 0) {
+            mlevs = rowLevels(row.getTreeChildren(), xlevs);
+            tlevs = Math.max(tlevs, mlevs);
+        }
+        else {
+            tlevs = Math.max(tlevs, xlevs);
+        }
+    }
+
+    return tlevs;
+}
+
+var timesExpl = 1;
+var numClicks = 0;
+
+function expandCollapse(action){
+    var maxLevs = findMaxLevels() - 1; //the last level always cannot expand
+    if (action == "expand"){
+        if (numClicks < maxLevs) {
+            timesExpl = timesExpl + 1;
+        }
+        else {
+            timesExpl = timesExpl - 1;
+        }
+        var tempData = table.getData();
+        table.clearData();
+        table.setData(tempData);
+        table.redraw(true);
+        if (timesExpl == 0){
+            numClicks = 0;
+        }
+        else{
+            numClicks = numClicks + 1;
+        }
+    }
+}
+
+function setLevelExpand(row, level) {
+    if (level < timesExpl) {
+       return true;
+    }
+}
