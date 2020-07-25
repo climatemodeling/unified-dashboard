@@ -231,7 +231,8 @@ $(document).ready(function() {
          tabTempJson = [];
      });
 
-     document.getElementById('select-choice-mini-sca').onchange = function (){
+     //document.getElementById('select-choice-mini-sca').onchange = function (){
+     $('#select-choice-mini-sca').change(function () {
 
          console.log('xum1', tabTempJson.length);
          console.log('xum2', tabTempJson);
@@ -304,7 +305,7 @@ $(document).ready(function() {
             table = new Tabulator("#dashboard-table", tabOption);
             draw_legend();
          }
-     };
+     });
 
      document.getElementById('select-choice-mini-map').onchange = function (){
          updateColorMapping();
@@ -929,6 +930,14 @@ function menuShowHide(xDim, yDim, menuReset) {
             $("#".concat(selectIDbyDims[dimn])).off('select2:select');
 
             $("#".concat(selectIDbyDims[dimn])).on('select2:select', function (e) {
+
+               $('.scarow').prop('checked', true);
+               $('.scacol').prop('checked', false);
+               
+               $('#select-choice-mini-sca').val("0").trigger('change.select2');
+               $('#select-choice-mini-map').val("0").trigger('change.select2');
+               tabTempJson = [];
+           
                selId = $(this).attr('id');
                fixedDimsDict[dimBySelectIDs[selId]] = $(this).val();
 
@@ -967,12 +976,13 @@ function menuShowHide(xDim, yDim, menuReset) {
                    toggleBottomTitle(false);
                    toggleTopTitle(false);
 
-                   table = new Tabulator("#dashboard-table", tabOption);
+                   //table = new Tabulator("#dashboard-table", tabOption);
 
                    console.log('xum3', tabTempJson);
-                   //table.setData(tabJson);
-                   //table.setColumns(tabOption.columns);
-                   //table.redraw();
+                   table.setColumns(tabOption.columns);
+                   table.clearData();
+                   table.setData(tabJson);
+                   table.redraw(true);
                }
                
             });
