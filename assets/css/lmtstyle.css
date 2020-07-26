@@ -161,12 +161,12 @@ p {
   height:auto;
   overflow:auto;
   padding-top: 20px;
-  padding-bottom: 60px;
+  padding-bottom: 32px;
   padding-left: 0px;
   padding-right: 0px;
   text-shadow: 0 1px 0 #f3f3f3;
   font-style:italic;
-  font-variant:all-small-caps;
+  font-variant:common-ligatures;
 }
 
 .inputfile {
@@ -253,6 +253,7 @@ p {
     font-size: 11px;
     font-weight: 800;
     padding-right:60px;
+    padding-left:10px;
 }
 .el-switch-style {
     margin-left: 10px;

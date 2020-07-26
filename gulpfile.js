@@ -12,13 +12,15 @@ var del = require('del');
 
 gulp.task('clean-js', function () {
   return del([
-    'public/build/js/*.js'
+    'public/build/js/*.js', 
+    'dist/js/*.js'
   ]);
 });
 
 gulp.task('clean-css', function () {
   return del([
-    'public/build/css/*.css'
+    'public/build/css/*.css',
+    'dist/css/*.css'
   ]);
 });
 
@@ -74,4 +76,4 @@ gulp.task('watch', function() {
   gulp.watch('assets/css/**/*.css', ['pack-css']);
 });
 
-gulp.task('default', gulp.series('build-js', 'build-css', 'deploy', gulp.parallel('clean-js', 'clean-css')));
+gulp.task('default', gulp.series(gulp.parallel('clean-js', 'clean-css'), 'build-js', 'build-css', 'deploy'));

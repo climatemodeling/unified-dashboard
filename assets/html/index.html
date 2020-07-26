@@ -52,12 +52,46 @@
           <select class="select-choice-9" id="select-choice-mini-9" style="width:75%; display:none"> <option></option></select>
       </section>
 
+
+      
+      <section class="menu-section">
+          <h3 class="menu-section-title">Scaling</h3>
+
+          <label class="el-checkbox el-checkbox-sm">
+             <span class="margin-r">Row</span>
+             <input type="checkbox" class="scarow" value='scarow' id="checkboxsca" checked>
+             <span class="el-checkbox-style  pull-right"></span>
+          </label>
+
+          <label class="el-checkbox el-checkbox-sm">
+             <span class="margin-r">Column</span>
+             <input type="checkbox" class="scacol" value='scacol' id="checkboxsca">
+             <span class="el-checkbox-style  pull-right"></span>
+          </label>
+
+
+          <select class="select-choice-sca" id="select-choice-mini-sca" style="width:75%"> 
+             <option value="0" selected> No normalized </option>
+             <option value="1"> Normalized [x-mean(x)]/sigma(x) </option>
+             <option value="2"> Normalized [-1:1] </option>
+             <option value="3"> Normalized [ 0:1] </option>
+          </select>
+
+          <select class="select-choice-map" id="select-choice-mini-map" style="width:75%"> 
+             <option value="0" selected> ILAMB color mapping </option>
+             <option value="1"> Linear color mapping </option>
+             <option value="2"> Linear color mapping reverse </option>
+          </select>
+
+      </section>
+
+
       <hr>
       <section class="menu-section">
           <h3 class="menu-section-title">Examples</h3>
           <select class="select-choice-ex" id="select-choice-mini-ex" style="width:75%"> 
              <option value="cmec_ilamb_example_addsource.json"> CMEC ILAMB</option>
-             <option value="cmec_pmp_example_addsource.json"> CMEC PMP</option>
+             <option value="pmp_enso_tel.json"> CMEC PMP</option>
           </select>
       </section>
 
@@ -86,6 +120,8 @@
               <span class="el-switch-style"></span>
               <span class="margin-r">Top Title</span>
           </label>
+
+
       </section>
       <!--hr>
       <section class="menu-section">
