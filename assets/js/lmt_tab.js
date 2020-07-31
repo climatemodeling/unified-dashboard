@@ -28,14 +28,16 @@ jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/maste
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
 const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
 
-
 const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
-
 const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"]
 // color used default
 const PuOr = ['#b35806','#e08214','#fdb863','#fee0b6','#f7f7f7','#d8daeb','#b2abd2','#8073ac','#542788'];
 const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6dba0','#5aae61','#1b7837'];
 var cmap = PuOr;
+
+var scadir;
+
+var tabTempJson = [];
 //
 //
 
@@ -153,6 +155,14 @@ $(document).ready(function() {
          placeholder: 'Select Y/Row',
      });
 
+     $('.select-choice-sca').select2({
+         placeholder: 'Normalize methods',
+     });
+
+     $('.select-choice-map').select2({
+         placeholder: 'Color mapping methods',
+     });
+
      //for (var i=1; i < 10; i++){
      //    $('.select-choice-'.concat(i.toString())).select2({
      //        placeholder: 'Select Dimension',
@@ -161,15 +171,10 @@ $(document).ready(function() {
      table = new Tabulator("#dashboard-table", option={});
 
      $('.hide-list').on("select2:select", function (e) {
-          console.log('inselec');
           //this returns all the selected item
           var items= $(this).val();
-          console.log(items);
-     
           //Gets the last selected item
           var lastSelectedItem = e.params.data.id;
-          console.log(lastSelectedItem);
-     
           table.hideColumn(lastSelectedItem) ////toggle the visibility of the "name" column
      });
      
@@ -177,12 +182,8 @@ $(document).ready(function() {
      
           //this returns all the selected item
           var items= $(this).val();
-          console.log(items);
-     
           //Gets the last selected item
           var lastSelectedItem = e.params.data.id;
-          console.log(lastSelectedItem);
-     
           table.showColumn(lastSelectedItem) ////toggle the visibility of the "name" column
      });
 
@@ -216,7 +217,185 @@ $(document).ready(function() {
          loadrmtJson(jsfUrl);
      });
 
+     //scaling
+     //
+     $('#checkboxsca[type="checkbox"]').on('change', function() {
+         $('#checkboxsca[type="checkbox"]').not(this).prop('checked', false);
+
+         if ($('.scarow').is(':checked')){
+            scadir = "row";
+         }
+         if ($('.scacol').is(':checked')){
+            scadir = "column";
+         }
+        
+         $('#select-choice-mini-sca').val("0").trigger('change');
+         $('#select-choice-mini-map').val("0").trigger('change');
+
+         tabTempJson = [];
+     });
+
+     //document.getElementById('select-choice-mini-sca').onchange = function (){
+     $('#select-choice-mini-sca').change(function () {
+
+         console.log('xum1', tabTempJson.length);
+         console.log('xum2', tabTempJson);
+
+         if (tabTempJson.length > 0) {
+             console.log('from save');
+             var tempData = deepCopyFunction(tabTempJson); 
+         }
+         else {
+             console.log('from data');
+             var tempData = table.getData(); 
+
+             console.log(tempData);
+             tabTempJson = deepCopyFunction(tempData);
+         }
+
+         var newData = Object.assign([], tempData);
+
+         if ($('.scarow').is(':checked')){
+            scadir = "row";
+         }
+         if ($('.scacol').is(':checked')){
+            scadir = "column";
+         }
+
+         console.log(scadir);
+         if (scadir == "row") {
+             var j = 0;
+             for (data of tempData){
+                 newData[j] = normalizer($('#select-choice-mini-sca').val(), data);
+                 j = j + 1;
+             }
+
+             console.log('xxxnewdata', newData);
+         }
+         else {
+             for (data of tempData) {
+                 if ("_children" in data && data._children.length > 0){
+                    alert("cannot normalize along the colum with tree structures");
+                    throw new Error("cannot normalize along the colum with tree structures");
+                 }
+             }
+
+             var colData = {};
+             for (col_name of Object.keys(tempData[0])){
+                 if (col_name != 'row_name') {
+                    for (data of tempData){
+                        colData[data.row_name] = data[col_name];
+                    }
+                    var newcolData = normalizer($('#select-choice-mini-sca').val(), colData);
+
+                    for (data of newData) {
+                        data[col_name] = newcolData[data.row_name];
+                    }
+                 }
+             }
+             console.log('in the colum scale');
+         }
+
+         updateColorMapping();
+
+         if ($('#select-choice-mini-sca').val() != "0") {
+            table.setData(newData);
+            table.redraw(true);
+            draw_legend();
+         }
+         else {
+            table.clearData();
+            tabOption.data = tabTempJson;
+            table = new Tabulator("#dashboard-table", tabOption);
+            draw_legend();
+         }
+     });
+
+     document.getElementById('select-choice-mini-map').onchange = function (){
+         updateColorMapping();
+         //table.clearData();
+         tabOption.data = table.getData();
+         table = new Tabulator("#dashboard-table", tabOption);
+         //table.redraw(true);
+     };
+
 });
+
+
+function updateNormalizing() {
+
+     if (tabTempJson.length > 0) {
+         console.log('from save');
+         var tempData = deepCopyFunction(tabTempJson); 
+     }
+     else {
+         console.log('from data');
+         var tempData = table.getData(); 
+         tabTempJson = deepCopyFunction(tempData);
+     }
+
+     var newData = Object.assign([], tempData);
+
+     if ($('.scarow').is(':checked')){
+        scadir = "row";
+     }
+     if ($('.scacol').is(':checked')){
+        scadir = "column";
+     }
+
+     console.log(scadir);
+     if (scadir == "row") {
+         var j = 0;
+         for (data of tempData){
+             newData[j] = normalizer($('#select-choice-mini-sca').val(), data);
+             j = j + 1;
+         }
+
+         console.log('xxxnewdata', newData);
+     }
+     else {
+         var colData = {};
+         
+         for (col_name of Object.keys(tempData[0])){
+             if (col_name != 'row_name') {
+                for (data of tempData){
+                    colData[data.row_name] = data[col_name];
+                }
+                var newcolData = normalizer($('#select-choice-mini-sca').val(), colData);
+
+                for (data of newData) {
+                    data[col_name] = newcolData[data.row_name];
+                }
+             }
+         }
+         console.log('in the colum scale');
+    }
+
+    return newData;
+
+}
+
+
+function updateColorMapping() {
+     switch($('#select-choice-mini-map').val()) {
+         case "0":
+             lmtCellColorFormatter = colorILAMB;
+             break;
+         case "1":
+             lmtCellColorFormatter = colorLinear;
+             break;
+         case "2":
+             lmtCellColorFormatter = colorLinearReverse;
+     }
+
+     //update table options
+     for (x of tabOption.columns) {
+         if (x.field != "row_name"){
+             x["formatter"] = lmtCellColorFormatter;
+             x["formatterParams"]['scaopt'] = $('#select-choice-mini-sca').val();
+         }
+     }
+}
 
 
 function toggleTooltips(genTab){
@@ -249,8 +428,6 @@ function toggleCellValue(genTab) {
                  x["formatterParams"] = {"showCellValue":true};
              }
          }
-
-         console.log(tabOption.columns);
      }
      else {
 
@@ -262,7 +439,10 @@ function toggleCellValue(genTab) {
      }
 
      if (genTab){
+        var tempData = table.getData();
         table.clearData();
+        //table.setData(tempData);
+        tabOption.data = tempData;
         table = new Tabulator("#dashboard-table", tabOption);
      }
 
@@ -275,7 +455,6 @@ function toggleBottomTitle(genTab) {
                  x["bottomCalc"] = bottomCalcFunc;
              }
          }
-         console.log(tabOption.columns);
      }
      else {
 
@@ -287,7 +466,9 @@ function toggleBottomTitle(genTab) {
      }
 
      if (genTab) {
+        var tempData = table.getData();
         table.clearData();
+        tabOption.data = tempData;
         table = new Tabulator("#dashboard-table", tabOption);
      }
 }
@@ -295,7 +476,6 @@ function toggleBottomTitle(genTab) {
 
 function toggleTopTitle(genTab) {
     if ($("#toptitle[type=checkbox]").is(":checked")) { 
-         console.log(tabOption.columns);
          tabOption["headerVisible"] = true;
     }
     else {
@@ -303,7 +483,9 @@ function toggleTopTitle(genTab) {
     }
 
     if (genTab) {
+        var tempData = table.getData();
         table.clearData();
+        tabOption.data = tempData;
         table = new Tabulator("#dashboard-table", tabOption);
     }
 }
@@ -699,6 +881,19 @@ $(document).on('jsonReady', function() {
 
 function menuShowHide(xDim, yDim, menuReset) {
 
+     //trying to reset scaling and normalizing part
+     //
+     $('.scarow').prop('checked', true);
+     $('.scacol').prop('checked', false);
+     //$('#select-choice-mini-sca').val("0").trigger('change');
+     //$('#select-choice-mini-map').val("0").trigger('change');
+     $('#select-choice-mini-sca').val("0");
+     $('#select-choice-mini-sca').trigger('change.select2');
+     $('#select-choice-mini-map').val("0");
+     $('#select-choice-mini-map').trigger('change.select2');
+
+     tabTempJson = [];
+     console.log('xum5', tabTempJson);
 
      fixedDimsDict={};
 
@@ -739,6 +934,14 @@ function menuShowHide(xDim, yDim, menuReset) {
             $("#".concat(selectIDbyDims[dimn])).off('select2:select');
 
             $("#".concat(selectIDbyDims[dimn])).on('select2:select', function (e) {
+
+               $('.scarow').prop('checked', true);
+               $('.scacol').prop('checked', false);
+               
+               $('#select-choice-mini-sca').val("0").trigger('change.select2');
+               $('#select-choice-mini-map').val("0").trigger('change.select2');
+               tabTempJson = [];
+           
                selId = $(this).attr('id');
                fixedDimsDict[dimBySelectIDs[selId]] = $(this).val();
 
@@ -777,10 +980,13 @@ function menuShowHide(xDim, yDim, menuReset) {
                    toggleBottomTitle(false);
                    toggleTopTitle(false);
 
-                   table = new Tabulator("#dashboard-table", tabOption);
-                   //table.setData(tabJson);
-                   //table.setColumns(tabOption.columns);
-                   //table.redraw();
+                   //table = new Tabulator("#dashboard-table", tabOption);
+
+                   console.log('xum3', tabTempJson);
+                   table.setColumns(tabOption.columns);
+                   table.clearData();
+                   table.setData(tabJson);
+                   table.redraw(true);
                }
                
             });
@@ -817,29 +1023,142 @@ var bottomCalcFunc = function(values, data, calcParams){
 };
 
 
-var lmtCellColorFormatter = function(cell, formatterParams, onRendered){
+var lmtCellColorFormatter = colorILAMB;
+
+function colorILAMB(cell, formatterParams, onRendered){
      var clr = "#808080";
      let nc = cmap.length;
-     if(cell.getValue() > -900){
-         var ae = Math.abs(cell.getValue());
+
+     if (Array.isArray(cell.getValue())) {
+         origVal = cell.getValue()[0];
+         normVal = cell.getValue()[1];
+     }
+     else {
+         origVal = cell.getValue();
+         normVal = cell.getValue();
+     }
+
+     
+     if(normVal > -900){
+         var ae = Math.abs(normVal);
          var ind;
          if(ae>=0.25){
-              ind = Math.round(2*cell.getValue()+4);
+              ind = Math.round(2*normVal+4);
          }else{
-              ind = Math.round(4*cell.getValue()+4);
+              ind = Math.round(4*normVal+4);
          }
          ind = Math.min(Math.max(ind,0),nc-1);
          clr = cmap[ind];
      }
      cell.getElement().style.backgroundColor = clr;
 
-     if (formatterParams.showCellValue && cell.getValue() > -900){
+     if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
-        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        return Math.round((origVal + Number.EPSILON) * 100) / 100;
      }
 };
 
 
+function colorLinear(cell, formatterParams, onRendered) {
+     let vMin, vMax;
+     vMin = -2.5;
+     vMax =  2.5;
+     if (formatterParams.scaopt == "0"){
+         //if (formatterParams.scadir == "row"){
+         //   var cell.getData();
+         //}
+         console.log("will be implemented later");
+     }
+     else if (formatterParams.scaopt == "1"){
+          vMin = -2.5;
+          vMax =  2.5;
+     }
+     else if (formatterParams.scaopt == "2"){
+          vMin = -1.0;
+          vMax =  1.0;
+     }
+     else if (formatterParams.scaopt == "3"){
+         vMin =  0.0;
+         vMax =  1.0;
+     }
+
+     console.log('xxx', formatterParams.scaopt);
+
+     if (Array.isArray(cell.getValue())) {
+         origVal = cell.getValue()[0];
+         normVal = cell.getValue()[1];
+     }
+     else {
+         origVal = cell.getValue();
+         normVal = cell.getValue();
+     }
+
+
+     var clr = "#808080";
+     let nc = cmap.length;
+     if(normVal > -900){
+         var ind = Math.round((normVal - vMin) * nc / (vMax - vMin))
+         ind = Math.min(Math.max(ind,0),nc-1);
+         clr = cmap[ind];
+     }
+     cell.getElement().style.backgroundColor = clr;
+
+     if (formatterParams.showCellValue && origVal > -900){
+         cell.getElement().style.color = "black";
+        return Math.round((origVal + Number.EPSILON) * 100) / 100;
+     }
+}
+
+
+function colorLinearReverse(cell, formatterParams, onRendered) {
+
+     let vMin, vMax;
+     vMin = -2.5;
+     vMax =  2.5;
+     if (formatterParams.scaopt == "0"){
+         //if (formatterParams.scadir == "row"){
+         //   var cell.getData();
+         //}
+         console.log("will be implemented later");
+     }
+     else if (formatterParams.scaopt == "1"){
+          vMin = -2.5;
+          vMax =  2.5;
+     }
+     else if (formatterParams.scaopt == "2"){
+          vMin = -1.0;
+          vMax =  1.0;
+     }
+     else if (formatterParams.scaopt == "3"){
+         vMin =  0.0;
+         vMax =  1.0;
+     }
+
+     //console.log('yyy', formatterParams.scaopt);
+     //
+     if (Array.isArray(cell.getValue())) {
+         origVal = cell.getValue()[0];
+         normVal = cell.getValue()[1];
+     }
+     else {
+         origVal = cell.getValue();
+         normVal = cell.getValue();
+     }
+
+     var clr = "#808080";
+     let nc = cmap.length;
+     if(normVal > -900){
+         var ind = Math.round((vMax - normVal) * nc / (vMax - vMin))
+         ind = Math.min(Math.max(ind,0),nc-1);
+         clr = cmap[ind];
+     }
+     cell.getElement().style.backgroundColor = clr;
+
+     if (formatterParams.showCellValue && origVal > -900){
+         cell.getElement().style.color = "black";
+        return Math.round((origVal + Number.EPSILON) * 100) / 100;
+     }
+}
 
 var lmtTitleFormatter = function(cell, titleFormatterParams, onRendered){
      onRendered(function(){
@@ -866,7 +1185,7 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
     var Columns=[];
 
     var otherCol = { title:"col_name", field:"col-field", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
-            formatter:lmtCellColorFormatter, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
+            formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
     var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
     firstCol.title = ydim.concat('/',xdim);
@@ -1023,9 +1342,6 @@ function  cellClickFuncGenetic(e, cell){
          //var rowFirst = thisrow.getCell('row_name').getValue();
          var rowFirst = thisrow.getCell(ydimField).getValue();
 
-         console.log($('#select-choice-mini-x').val());
-         console.log($('#select-choice-mini-y').val());
-
          xDimName = $('#select-choice-mini-x').val();
          yDimName = $('#select-choice-mini-y').val();
 
@@ -1124,8 +1440,6 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
 
         if(! cell.getRow().getTreeParent()){
 
-            console.log(value, 'xxxxx');
-
             if (formatterParams.yDim == "metric"){
                 fgFontColor = "#0808ff";
             }
@@ -1189,53 +1503,200 @@ $(window).on('beforeunload', function(){
     $('#bottomtitle').prop('checked', false);
     $('#toptitle').prop('checked', true);
     $('#tooltips').prop('checked', true);
+
+    $('.scarow').prop('checked', true);
+    $('.scacol').prop('checked', false);
+    $('#select-choice-mini-sca').val("0").trigger('change');
+    $('#select-choice-mini-map').val("0").trigger('change');
     isJsonReady = false;
 });
 
 
-//var rowLevs = 0;
-//function rowExpand(rows, treeLevs) {
-//    for (row of rows) {
-//        if (row.getTreeChildren()) {
-//
-//            if (row == rows[0]) {
-//                rowLevs = rowLevs + 1;
-//            }
-//            if (rowLevs == treeLevs) {
-//                row.treeExpand();
-//            }
-//            else {
-//                rowExpand(row.getTreeChildren(), treeLevs);
-//            }
-//        }
-//        if (rowLevs  
-//    }
-//
-//
-//    treeLevs = treeLevs - 1;
-//    for (row of rows) {
-//        if (treeLevs > 0){
-//           if (row.getTreeChildren) {
-//               rowExpand(row.getTreeChildren(), treeLevs);
-//           }
-//        }
-//        else{
-//           row.treeExpand();
-//           return levsExpl;
-//
-//        }
-//    }
-//}
-//
-//function rowCollapse(rows, treeLevs) {
-//    treeLevs = treeLevs - 1;
-//    for (row of rows) {
-//        console.log(row);
-//        row.treeCollapse();
-//        if (row.getTreeParent() && treeLevs > 0) {
-//            rowExpand(row.getTreeChildren(), treeLevs);
-//        }
-//    }
+function scaColorMap(scaDir){
+
+    var tempData = table.getData();
+
+    if (scaDir == 'row') {
+        for (row of tempData){
+           console.log(row);
+        }
+    }
+    else{
+        console.log('in scaColor')
+    }
+}
+
+
+function normalizer(normMethod, data){
+    var normData = Object.assign({}, data);
+
+    if ("_children" in data) {
+        if (data._children.length > 0){
+           var i = 0;
+           for (cData of data._children) {
+               normData._children[i] = normalizer(normMethod, cData);
+               i = i + 1;
+           }
+        }
+    }
+             
+    var arr = [];
+    var kmp = [];
+    for ( k of Object.keys(data) ){
+        if ( (k != 'row_name') && (k != '_children') ){
+           arr.push(data[k]);
+           kmp.push(k);
+        }
+
+    }
+
+    console.log('in norma', data, arr, kmp);
+    var normArray = [];
+    switch (normMethod){
+       //case "0":
+       //   normArray = arr;
+       //   break;
+       case "1":
+
+          console.log('normalizaed opt 1');
+          let getMean = function (data) {
+              datasum = data.reduce(function (a, b) {
+                  if (Number(b) > -999.0){
+                     return Number(a) + Number(b);
+                  }
+                  else {
+                     return Number(a);
+                  }
+
+              }, 0.0);
+              
+              datanum = data.reduce(function (a, b) {
+                  if (Number(b) > -999.0){
+                     return Number(a) + 1.0;
+                  }
+                  else {
+                     return Number(a);
+                  }
+              }, 0.0);
+              return datanum > 0 ? datasum / datanum : -999.0;
+          };
+
+          let getStd = function (data) {
+              let m = getMean(data);
+
+              if ( m > -999.0) {
+                 return Math.sqrt(data.reduce(function (sq, n) {
+
+                         if ( Number(n) > -999.0 ) {
+                             return sq + Math.pow(Number(n) - m, 2);
+                         }
+                         else {
+                             return sq;
+                        
+                         }
+                     }, 0) / datanum);
+              }
+              else {
+                 return -999.0;
+              }
+          };
+
+          for ( val of arr ) {
+              if (val > -999.0) {
+                 newval = ( val - getMean(arr) ) / getStd(arr);
+              }
+              else {
+                 newval = -999.0;
+              }
+              normArray.push(newval); 
+          }
+          console.log('xxx0', getMean(arr), getStd(arr));
+          break;
+       case "2": case "3":
+          const findMinMax = () => {
+             let min = 1.0e20, max = -1.0e20;
+             for (let i = 0; i < arr.length; i++) {
+               let value = arr[i];
+
+               if (value > -999.0) {
+                  min = (value < min) ? value : min
+                  max = (value > max) ? value : max
+               }
+             }
+
+             if ( min == 1.0e20 ){
+                  min = -999.0;
+             }
+             if ( max == -1.0e20 ){
+                  max = -999.0;
+             }
+          
+             return [min, max]
+          }
+          const [vMin, vMax] = findMinMax()
+          console.log('xumdeb', vMin, vMax);
+          for ( val of arr ) {
+              if (val > -999.0) {
+                 if (vMax == vMin) {
+                    newval = 1.0
+                 }
+                 else {
+
+                    if (normMethod == "3") {
+                        newval = ( val - vMin  ) / (vMax - vMin);
+                    }
+                    else {
+                        newval = ( val - 0.5*(vMin+vMax) ) / (0.5 * (vMax - vMin));
+                    }
+                 }
+              }
+              else {
+                 newval = -999.0;
+              }
+              normArray.push(newval); 
+          }
+          
+          break;
+    }
+
+    var i = 0;
+    for (k of kmp) {
+        normData[k] = [data[k], normArray[i]];
+        i = i + 1;
+    }
+    return normData;
+}
+
+
+
+const deepCopyFunction = (inObject) => {
+  let outObject, value, key
+
+  if (typeof inObject !== "object" || inObject === null) {
+    return inObject; // Return the value if inObject is not an object
+  }
+
+  // Create an array or object to hold the values
+  outObject = Array.isArray(inObject) ? [] : {};
+
+  for (key in inObject) {
+    value = inObject[key]
+
+    // Recursively (deep) copy for nested objects, including arrays
+    outObject[key] = deepCopyFunction(value);
+  }
+
+  return outObject
+}
+
+//function expandCollapse(action){
+//  if (action == "expand"){
+//  	tabOption.dataTreeStartExpanded = [true, false];
+//  }
+//  else{
+//  	tabOption.dataTreeStartExpanded = false;
+//  }
+//  table = new Tabulator("#dashboard-table", option=tabOption);
 //}
 
 

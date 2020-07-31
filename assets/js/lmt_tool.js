@@ -62,7 +62,6 @@ function resolve_tree(tabJson){
           }
           newline["_children"] = findchild;
 
-          console.log(newline);
           treeJson.push(newline);
        }
    }
@@ -83,7 +82,6 @@ function setcmecDefault(cmecJson, fxdimDict) {
 
    let defaultJson = {};
 
-   console.log(fxdimDict);
    let n = cmecJson.DIMENSIONS.json_structure.indexOf(fxdimNam);
 
    if (n == -1){
@@ -116,8 +114,6 @@ function setcmecDefault(cmecJson, fxdimDict) {
        else{
           fxdimValNext = cmecJson.DIMENSIONS.dimensions[fxdimNamNext];
        }
-
-       console.log('deb', fxdimNamNext, fxdimValNext);
 
        if (fxdimVal.constructor === Array){
           for (v of fxdimVal){
@@ -156,8 +152,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
             let nextJson={};
             switch (fixedDim){
               case cmecJson.DIMENSIONS.json_structure[0]:
-                 console.log(fixedDim)
-                 console.log('xxx', fixedDimsDict);
                  fxDimName = cmecJson.DIMENSIONS.json_structure[0];
 
                  if (Object.keys(prevJson).includes(fixedDimsDict[fxDimName])){
@@ -166,10 +160,8 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                  else{
                     nextJson[fixedDimsDict[fxDimName]] = setcmecDefault(cmecJson, {[fxDimName]:fixedDimsDict[fxDimName]});
                  }
-                 console.log(nextJson);
                  break;
               case cmecJson.DIMENSIONS.json_structure[1]:
-                 console.log(fixedDim)
                  fxDimName = cmecJson.DIMENSIONS.json_structure[1];
                  for (reg of Object.keys(prevJson)){
                     nextJson[reg] = {};
@@ -183,7 +175,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                  }
                  break;
               case cmecJson.DIMENSIONS.json_structure[2]:
-                 console.log(fixedDim)
                  fxDimName = cmecJson.DIMENSIONS.json_structure[2];
                  for (reg of Object.keys(prevJson)){
                     nextJson[reg] = {};
@@ -199,18 +190,13 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                  }
                  break;
               case cmecJson.DIMENSIONS.json_structure[3]:
-                 console.log(fixedDim);
-                 console.log(nextJson);
-                 console.log(prevJson);
                  fxDimName = cmecJson.DIMENSIONS.json_structure[3];
                  
                  for (reg of Object.keys(prevJson)){
                     nextJson[reg] = {};
                     for (mod of Object.keys(prevJson[reg])){
                        nextJson[reg][mod]={};
-                       console.log(reg, mod, 'deb');
                        for (met of Object.keys(prevJson[reg][mod])){
-                           //console.log(prevJson[reg][mod][met], met, fixedDimsDict['statistic']);
                            nextJson[reg][mod][met] = {};
                            if (Object.keys(prevJson[reg][mod][met]).includes(fixedDimsDict[fxDimName])){
                               nextJson[reg][mod][met][fixedDimsDict[fxDimName]] = prevJson[reg][mod][met][fixedDimsDict[fxDimName]];
@@ -267,8 +253,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
          }
 
 
-         console.log(sdict);
-         console.log(dmarr);
          console.log(dimX, dimY, 'deb');
          for (dm of dmarr){
 
