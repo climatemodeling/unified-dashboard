@@ -1,4 +1,3 @@
-//
 // require modules
 
 var $ = require( "jquery" );
@@ -243,39 +242,29 @@ $(document).ready(function() {
      //document.getElementById('select-choice-mini-sca').onchange = function (){
      $('#select-choice-mini-sca').change(function () {
 
-         console.log('xum1', tabTempJson.length);
-         console.log('xum2', tabTempJson);
-
          if (tabTempJson.length > 0) {
-             console.log('from save');
              var tempData = deepCopyFunction(tabTempJson); 
          }
          else {
-             console.log('from data');
              var tempData = table.getData(); 
-
-             console.log(tempData);
              tabTempJson = deepCopyFunction(tempData);
          }
 
          var newData = Object.assign([], tempData);
 
          if ($('.scarow').is(':checked')){
-            scadir = "row";
+             scadir = "row";
          }
          if ($('.scacol').is(':checked')){
-            scadir = "column";
+             scadir = "column";
          }
 
-         console.log(scadir);
          if (scadir == "row") {
              var j = 0;
              for (data of tempData){
                  newData[j] = normalizer($('#select-choice-mini-sca').val(), data);
                  j = j + 1;
              }
-
-             console.log('xxxnewdata', newData);
          }
          else {
              for (data of tempData) {
@@ -298,7 +287,6 @@ $(document).ready(function() {
                     }
                  }
              }
-             console.log('in the colum scale');
          }
 
          updateColorMapping();
@@ -330,11 +318,9 @@ $(document).ready(function() {
 function updateNormalizing() {
 
      if (tabTempJson.length > 0) {
-         console.log('from save');
          var tempData = deepCopyFunction(tabTempJson); 
      }
      else {
-         console.log('from data');
          var tempData = table.getData(); 
          tabTempJson = deepCopyFunction(tempData);
      }
@@ -342,25 +328,21 @@ function updateNormalizing() {
      var newData = Object.assign([], tempData);
 
      if ($('.scarow').is(':checked')){
-        scadir = "row";
+         scadir = "row";
      }
      if ($('.scacol').is(':checked')){
-        scadir = "column";
+         scadir = "column";
      }
 
-     console.log(scadir);
      if (scadir == "row") {
          var j = 0;
          for (data of tempData){
              newData[j] = normalizer($('#select-choice-mini-sca').val(), data);
              j = j + 1;
          }
-
-         console.log('xxxnewdata', newData);
      }
      else {
          var colData = {};
-         
          for (col_name of Object.keys(tempData[0])){
              if (col_name != 'row_name') {
                 for (data of tempData){
@@ -373,7 +355,6 @@ function updateNormalizing() {
                 }
              }
          }
-         console.log('in the colum scale');
     }
 
     return newData;
@@ -402,10 +383,7 @@ function updateColorMapping() {
      }
 }
 
-
 function toggleTooltips(genTab){
-
-     console.log('in showhide');
      if ($("#tooltips[type=checkbox]").is(":checked")) { 
         tabOption.tooltips = function(cell){
            if (cell.getField() == 'row_name') {
@@ -419,11 +397,6 @@ function toggleTooltips(genTab){
      else{
         tabOption.tooltips = false;
      }
-     console.log('build!!!!');
-     //$("#dashboard-table").tabulator("destroy");
-
-     //table.destroy();
-     //table.redraw(true);
      if (genTab){
         table.clearData();
         table = new Tabulator("#dashboard-table", tabOption);
@@ -650,7 +623,6 @@ function prepareTab(cJson) {
 
 
    for (fxdim of Object.keys(ini_fxdm)) {
-       console.log('xxx', fxdim, ini_fxdm[fxdim], selectIDbyDims[fxdim]);
        $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
        $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
    }
@@ -697,7 +669,6 @@ function loadlocJson() {
             filePromise.then (function(file){
                try{
                    cmecJson = JSON.parse(file.content);
-                   console.log(cmecJson.SCHEMA);
                }
                catch(err){
                    alert('xxx', err.message);
@@ -734,7 +705,6 @@ function loadlocJson() {
               
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
                     if (dimn == 'statistic'){
-                        console.log(dimn, cmecJson.DIMENSIONS.dimensions[dimn].indices);
                         lmt_tool.add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
                     }
                     else{
@@ -771,7 +741,6 @@ function loadlocJson() {
                $('.select-choice-y').val(ini_ydim);
 
                for (fxdim of Object.keys(ini_fxdm)) {
-                   console.log('xxx', fxdim, ini_fxdm[fxdim], selectIDbyDims[fxdim]);
                    $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
                    $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
                }
@@ -861,7 +830,6 @@ $(document).on('jsonReady', function() {
                      alert (" x and y must be different ");
                   }
                   else {
-                     console.log('x side', xDimName, yDimName);
                      menuShowHide(xDimName, yDimName, 1);
                   }
              }
@@ -875,7 +843,6 @@ $(document).on('jsonReady', function() {
                      alert (" x and y must be different ");
                   }
                   else{
-                     console.log('y side', xDimName, yDimName);
                      menuShowHide(xDimName, yDimName, 1);
                   }
              }
@@ -903,7 +870,6 @@ function menuShowHide(xDim, yDim, menuReset) {
      $('#select-choice-mini-map').trigger('change.select2');
 
      tabTempJson = [];
-     console.log('xum5', tabTempJson);
 
      fixedDimsDict={};
 
@@ -913,8 +879,7 @@ function menuShowHide(xDim, yDim, menuReset) {
             $("#".concat(selectIDbyDims[dimn])).select2().next().hide();
          }
          else{
-            //null fixedDimsDict
-            //
+            //nullify fixedDimsDict
             fixedDimsDict[dimn] = $("#".concat(selectIDbyDims[dimn])).val();
 
             if (menuReset == 1){
@@ -963,8 +928,6 @@ function menuShowHide(xDim, yDim, menuReset) {
 
                    var cvtTree=1;
 
-                   console.log(xDim, yDim, 'before call');
-                   console.log(fixedDimsDict);
                    tabJson = lmt_tool.cmec2tab_json(cmecJson, xDim, yDim, fixedDimsDict, cvtTree);
 
                    tabOption.data = tabJson;
@@ -992,7 +955,6 @@ function menuShowHide(xDim, yDim, menuReset) {
 
                    //table = new Tabulator("#dashboard-table", tabOption);
 
-                   console.log('xum3', tabTempJson);
                    table.setColumns(tabOption.columns);
                    table.clearData();
                    table.setData(tabJson);
@@ -1092,8 +1054,6 @@ function colorLinear(cell, formatterParams, onRendered) {
          vMax =  1.0;
      }
 
-     console.log('xxx', formatterParams.scaopt);
-
      if (Array.isArray(cell.getValue())) {
          origVal = cell.getValue()[0];
          normVal = cell.getValue()[1];
@@ -1126,9 +1086,6 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
      vMin = -2.5;
      vMax =  2.5;
      if (formatterParams.scaopt == "0"){
-         //if (formatterParams.scadir == "row"){
-         //   var cell.getData();
-         //}
          console.log("will be implemented later");
      }
      else if (formatterParams.scaopt == "1"){
@@ -1144,8 +1101,6 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
          vMax =  1.0;
      }
 
-     //console.log('yyy', formatterParams.scaopt);
-     //
      if (Array.isArray(cell.getValue())) {
          origVal = cell.getValue()[0];
          normVal = cell.getValue()[1];
@@ -1229,7 +1184,6 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
                       bgcol =  bgColorGroup[k];
                   }
               }
-              console.log('xxx');
            }
            else{
               //bgcol = "#9CC3D5";
@@ -1344,7 +1298,6 @@ function  cellClickFuncGenetic(e, cell){
 
      // check parent row
      //
-     console.log('tree', thisrow.getTreeChildren());
      //
      if ( thisrow.getTreeChildren().length == 0 ){
 
@@ -1370,7 +1323,6 @@ function  cellClickFuncGenetic(e, cell){
          for (dim of dims){
               selectVal = $('#'.concat(selectIDbyDims[dim])).val();
               if (selectVal != undefined && selectVal != null && selectVal != ''){
-                  console.log(dim, selectVal);
 
                   if (dim == 'model'){linkmodel = selectVal;}
                   if (dim == 'region'){linkregion = selectVal;}
@@ -1379,7 +1331,6 @@ function  cellClickFuncGenetic(e, cell){
                           linkmetric = selectVal.replace(/\s/g, '').replace('::','/').replace('!!','/');
                           var benmarkname = selectVal.split('!!').slice(-1)[0];
                           linkmetric = linkmetric.concat('/', benmarkname);
-                          console.log(linkmetric);
                       }
                       else{
                           alert ("111 clickable cell only for lowest level metric");
@@ -1416,15 +1367,12 @@ function  cellClickFuncGenetic(e, cell){
              var sndmet = thisrow.getTreeParent().getCell(ydimField).getValue().replace(/\s/g, '');
              linkmetric = topmet.concat('/', sndmet, '/', rowFirst, '/', rowFirst);
 
-             console.log('link', linkmetric);
 
          }
 
 
-         console.log('click cell', colField, rowFirst);
 
          if (linkmetric != undefined) {
-             console.log(linkmetric);
              var newWin = window.open(baseUrl.concat(linkmetric,'.html?model=',linkmodel,'&region=', linkregion));
          }
 
@@ -1502,11 +1450,7 @@ function setmetricbg(r, cell, value, bgcolor, fgcolor){
 }
 
 $(window).on('beforeunload', function(){
-    // your logic here`enter code here`
     //const cb = document.querySelector('input[name="colorblind"]');
-    
-    //cb.checked = "true";
-    //console.log('xxx', cb, cb.value);
     $('#colorblind').prop('checked', true);
     $('#file').val('');
     $('#cellvalue').prop('checked', false);
@@ -1520,21 +1464,6 @@ $(window).on('beforeunload', function(){
     $('#select-choice-mini-map').val("0").trigger('change');
     isJsonReady = false;
 });
-
-
-function scaColorMap(scaDir){
-
-    var tempData = table.getData();
-
-    if (scaDir == 'row') {
-        for (row of tempData){
-           console.log(row);
-        }
-    }
-    else{
-        console.log('in scaColor')
-    }
-}
 
 
 function normalizer(normMethod, data){
@@ -1560,7 +1489,6 @@ function normalizer(normMethod, data){
 
     }
 
-    console.log('in norma', data, arr, kmp);
     var normArray = [];
     switch (normMethod){
        //case "0":
@@ -1568,7 +1496,6 @@ function normalizer(normMethod, data){
        //   break;
        case "1":
 
-          console.log('normalizaed opt 1');
           let getMean = function (data) {
               datasum = data.reduce(function (a, b) {
                   if (Number(b) > -999.0){
@@ -1620,7 +1547,6 @@ function normalizer(normMethod, data){
               }
               normArray.push(newval); 
           }
-          console.log('xxx0', getMean(arr), getStd(arr));
           break;
        case "2": case "3":
           const findMinMax = () => {
@@ -1644,7 +1570,6 @@ function normalizer(normMethod, data){
              return [min, max]
           }
           const [vMin, vMax] = findMinMax()
-          console.log('xumdeb', vMin, vMax);
           for ( val of arr ) {
               if (val > -999.0) {
                  if (vMax == vMin) {

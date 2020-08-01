@@ -65,7 +65,6 @@ function resolve_tree(tabJson){
           treeJson.push(newline);
        }
    }
-   console.log(treeJson);
    return treeJson;
 }
 
@@ -141,7 +140,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
   if (cmecJson.DIMENSIONS.json_structure.includes(dimX) && cmecJson.DIMENSIONS.json_structure.includes(dimY)){
      fixedDims = Object.keys(fixedDimsDict);
 
-     console.log(fixedDims.length, 'xxx');
      if (fixedDims.length + 2 !== cmecJson.DIMENSIONS.json_structure.length){
         alert("the size of fixed dimensions not consistent with the json file"); 
      }
@@ -222,7 +220,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
          // dimX and dimY
          let ix = cmecJson.DIMENSIONS.json_structure.indexOf(dimX);
          let iy = cmecJson.DIMENSIONS.json_structure.indexOf(dimY);
-         console.log(ix, iy);
 
          let dmnms = cmecJson.DIMENSIONS.json_structure;
          let dmarr = [];
@@ -253,7 +250,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
          }
 
 
-         console.log(dimX, dimY, 'deb');
          for (dm of dmarr){
 
              if (! (dimX === dm) && ! (dimY === dm)){
@@ -319,7 +315,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
              tabJson.push(tab_row);
          }
 
-         console.log('xxx', tabJson);
          if (dimY == 'metric' && convertTree == 1){
              tabJson = resolve_tree(tabJson);
          }
