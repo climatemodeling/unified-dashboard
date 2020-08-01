@@ -102,7 +102,12 @@ var tabOption = {
 
         //function should return a string for the tooltip of false to hide the tooltip
         //return  cell.getColumn().getField() + " - " + cell.getValue(); //return cells "field - value";
-        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        if (cell.getField() == 'row_name') {
+           return false;
+        }
+        else {
+           return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+        }
         //return cell.getValue().toFixed(2);
      },
 
@@ -403,7 +408,12 @@ function toggleTooltips(genTab){
      console.log('in showhide');
      if ($("#tooltips[type=checkbox]").is(":checked")) { 
         tabOption.tooltips = function(cell){
-        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+           if (cell.getField() == 'row_name') {
+              return false;
+           }
+           else {
+              return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+           }
         };
      }
      else{
