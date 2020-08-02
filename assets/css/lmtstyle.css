@@ -76,6 +76,7 @@ p {
    text-align: center;
    border-collapse: collapse;
    border: 1px solid black;
+   height: 82vh;
 }
 
 .tabulator .tabulator-headers {

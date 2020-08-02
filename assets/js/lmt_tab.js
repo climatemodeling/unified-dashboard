@@ -14,6 +14,7 @@ window.loadlocJson = loadlocJson;
 window.toggleTooltips = toggleTooltips;
 window.toggleCellValue = toggleCellValue;
 window.toggleBottomTitle = toggleBottomTitle;
+window.toggleScreenHeight = toggleScreenHeight;
 window.toggleTopTitle = toggleTopTitle;
 window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
@@ -78,16 +79,16 @@ var tabOption = {
      placeholder:"Loading Data",
 
      //ajax loading
-     ajaxURL: jsonFileUrl,
-     ajaxConfig:{
-          mode:"cors", //set request mode to cors
-          credentials: "same-origin", //send cookies with the request from the matching origin
-          headers: {
-              "Accept": "application/json", //tell the server we need JSON back
-              "X-Requested-With": "XMLHttpRequest", //fix to help some frameworks respond correctly to request
-              "Content-type": 'application/json; charset=utf-8', //set the character encoding of the request
-              "Access-Control-Allow-Origin": "https://cmorchecker.github.io", //the URL origin of the site making the request
-     },},
+     //ajaxURL: jsonFileUrl,
+     //ajaxConfig:{
+     //     mode:"cors", //set request mode to cors
+     //     credentials: "same-origin", //send cookies with the request from the matching origin
+     //     headers: {
+     //         "Accept": "application/json", //tell the server we need JSON back
+     //         "X-Requested-With": "XMLHttpRequest", //fix to help some frameworks respond correctly to request
+     //         "Content-type": 'application/json; charset=utf-8', //set the character encoding of the request
+     //         "Access-Control-Allow-Origin": "https://cmorchecker.github.io", //the URL origin of the site making the request
+     //},},
 
 
      movableColumns: true, //enable user movable columns
@@ -132,6 +133,7 @@ var tabOption = {
      },
      columns:[],
 
+     maxHeight:"100%",
 };
 
 
@@ -426,8 +428,37 @@ function toggleCellValue(genTab) {
         table.clearData();
         //table.setData(tempData);
         tabOption.data = tempData;
+        tabOption.maxHeight = false;
         table = new Tabulator("#dashboard-table", tabOption);
+
+        //document.getElementById('dashboard-table').style.removeProperty('max-height');
+        //document.getElementById('dashboard-table').style.height = "100%";
+        //table.setHeight(false);
+        //draw_legend();
      }
+
+}
+
+
+function toggleScreenHeight() {
+
+     if ($("#screenheight[type=checkbox]").is(":checked")) { 
+        document.getElementById('dashboard-table').style['max-height'] = "100%";
+        //document.getElementById('dashboard-table').style.height = "82vh";
+        //document.getElementById('dashboard-table').style['height'] = "auto";
+        document.getElementById('dashboard-table').style.removeProperty('height');
+        document.getElementById('dashboard-table').style.removeProperty('min-height');
+        table.setHeight(false);
+        draw_legend();
+
+     }
+     else {
+
+        document.getElementById('dashboard-table').style.removeProperty('max-height');
+        document.getElementById('dashboard-table').style.height = "100%";
+        table.setHeight(false);
+        draw_legend();
+    }
 
 }
 
@@ -479,6 +510,10 @@ function loadrmtJson(jsfUrl) {
 
      document.getElementById('file').value = '';
      table.clearData();
+
+     resetSwitch();
+     resetSelect();
+
 
      var jqxhr = $.getJSON( jsfUrl, {format: "json"})
        .done(function(data) {
@@ -647,7 +682,11 @@ function prepareTab(cJson) {
 function loadlocJson() {
 
 
+     resetSwitch();
+     resetSelect();
+
     $('.select-choice-ex').val(null).trigger('change');
+
 
 
     var file = document.getElementById('file').files[0];
@@ -703,6 +742,8 @@ function loadlocJson() {
                    grpsTopMetric = [...new Set(t)];
                }
               
+               selectIDbyDims = {};
+               dimBySelectIDs = {};
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
                     if (dimn == 'statistic'){
                         lmt_tool.add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
@@ -860,6 +901,7 @@ function menuShowHide(xDim, yDim, menuReset) {
 
      //trying to reset scaling and normalizing part
      //
+     //
      $('.scarow').prop('checked', true);
      $('.scacol').prop('checked', false);
      //$('#select-choice-mini-sca').val("0").trigger('change');
@@ -906,6 +948,7 @@ function menuShowHide(xDim, yDim, menuReset) {
             }
 
 
+
             $("#".concat(selectIDbyDims[dimn])).off('select2:select');
 
             $("#".concat(selectIDbyDims[dimn])).on('select2:select', function (e) {
@@ -923,6 +966,7 @@ function menuShowHide(xDim, yDim, menuReset) {
                function checkDefine(data){
                   return data != undefined;                   
                }
+
 
                if( Object.values(fixedDimsDict).every(checkDefine) ) {
 
@@ -1451,20 +1495,66 @@ function setmetricbg(r, cell, value, bgcolor, fgcolor){
 
 $(window).on('beforeunload', function(){
     //const cb = document.querySelector('input[name="colorblind"]');
+    //
+
+    resetSwitch();
+    resetSelect();
+    resetInput();
+});
+
+
+function resetSwitch () {
+
     $('#colorblind').prop('checked', true);
-    $('#file').val('');
+
+    $('.scarow').prop('checked', true);
+    $('.scacol').prop('checked', false);
+
     $('#cellvalue').prop('checked', false);
     $('#bottomtitle').prop('checked', false);
     $('#toptitle').prop('checked', true);
     $('#tooltips').prop('checked', true);
+    $('.screenheight').prop('checked', true);
+}
 
-    $('.scarow').prop('checked', true);
-    $('.scacol').prop('checked', false);
+
+function resetSelect (){
+
+    $('.hide-list').val(null).trigger('change');
+
     $('#select-choice-mini-sca').val("0").trigger('change');
     $('#select-choice-mini-map').val("0").trigger('change');
-    isJsonReady = false;
-});
 
+    //$('#select-choice-mini-x').val(null).trigger('change');
+    //$('#select-choice-mini-y').val(null).trigger('change');
+
+
+    $('#select-choice-mini-1').val(null).trigger('change');
+    $('#select-choice-mini-2').val(null).trigger('change');
+    $('#select-choice-mini-3').val(null).trigger('change');
+    $('#select-choice-mini-4').val(null).trigger('change');
+    $('#select-choice-mini-5').val(null).trigger('change');
+    $('#select-choice-mini-6').val(null).trigger('change');
+    $('#select-choice-mini-7').val(null).trigger('change');
+    $('#select-choice-mini-8').val(null).trigger('change');
+    $('#select-choice-mini-9').val(null).trigger('change');
+
+    $('#select-choice-mini-1').select2().next().hide();
+    $('#select-choice-mini-2').select2().next().hide();
+    $('#select-choice-mini-3').select2().next().hide();
+    $('#select-choice-mini-4').select2().next().hide();
+    $('#select-choice-mini-5').select2().next().hide();
+    $('#select-choice-mini-6').select2().next().hide();
+    $('#select-choice-mini-7').select2().next().hide();
+    $('#select-choice-mini-8').select2().next().hide();
+    $('#select-choice-mini-9').select2().next().hide();
+}
+
+function resetInput (){
+    $('.select-choice-ex').val(null).trigger('change');
+    $('#file').val('');
+    isJsonReady = false;
+}
 
 function normalizer(normMethod, data){
     var normData = Object.assign({}, data);
@@ -1692,3 +1782,5 @@ function setLevelExpand(row, level) {
        return true;
     }
 }
+
+

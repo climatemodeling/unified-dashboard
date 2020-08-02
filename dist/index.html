@@ -4,11 +4,11 @@
    <meta charset="utf-8" />
 
    <!-- js --!>
-   <script type="text/javascript" src="js/bundle-771837a101.min.js"></script>
+   <script type="text/javascript" src="js/bundle-390ea05c19.min.js"></script>
    
    
    <!-- css--!>
-   <link rel="stylesheet" href="css/bundle-b9d41b69d4.min.css">
+   <link rel="stylesheet" href="css/bundle-bf61cdebdc.min.css">
 
 
 </head>
@@ -121,6 +121,12 @@
               <span class="margin-r">Top Title</span>
           </label>
 
+          <label class="el-switch el-switch-sm">
+              <input type="checkbox" name="switch" class="screenheight" id="screenheight" onchange="toggleScreenHeight(true)" checked hidden>
+              <span class="el-switch-style"></span>
+              <span class="margin-r">Screen Height</span>
+          </label>
+
 
       </section>
 
@@ -145,29 +151,28 @@
         <div class="tabDiv" id="mytab">
           <div id="dashboard-table"></div>
         </div>
+        <center>
+            <div class="legDiv">
+            <p>Relative Scale
+            <table class="table-header-rotated" id="scoresLegend">
+              <tbody>
+                <tr>
+                  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+              </tbody>
+            </table>
+            Worse Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Better Value
+            <table class="table-header-rotated" id="missingLegend">
+              <tbody>
+                <tr>
+                  <td bgcolor="#808080"></td>
+                </tr>
+              </tbody>
+            </table>Missing Data or Error
+            </div>
+        </center>
       </section>
 
-
-   <center>
-       <div class="legDiv">
-       <p>Relative Scale
-       <table class="table-header-rotated" id="scoresLegend">
-         <tbody>
-           <tr>
-             <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-           </tr>
-         </tbody>
-       </table>
-       Worse Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Better Value
-       <table class="table-header-rotated" id="missingLegend">
-         <tbody>
-           <tr>
-             <td bgcolor="#808080"></td>
-           </tr>
-         </tbody>
-       </table>Missing Data or Error
-       </div>
-   </center>
     </main>
 </body>
 </html>
