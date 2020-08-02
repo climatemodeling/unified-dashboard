@@ -30,6 +30,10 @@ gulp.task('build-js', function () {
         ['babelify'],
         ['browserify-css',{
            minify: true,
+           processRelativeUrl: function(relativeUrl) {
+               return relativeUrl;
+           },
+           rebaseUrls:false,
            output: 'public/build/css/bundle.min.css'}]
     ]})
     .bundle()

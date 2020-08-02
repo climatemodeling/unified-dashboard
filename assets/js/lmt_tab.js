@@ -33,6 +33,10 @@ const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"]
 // color used default
 const PuOr = ['#b35806','#e08214','#fdb863','#fee0b6','#f7f7f7','#d8daeb','#b2abd2','#8073ac','#542788'];
 const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6dba0','#5aae61','#1b7837'];
+
+
+var logoFile='rubisco_logo.png';
+
 var cmap = PuOr;
 
 var scadir;
@@ -211,6 +215,10 @@ $(document).ready(function() {
      });
      $('.select-choice-ex').val(null).trigger('change');
 
+     $('.select-choice-logo').select2({
+         placeholder: 'Select logos',
+     });
+     $('.select-choice-logo').val(null).trigger('change');
 
      //document.getElementById('select-choice-mini-ex').onchange = function(){
 
@@ -221,6 +229,19 @@ $(document).ready(function() {
          
          jsfUrl = jsonFileUrl + jsfUrl;
          loadrmtJson(jsfUrl);
+     });
+
+     $('#select-choice-mini-logo').on('select2:select', function() {
+         logoFile = $(this).val();
+
+         console.log(logoFile, 'xxx');
+         //var tempData = table.getData(); 
+         table.clearData();
+         //table.setData(tempData);
+        // table.redraw(true);
+         table = new Tabulator("#dashboard-table", tabOption);
+
+         
      });
 
      //scaling
@@ -1251,7 +1272,9 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
 
 var firstColIcon =  function(cell, titleFormatterParams) {
-    return "<img class='infoImage' src='https://avatars0.githubusercontent.com/u/36375040?s=200&v=4'>";
+    //return "<img class='infoImage' src='https://avatars0.githubusercontent.com/u/36375040?s=200&v=4'>";
+    //
+    return "<img class='infoImage' src='image/".concat(logoFile, "'>");
     //return "<img class='infoImage' src='image.png'>";
 };
 
