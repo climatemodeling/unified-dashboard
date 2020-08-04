@@ -29,7 +29,9 @@ const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remo
 const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
 
 const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
-const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"]
+//const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"];
+const bgColorGroupFirstRow = ["#0063B2FF", "black"];
+const fgColorGroupFirstRow = ["white", "white"];
 // color used default
 const PuOr = ['#b35806','#e08214','#fdb863','#fee0b6','#f7f7f7','#d8daeb','#b2abd2','#8073ac','#542788'];
 const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6dba0','#5aae61','#1b7837'];
@@ -98,8 +100,8 @@ var tabOption = {
      movableColumns: true, //enable user movable columns
      //movableRows: true, //enable user movable columns
 
-     //layout:"fitColumns",
-     layout:"fitData",
+     layout:"fitColumns",
+     //layout:"fitData",
      //tooltips: true,
      tooltips: function(cell){
         //cell - cell component
@@ -1216,6 +1218,7 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
     var otherCol = { title:"col_name", field:"col-field", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
     var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
+    //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
     firstCol.title = ydim.concat('/',xdim);
     //firstCol.field = 'row_name';
@@ -1238,7 +1241,8 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
               ftwgt = 600;
               ftsty = "normal";
               txdec = "";
-              txcol = "white";
+              //txcol = "white";
+              txcol = fgColorGroupFirstRow[k];
            }
            else if (xdim == "metric"){
 
@@ -1490,7 +1494,8 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
             else if (formatterParams.yDim == "model"){
                 fgFontColor = "white"
                 var k = grpsModelSrc[value] % bgColorGroupFirstRow.length;
-                setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgFontColor);
+                //setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgFontColor);
+                setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgColorGroupFirstRow[k]);
             }
         }
      });
