@@ -111,16 +111,17 @@ function setcmecDefault(cmecJson, fxdimDict) {
           fxdimValNext = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdimNamNext]);
        }
        else{
-          fxdimValNext = cmecJson.DIMENSIONS.dimensions[fxdimNamNext];
+          fxdimValNext = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdimNamNext]);
        }
 
        if (fxdimVal.constructor === Array){
           for (v of fxdimVal){
               defaultJson[v] = setcmecDefault(cmecJson, {[fxdimNamNext]:fxdimValNext});
           }
+          //defaultJson = setcmecDefault(cmecJson, {[fxdimNamNext]:fxdimValNext});
        }
        else {
-          defaultJson[fxdimVal] = setcmecDefault(cmecJson, {[fxdimNamNext]:fxdimValNext});
+          defaultJson = setcmecDefault(cmecJson, {[fxdimNamNext]:fxdimValNext});
        }
    }
    return defaultJson;
@@ -141,7 +142,7 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
      fixedDims = Object.keys(fixedDimsDict);
 
      if (fixedDims.length + 2 !== cmecJson.DIMENSIONS.json_structure.length){
-        alert("the size of fixed dimensions not consistent with the json file"); 
+        alert("the size of fixed dimensions is not consistent with the json file"); 
      }
      else{
 
@@ -166,9 +167,13 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
 
                     if (Object.keys(prevJson[reg]).includes(fixedDimsDict[fxDimName])){
                        nextJson[reg][fixedDimsDict[fxDimName]] = prevJson[reg][fixedDimsDict[fxDimName]];
+
+                       //console.log(fxDimName, reg, fixedDimsDict[fxDimName], nextJson);
+                       //console.log(fxDimName, reg, prevJson[reg][fixedDimsDict[fxDimName]]);
                     }
                     else{
                        nextJson[reg][fixedDimsDict[fxDimName]] = setcmecDefault(cmecJson, {[fxDimName]:fixedDimsDict[fxDimName]});
+                       //console.log('default', nextJson[reg][fixedDimsDict[fxDimName]]);
                     }
                  }
                  break;
@@ -214,7 +219,7 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
             prevJson = Object.assign(nextJson, {});
 
          }
-         //console.log(prevJson);
+         //console.log('prevJson', prevJson);
          // now write to tab json
          //
          // dimX and dimY
@@ -249,11 +254,29 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
             ydimVal = Object.keys(cmecJson.DIMENSIONS.dimensions[dimY]);
          }
 
+         //console.log('dmarr=', dmarr, xdimVal, ydimVal, dimX, dimY);
 
          for (dm of dmarr){
 
-             if (! (dimX === dm) && ! (dimY === dm)){
+
+             //if (dm == 'r1i1p1f1') {
+
+                 //console.log(dm, dimX, dimY);
+
+                 //console.log((dimX != dm) &&  (dimY != dm));
+
+             //}
+             //if (! (dimX === dm) && ! (dimY === dm)){
+             if ( (dimX != dm) &&  (dimY != dm) ){
+
+                //console.log(sdict, prevJson)
+                //console.log(sdict[dm])
                 sdict = sdict[dm];
+
+                //console.log(sdict);
+                //if (dm == 'r1i1p1f1') {
+                //    console.log(sdict, 'xxx');
+                //}
              }
 
              if (dimX === dm){
@@ -264,11 +287,21 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
              if (dimY === dm){
                 yKeys = Object.keys(sdict)
                 sdict = sdict[yKeys[0]];
+
+                //console.log('11111', sdict, yKeys[0]);
              }
          }
 
+
+         //console.log('xKeys=', xKeys);
+         //console.log('yKeys=', yKeys);
+         
+
          xkey = xdimVal;
          ykey = ydimVal;
+
+         xKeys = xdimVal;
+         yKeys = ydimVal;
 
          let tabJson = [];
          let tab_row = {};
@@ -285,6 +318,7 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                            else{
                                sdict={};
                            }
+                           //console.log('X', dimX, dm, sdict);
                        }
                        else if (dimY === dm){
                            if (yk in sdict){
@@ -293,6 +327,7 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                            else{
                                sdict={};
                            }
+                           //console.log('Y', dimY, dm, sdict);
                        }
                        else{
                            if (sdict != null && dm in sdict){
@@ -301,6 +336,7 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                            else{
                                sdict=null;
                            }
+                           //console.log('F', dm, sdict);
 
                        }
                   }
@@ -312,13 +348,14 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                        tab_row[xk] = sdict;   
                   }
              }
+
+             //console.log('tab_row', tab_row);
              tabJson.push(tab_row);
          }
 
          if (dimY == 'metric' && convertTree == 1){
              tabJson = resolve_tree(tabJson);
          }
-
          return tabJson;
      }
   }

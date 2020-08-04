@@ -234,7 +234,6 @@ $(document).ready(function() {
      $('#select-choice-mini-logo').on('select2:select', function() {
          logoFile = $(this).val();
 
-         console.log(logoFile, 'xxx');
          //var tempData = table.getData(); 
          table.clearData();
          //table.setData(tempData);
