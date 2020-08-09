@@ -161,8 +161,25 @@ display:inline-block;position:relative;height:7px;width:1px;background:0 0}\
 position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#333}\
 .tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-expand{display:inline-block;position:relative;height:7px;width:1px;background:#333}.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-expand:after{position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#333} </style></head><body>";
 
+
+         var colorBarRow;
+         if(document.getElementById("colorblind").checked) {
+             colorBarRow = "<td bgcolor='#b35806'></td><td bgcolor='#e08214'></td><td bgcolor='#fdb863'></td><td bgcolor='#fee0b6'></td>\
+                  <td bgcolor='#f7f7f7'></td><td bgcolor='#d8daeb'></td><td bgcolor='#b2abd2'></td><td bgcolor='#8073ac'></td><td bgcolor='#542788'></td>";
+         }
+         else {
+             colorBarRow = "<td bgcolor='#b2182b'></td><td bgcolor='#d6604d'></td><td bgcolor='#f4a582'></td><td bgcolor='#fddbc7'></td>\
+                  <td bgcolor='#f7f7f7'></td><td bgcolor='#d9f0d3'></td><td bgcolor='#a6dba0'></td><td bgcolor='#5aae61'></td><td bgcolor='#1b7837'></td>";
+         }
+         var legTable = "<center> <div class='legDiv'> <p>Relative Scale <table class='table-header-rotated' id='scoresLegend'> <tbody> <tr>" +
+                        colorBarRow + "</tr> </tbody> </table> Worse Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Better Value \
+            <table class='table-header-rotated' id='missingLegend'> \
+              <tbody> <tr> <td bgcolor='#808080'></td> </tr> </tbody> \
+            </table>Missing Data or Error\
+            </div> </center> ";
+
          var aftTable = "</body></html>";
-         var newContents = preTable + fileContents.replace(/undefined/g, '') + aftTable; 
+         var newContents = preTable + fileContents.replace(/undefined/g, '') + legTable + aftTable; 
 
          console.log(newContents);
          blob = new Blob([newContents], {type: 'text/html'});
