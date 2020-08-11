@@ -229,6 +229,29 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
      columns:[],
 
      maxHeight:"100%",
+
+
+     tableBuilt:function(){
+        var elmnt = document.getElementsByClassName("tabulator-header");
+        var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
+        console.log(elmnt);
+        console.log(elmnt[0].offsetHeight);
+        console.log(table.getRows().length);
+        console.log('xxxdeb', totHeight);
+        console.log($("#dashboard-table")[0].style);
+        console.log("min(82vh," + totHeight.toString() + ")");
+
+        try{
+            $("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
+        }
+
+        catch(err){
+            console.log(err);
+
+        }
+
+        //$("#dashboard-table").style.height="min(240, 82vh)";
+     },
 };
 
 
@@ -559,6 +582,13 @@ function toggleScreenHeight() {
         //document.getElementById('dashboard-table').style['height'] = "auto";
         document.getElementById('dashboard-table').style.removeProperty('height');
         document.getElementById('dashboard-table').style.removeProperty('min-height');
+
+        var elmnt = document.getElementsByClassName("tabulator-header");
+        var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
+
+        console.log('intoggle', totHeight);
+        document.getElementById('dashboard-table').style['height'] = totHeight.toString() + "px";
+        console.log(document.getElementById('dashboard-table').style['height']);
         table.setHeight(false);
         draw_legend();
 
