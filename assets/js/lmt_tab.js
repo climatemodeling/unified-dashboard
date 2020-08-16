@@ -18,6 +18,7 @@ window.toggleScreenHeight = toggleScreenHeight;
 window.toggleTopTitle = toggleTopTitle;
 window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
+window.savetoHtml = savetoHtml;
 
 
 // major js to control the tabulator for LMT unified dashboard
@@ -95,7 +96,95 @@ var tabOption = {
      //         "Content-type": 'application/json; charset=utf-8', //set the character encoding of the request
      //         "Access-Control-Allow-Origin": "https://cmorchecker.github.io", //the URL origin of the site making the request
      //},},
+     //
 
+     htmlOutputConfig:{
+         columnHeaders:true, //do not include column headers in HTML table
+         columnGroups:false, //do not include column groups in column headers for HTML table
+         rowGroups:false, //do not include row groups in HTML table
+         columnCalcs:true, //do not include column calcs in HTML table
+         dataTree:true, //do not include data tree in HTML table
+         formatCells:true, //show raw cell values without formatter
+     },
+
+     downloadConfig:{
+         columnHeaders:true, //do not include column headers in HTML table
+         columnGroups:false, //do not include column groups in column headers for HTML table
+         rowGroups:false, //do not include row groups in HTML table
+         columnCalcs:true, //do not include column calcs in HTML table
+         dataTree:true, //do not include data tree in HTML table
+         formatCells:true, //show raw cell values without formatter
+     },
+
+
+     downloadReady:function(fileContents, blob){
+
+         console.log(fileContents);
+         console.log(blob);
+
+         var preTable = " \
+<!DOCTYPE html> \
+<!-- saved from url=(0037)https://lmt.ornl.gov/test_lmtud/dist/ --> \
+<html lang='en' class=''><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'> \
+   <style> table {margin-left:auto; margin-right:auto; margin-top:30px;} \
+      th, td { min-width:28px; max-width:28px; width:28px; height:28px; overflow:hidden; \
+         word-wrap:break-word; font-size:xx-small; overflow:auto; text-align:center; } \
+      th { height: 150px; transform: translate(-1px, 52px) rotate(-90deg); word-wrap: unset; overflow:inherit; display:tabel-cell;\
+        white-space: nowrap; font-size:small; } td {border:1px solid;} \
+      table.tabulator-print-table td:nth-of-type(1) {width:320px;min-width:320px;text-align:left;font-size:small;} \
+.tabulator-print-table{border-collapse:collapse} .tabulator-print-table .tabulator-data-tree-branch \
+{display:inline-block;vertical-align:middle;height:9px;width:7px;margin-top:-9px;margin-right:5px;border-bottom-left-radius:1px;border-left:2px \
+solid #aaa;border-bottom:2px solid #aaa}.tabulator-print-table .tabulator-print-table-group{\
+box-sizing:border-box;border-bottom:1px solid #999;border-right:1px solid #aaa;border-top:1px \
+solid #999;padding:5px;padding-left:10px;background:#ccc;font-weight:700;min-width:100%}.tabulator-print-table \
+.tabulator-print-table-group:hover{cursor:pointer;background-color:rgba(0,0,0,.1)}.tabulator-print-table \
+.tabulator-print-table-group.tabulator-group-visible .tabulator-arrow{margin-right:10px;border-left:6px solid \
+transparent;border-right:6px solid transparent;border-top:6px solid #666;border-bottom:0}\
+.tabulator-print-table .tabulator-print-table-group.tabulator-group-level-1 td{padding-left:30px!important}\
+.tabulator-print-table .tabulator-print-table-group.tabulator-group-level-2 td{padding-left:50px!important}\
+.tabulator-print-table .tabulator-print-table-group.tabulator-group-level-3 td{padding-left:70px!important}\
+.tabulator-print-table .tabulator-print-table-group.tabulator-group-level-4 td{padding-left:90px!important}\
+.tabulator-print-table .tabulator-print-table-group.tabulator-group-level-5 td{padding-left:110px!important}\
+.tabulator-print-table .tabulator-print-table-group .tabulator-group-toggle{display:inline-block}\
+.tabulator-print-table .tabulator-print-table-group .tabulator-arrow{\
+display:inline-block;width:0;height:0;margin-right:16px;border-top:6px solid transparent;border-bottom:6px \
+solid transparent;border-right:0;border-left:6px solid #666;vertical-align:middle}\
+.tabulator-print-table .tabulator-print-table-group span{margin-left:10px;color:#d00}\
+.tabulator-print-table .tabulator-data-tree-control{display:-ms-inline-flexbox;display:inline-flex;-ms-flex-pack:center;\
+justify-content:center;-ms-flex-align:center;align-items:center;vertical-align:middle;\
+height:11px;width:11px;margin-right:5px;border:1px solid #333;border-radius:2px;\
+background:rgba(0,0,0,.1);overflow:hidden}\
+.tabulator-print-table .tabulator-data-tree-control:hover{cursor:pointer;background:rgba(0,0,0,.2)}\
+.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-collapse{\
+display:inline-block;position:relative;height:7px;width:1px;background:0 0}\
+.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-collapse:after{\
+position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#333}\
+.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-expand{display:inline-block;position:relative;height:7px;width:1px;background:#333}.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-expand:after{position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#333} </style></head><body>";
+
+
+         var colorBarRow;
+         if(document.getElementById("colorblind").checked) {
+             colorBarRow = "<td bgcolor='#b35806'></td><td bgcolor='#e08214'></td><td bgcolor='#fdb863'></td><td bgcolor='#fee0b6'></td>\
+                  <td bgcolor='#f7f7f7'></td><td bgcolor='#d8daeb'></td><td bgcolor='#b2abd2'></td><td bgcolor='#8073ac'></td><td bgcolor='#542788'></td>";
+         }
+         else {
+             colorBarRow = "<td bgcolor='#b2182b'></td><td bgcolor='#d6604d'></td><td bgcolor='#f4a582'></td><td bgcolor='#fddbc7'></td>\
+                  <td bgcolor='#f7f7f7'></td><td bgcolor='#d9f0d3'></td><td bgcolor='#a6dba0'></td><td bgcolor='#5aae61'></td><td bgcolor='#1b7837'></td>";
+         }
+         var legTable = "<center> <div class='legDiv'> <p>Relative Scale <table class='table-header-rotated' id='scoresLegend'> <tbody> <tr>" +
+                        colorBarRow + "</tr> </tbody> </table> Worse Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Better Value \
+            <table class='table-header-rotated' id='missingLegend'> \
+              <tbody> <tr> <td bgcolor='#808080'></td> </tr> </tbody> \
+            </table>Missing Data or Error\
+            </div> </center> ";
+
+         var aftTable = "</body></html>";
+         var newContents = preTable + fileContents.replace(/undefined/g, '') + legTable + aftTable; 
+
+         console.log(newContents);
+         blob = new Blob([newContents], {type: 'text/html'});
+         return blob;
+     },
 
      movableColumns: true, //enable user movable columns
      //movableRows: true, //enable user movable columns
@@ -140,6 +229,29 @@ var tabOption = {
      columns:[],
 
      maxHeight:"100%",
+
+
+     tableBuilt:function(){
+        var elmnt = document.getElementsByClassName("tabulator-header");
+        var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
+        console.log(elmnt);
+        console.log(elmnt[0].offsetHeight);
+        console.log(table.getRows().length);
+        console.log('xxxdeb', totHeight);
+        console.log($("#dashboard-table")[0].style);
+        console.log("min(82vh," + totHeight.toString() + ")");
+
+        try{
+            $("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
+        }
+
+        catch(err){
+            console.log(err);
+
+        }
+
+        //$("#dashboard-table").style.height="min(240, 82vh)";
+     },
 };
 
 
@@ -470,6 +582,13 @@ function toggleScreenHeight() {
         //document.getElementById('dashboard-table').style['height'] = "auto";
         document.getElementById('dashboard-table').style.removeProperty('height');
         document.getElementById('dashboard-table').style.removeProperty('min-height');
+
+        var elmnt = document.getElementsByClassName("tabulator-header");
+        var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
+
+        console.log('intoggle', totHeight);
+        document.getElementById('dashboard-table').style['height'] = totHeight.toString() + "px";
+        console.log(document.getElementById('dashboard-table').style['height']);
         table.setHeight(false);
         draw_legend();
 
@@ -1063,6 +1182,8 @@ var bottomCalcFunc = function(values, data, calcParams){
 
 var lmtCellColorFormatter = colorILAMB;
 
+
+
 function colorILAMB(cell, formatterParams, onRendered){
      var clr = "#808080";
      let nc = cmap.length;
@@ -1217,11 +1338,13 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
     var otherCol = { title:"col_name", field:"col-field", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
-    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
+    //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
+    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
     //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
     firstCol.title = ydim.concat('/',xdim);
     //firstCol.field = 'row_name';
+    firstCol.title = "";
     firstCol.field = ydimField;
 
     Columns.push(firstCol);
@@ -1810,4 +1933,11 @@ function setLevelExpand(row, level) {
     }
 }
 
+
+function savetoHtml() {
+    //var htmlTable = table.getHtml("active", true);
+    //console.log(htmlTable);
+    //var newwdw = window.open(htmlTable); 
+    table.download("html", "test.html",  {style:true});
+}
 

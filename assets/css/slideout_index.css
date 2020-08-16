@@ -34,6 +34,7 @@ body {
 .slideout-open,
 .slideout-open body,
 .slideout-open .slideout-panel {
+  overflow-x: hidden !important;
   overflow: auto;
 }
 
