@@ -38,6 +38,8 @@ const PuOr = ['#b35806','#e08214','#fdb863','#fee0b6','#f7f7f7','#d8daeb','#b2ab
 const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6dba0','#5aae61','#1b7837'];
 
 
+var isTreeTable;
+
 var logoFile='rubisco_logo.png';
 
 var cmap = PuOr;
@@ -74,6 +76,9 @@ var grpsTopMetric = [];
 
 var isJsonReady = false;
 var isTableBuilt = false;
+
+
+var _config = {};
 
 var tabOption = {
      dataTree:true,
@@ -237,12 +242,25 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
         console.log(elmnt);
         console.log(elmnt[0].offsetHeight);
         console.log(table.getRows().length);
-        console.log('xxxdeb', totHeight);
-        console.log($("#dashboard-table")[0].style);
+        console.log('xxxdeb', totHeight,  table.getRows("visible").length);
+        console.log($("#dashboard-table")[0].style, table.getDataCount(true) );
         console.log("min(82vh," + totHeight.toString() + ")");
 
+        isTreeTable = 0;
+        for (r of table.getRows()) {
+            if(r.getTreeChildren().length > 0){
+               isTreeTable = 1;
+            }
+        }
+
         try{
-            $("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
+            if ( isTreeTable == 0 ){ 
+                $("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
+            }
+            else{
+                $("#dashboard-table")[0].style["height"]="82vh";
+
+           }
         }
 
         catch(err){
@@ -448,6 +466,33 @@ $(document).ready(function() {
          //table.redraw(true);
      };
 
+     // is this a good place to insert lmtUDConfig?
+     //
+     const udcUrl = window.location.href + '_lmtUDConfig.json' // in same origin
+     var jqxhr = $.getJSON(udcUrl, {format: "json"})
+       .done(function(data) {
+
+           _config = data;
+
+           console.log(window.location.href + data.udcJsonLoc);
+
+           if (data.udcJsonLoc) {
+              let jsfUrl = window.location.href + data.udcJsonLoc;
+
+              console.log('xumdeb', jsfUrl, data.udcJsonLoc);
+              loadrmtJson(jsfUrl, data.udcDimSets);
+           }
+
+
+       })
+       .fail(function( jqxhr, textStatus, error ) {
+           _config = {};
+           var err = textStatus + ", " + error;
+           alert( "Request " + jsfUrl + "\nFailed: " + err );
+           
+       });
+
+
 });
 
 
@@ -587,7 +632,12 @@ function toggleScreenHeight() {
         var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
 
         console.log('intoggle', totHeight);
-        document.getElementById('dashboard-table').style['height'] = totHeight.toString() + "px";
+        if ( isTreeTable == 0 ){ 
+            document.getElementById('dashboard-table').style['height'] = totHeight.toString() + "px";
+        }
+        else{
+            document.getElementById('dashboard-table').style['height'] = "82vh";
+        }
         console.log(document.getElementById('dashboard-table').style['height']);
         table.setHeight(false);
         draw_legend();
@@ -646,7 +696,7 @@ function toggleTopTitle(genTab) {
 }
 
 
-function loadrmtJson(jsfUrl) {
+function loadrmtJson(jsfUrl, dimSet={}) {
    if (jsfUrl !== ""){
 
      document.getElementById('file').value = '';
@@ -666,7 +716,7 @@ function loadrmtJson(jsfUrl) {
               cmecJson = data;
               jsonType = "CMEC";
 
-              prepareTab(cmecJson);
+              prepareTab(cmecJson, dimSet);
 
               break;
      
@@ -731,7 +781,7 @@ function loadrmtJson(jsfUrl) {
 }
 
 
-function prepareTab(cJson) {
+function prepareTab(cJson, dimSet={}) {
 
    //Get model groups
    if (cJson.DIMENSIONS.json_structure.includes('model')){
@@ -755,6 +805,7 @@ function prepareTab(cJson) {
    }
 
 
+   console.log('xumdeb1', dimSet);
 
 
    for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
@@ -770,18 +821,35 @@ function prepareTab(cJson) {
    }
 
    // default ilamb, for others need to be rethink of it
+   //
+   //
 
-   let ini_xdim = cJson.DIMENSIONS.json_structure[0];
-   let ini_ydim = cJson.DIMENSIONS.json_structure[1];
+
+   let ini_xdim = '';
+   let ini_ydim = '';
    let ini_fxdm = {};
-   for (fxdim of cJson.DIMENSIONS.json_structure.slice(2, cJson.DIMENSIONS.json_structure.length)) {
-       if (fxdim == 'statistic'){
-          ini_fxdm[fxdim] = cJson.DIMENSIONS.dimensions['statistic']['indices'][0];
-       }
-       else {
-          ini_fxdm[fxdim] = Object.keys(cJson.DIMENSIONS.dimensions[fxdim])[0];
-       }
+
+   if ( dimSet.x_dim && cJson.DIMENSIONS.json_structure.includes(dimSet.x_dim) &&
+        dimSet.y_dim && cJson.DIMENSIONS.json_structure.includes(dimSet.y_dim) ) {
+      ini_xdim = dimSet.x_dim;
+      ini_ydim = dimSet.y_dim;
+      ini_fxdm = dimSet.fxdim;
    }
+   else {
+      ini_xdim = cJson.DIMENSIONS.json_structure[0];
+      ini_ydim = cJson.DIMENSIONS.json_structure[1];
+      ini_fxdm = {};
+
+      for (fxdim of cJson.DIMENSIONS.json_structure.slice(2, cJson.DIMENSIONS.json_structure.length)) {
+          if (fxdim == 'statistic'){
+             ini_fxdm[fxdim] = cJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+          }
+          else {
+             ini_fxdm[fxdim] = Object.keys(cJson.DIMENSIONS.dimensions[fxdim])[0];
+          }
+      }
+   }
+
 
    tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
@@ -793,12 +861,13 @@ function prepareTab(cJson) {
    $('.select-choice-y').val(ini_ydim);
 
 
-   $('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
-   $('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
+   //$('#'.concat(selectIDbyDims['region'])).select2({ placeholder: 'Select region',});
+   //$('#'.concat(selectIDbyDims['region'])).val('global').trigger('change');
 
 
 
    for (fxdim of Object.keys(ini_fxdm)) {
+       console.log('xumdeb3', fxdim, selectIDbyDims[fxdim], ini_fxdm[fxdim])
        $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
        $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
    }
@@ -993,8 +1062,17 @@ $(document).on('jsonReady', function() {
      }
 
      try{
-        var xDimName = cmecJson.DIMENSIONS.json_structure[0];
-        var yDimName = cmecJson.DIMENSIONS.json_structure[1];
+
+
+        if (_config.udcDimSets.x_dim && _config.udcDimSets.y_dim){
+            var xDimName = _config.udcDimSets.x_dim;
+            var yDimName = _config.udcDimSets.y_dim;
+        }
+
+        else {
+            var xDimName = cmecJson.DIMENSIONS.json_structure[0];
+            var yDimName = cmecJson.DIMENSIONS.json_structure[1];
+        }
 
         //for (dimn of Object.keys(selectIDbyDims)) {
         //     if (dimn != xDimName && dimn != yDimName){
