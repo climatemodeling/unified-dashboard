@@ -27,7 +27,8 @@ window.savetoHtml = savetoHtml;
 jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/";
 //var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/tab_ilamb_example.json";  // json file containing the benchmark results
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
-const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
+//const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
+const baseUrl = 'https://portal.nersc.gov/project/m2467/minxu/cmip6/ls3mip_elm_comparison/_build/';
 
 const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
 //const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"];
@@ -228,9 +229,9 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
      //       row.treeToggle();
      //   }
      //},
-     dataTreeStartExpanded:function(row, level){
-        return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
-     },
+     //dataTreeStartExpanded:function(row, level){
+     //   return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
+     //},
      columns:[],
 
      maxHeight:"100%",
@@ -246,12 +247,23 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
         console.log($("#dashboard-table")[0].style, table.getDataCount(true) );
         console.log("min(82vh," + totHeight.toString() + ")");
 
-        isTreeTable = 0;
-        for (r of table.getRows()) {
-            if(r.getTreeChildren().length > 0){
-               isTreeTable = 1;
-            }
-        }
+        //isTreeTable = 0;
+        //console.log('xx', table.getRows());
+        //for (r of table.getRows()) {
+        //    try{
+        //       console.log('intreetable', r, r.getTreeChildren());
+        //       if(r.getTreeChildren().length > 0){
+        //          isTreeTable = 1;
+        //       }
+        //    }
+        //    catch(err){
+        //       console.log(err);
+        //       isTreeTable = 0;
+        //    }
+        //    break;
+        //}
+
+        console.log('treetable', isTreeTable);
 
         try{
             if ( isTreeTable == 0 ){ 
@@ -488,7 +500,7 @@ $(document).ready(function() {
        .fail(function( jqxhr, textStatus, error ) {
            _config = {};
            var err = textStatus + ", " + error;
-           alert( "Request " + jsfUrl + "\nFailed: " + err );
+           alert( "Request config Failed: " + err );
            
        });
 
@@ -852,6 +864,18 @@ function prepareTab(cJson, dimSet={}) {
 
 
    tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
+   if (Object.keys(tabTreeJson[0]).includes('_children')) {
+      console.log ('in children');
+      tabOption.dataTreeCollapseElement = "";
+      tabOption.dataTreeExpandElement = "";
+      isTreeTable = 1;
+   }
+   else{
+      console.log ('no children');
+      tabOption.dataTreeCollapseElement = "<span></span>";
+      tabOption.dataTreeExpandElement = "<span></span>";
+      isTreeTable = 0;
+   }
 
    // add options 
    lmt_tool.add_options(cJson.DIMENSIONS.json_structure, "select-choice-mini-x");
@@ -984,6 +1008,19 @@ function loadlocJson() {
 
                tabTreeJson = lmt_tool.cmec2tab_json(cmecJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
+               if (Object.keys(tabTreeJson[0]).includes('_children')) {
+                  console.log ('in children');
+                  tabOption.dataTreeCollapseElement = "";
+                  tabOption.dataTreeExpandElement = "";
+                  isTreeTable = 1;
+               }
+               else{
+                  console.log ('no children');
+                  tabOption.dataTreeCollapseElement = "<span></span>";
+                  tabOption.dataTreeExpandElement = "<span></span>";
+                  isTreeTable = 0;
+               }
+
                // add options 
                lmt_tool.add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-x");
                lmt_tool.add_options(cmecJson.DIMENSIONS.json_structure, "select-choice-mini-y");
@@ -1061,10 +1098,9 @@ $(document).on('jsonReady', function() {
         alert('Error when rending the table:', err.message);
      }
 
-     try{
-
-
-        if (_config.udcDimSets.x_dim && _config.udcDimSets.y_dim){
+     //try{
+        if (Object.keys(_config).includes('udcDimSets') && Object.keys(_config.udcDimSets).includes('x_dim') && 
+                                                           Object.keys(_config.udcDimSets).includes('y_dim')){
             var xDimName = _config.udcDimSets.x_dim;
             var yDimName = _config.udcDimSets.y_dim;
         }
@@ -1107,12 +1143,10 @@ $(document).on('jsonReady', function() {
                   }
              }
         }
-     }
-     catch(err){
-        alert('Error when handling the table:', err.message);
-     }
-
-     
+     //}
+     //catch(err){
+     //   alert('Error when handling the table:', err.message);
+     //}
 });
 
 
@@ -1193,6 +1227,23 @@ function menuShowHide(xDim, yDim, menuReset) {
 
                    tabJson = lmt_tool.cmec2tab_json(cmecJson, xDim, yDim, fixedDimsDict, cvtTree);
 
+                   console.log(tabJson, Object.keys(tabJson[0]));
+                   console.log(Object.keys(tabJson[0]).includes("_children"));
+                   if (Object.keys(tabJson[0]).includes("_children")) {
+                      console.log ('xxxxx in children');
+                      //tabOption.dataTreeCollapseElement = "<i class='fas fa-minus-square'></i>";
+                      //tabOption.dataTreeExpandElement = "<i class='fas fa-plus-square'></i>";
+                      tabOption.dataTreeCollapseElement = "";
+                      tabOption.dataTreeExpandElement = "";
+                      isTreeTable = 1;
+                   }
+                   else{
+                      console.log ('xxxxx no children');
+                      tabOption.dataTreeCollapseElement = "<span></span>";
+                      tabOption.dataTreeExpandElement = "<span></span>";
+                      isTreeTable = 0;
+                   }
+
                    tabOption.data = tabJson;
 
                    bgcol = "#0063B2FF";
@@ -1216,12 +1267,15 @@ function menuShowHide(xDim, yDim, menuReset) {
                    toggleBottomTitle(false);
                    toggleTopTitle(false);
 
-                   //table = new Tabulator("#dashboard-table", tabOption);
 
                    table.setColumns(tabOption.columns);
                    table.clearData();
-                   table.setData(tabJson);
-                   table.redraw(true);
+
+                   console.log('xumdeb2', tabJson);
+                   //table.setData(tabJson);
+                   //table.redraw(true);
+                   console.log(tabOption);
+                   table = new Tabulator("#dashboard-table", tabOption);
                }
                
             });
@@ -1416,8 +1470,8 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
     var otherCol = { title:"col_name", field:"col-field", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
-    //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
-    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
+    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
+    //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
     //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
     firstCol.title = ydim.concat('/',xdim);
