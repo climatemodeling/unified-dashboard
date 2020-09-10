@@ -49,8 +49,8 @@ function resolve_tree(tabJson){
 
           for (chd of findchild){
                chd["_children"] = [];
-               chd.row_name = chd.row_name.split('::').slice(-1)[0];
                childName = chd.row_name;
+               chd.row_name = chd.row_name.split('::').slice(-1)[0];
                var findg = flattenJson.filter(obj => obj.row_name.includes(childName.concat('!!')));
                var findgrandchild = JSON.parse(JSON.stringify(findg));
 
@@ -97,7 +97,8 @@ function setcmecDefault(cmecJson, fxdimDict) {
           }
        }
        else {
-          defaultJson[fxdimVal] = -999.;
+          //defaultJson[fxdimVal] = -999.;
+          defaultJson = -999.;
        }
 
    }
@@ -137,6 +138,8 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
 //
 // set a default cmec json objects
 //
+//
+  let isTreeStructure = 0;
 
   if (cmecJson.DIMENSIONS.json_structure.includes(dimX) && cmecJson.DIMENSIONS.json_structure.includes(dimY)){
      fixedDims = Object.keys(fixedDimsDict);
@@ -339,23 +342,36 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                            //console.log('F', dm, sdict);
 
                        }
+                       //if (yk == "CESM2::r9i1p1f1" && xk == "BiasPrLatRmse" ) {
+                       //   console.log(xk, yk, sdict, dm); 
+                       //}
                   }
+
 
                   if (sdict == null){
                        tab_row[xk] = -999.;   
                   }
                   else{
+
                        tab_row[xk] = sdict;   
                   }
              }
 
              //console.log('tab_row', tab_row);
+             //
+             if (isTreeStructure == 1 || tab_row.row_name.includes('::') || tab_row.row_name.includes('!!')) {
+                isTreeStructure = 1;
+             }
              tabJson.push(tab_row);
          }
 
-         if (dimY == 'metric' && convertTree == 1){
+         //console.log('before', tabJson);
+
+         //if (dimY == 'metric' && convertTree == 1){
+         if (isTreeStructure == 1 && convertTree == 1) {
              tabJson = resolve_tree(tabJson);
          }
+         //console.log('after', tabJson);
          return tabJson;
      }
   }

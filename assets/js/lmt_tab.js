@@ -412,11 +412,18 @@ $(document).ready(function() {
              var tempData = deepCopyFunction(tabTempJson); 
          }
          else {
-             var tempData = table.getData(); 
+             var tempData = table.getData('all'); 
+             //console.log('yyy', tempData);
              tabTempJson = deepCopyFunction(tempData);
          }
 
          var newData = Object.assign([], tempData);
+
+         //console.log('firstnewData', newData);
+
+         //if (newData.length > 0){
+         //xxxx;
+         //}
 
          if ($('.scarow').is(':checked')){
              scadir = "row";
@@ -428,32 +435,57 @@ $(document).ready(function() {
          if (scadir == "row") {
              var j = 0;
              for (data of tempData){
-                 newData[j] = normalizer($('#select-choice-mini-sca').val(), data);
+                 newData[j] = normalizer($('#select-choice-mini-sca').val(), scadir, data);
                  j = j + 1;
              }
          }
          else {
-             for (data of tempData) {
-                 if ("_children" in data && data._children.length > 0){
-                    alert("cannot normalize along the colum with tree structures");
-                    throw new Error("cannot normalize along the colum with tree structures");
-                 }
-             }
+             //for (data of tempData) {
+             //    if ("_children" in data && data._children.length > 0){
+             //       alert("cannot normalize along the colum with tree structures");
+             //       throw new Error("cannot normalize along the colum with tree structures");
+             //    }
+             //}
 
              var colData = {};
              for (col_name of Object.keys(tempData[0])){
-                 if (col_name != 'row_name') {
-                    for (data of tempData){
-                        colData[data.row_name] = data[col_name];
-                    }
-                    var newcolData = normalizer($('#select-choice-mini-sca').val(), colData);
+                 if (col_name != 'row_name' && col_name != '_children') {
+                    //for (data of tempData){
+                    //    colData[data.row_name] = data[col_name];
+                    //}
+                    colData  = extractCol(tempData, col_name, '');
 
-                    for (data of newData) {
-                        data[col_name] = newcolData[data.row_name];
-                    }
+                    //for (k of Object.keys(colData)) {
+                    //   if (colData[k] > 1000.) {
+                    //       console.log('xxxxxx', k, colData[k]);
+                    //       tttt;
+                    //   }
+                    //}
+
+ 
+                    //console.log(colData, 'coldata');
+
+                    var newcolData = normalizer($('#select-choice-mini-sca').val(), scadir, colData);
+                    //newcolData = colData;
+
+                    //for (data of newData) {
+                    //    data[col_name] = newcolData[data.row_name];
+                    //}
+                    insertCol(newData, col_name, newcolData, ''); 
+
+                    //if (col_name == 'SeasonalTauxLonRmse') {
+                    //console.log(newData, 'newData', col_name, newcolData);
+                    //pppppppppp;
+                    //}
                  }
              }
          }
+
+         //console.log('newdata', newData);
+
+         //if (newData.length > 0){
+         //yyyy;
+         //}
 
          updateColorMapping();
 
@@ -480,29 +512,29 @@ $(document).ready(function() {
 
      // is this a good place to insert lmtUDConfig?
      //
-     const udcUrl = window.location.href + '_lmtUDConfig.json' // in same origin
-     var jqxhr = $.getJSON(udcUrl, {format: "json"})
-       .done(function(data) {
+     //-const udcUrl = window.location.href + '_lmtUDConfig.json' // in same origin
+     //-var jqxhr = $.getJSON(udcUrl, {format: "json"})
+     //-  .done(function(data) {
 
-           _config = data;
+     //-      _config = data;
 
-           console.log(window.location.href + data.udcJsonLoc);
+     //-      console.log(window.location.href + data.udcJsonLoc);
 
-           if (data.udcJsonLoc) {
-              let jsfUrl = window.location.href + data.udcJsonLoc;
+     //-      if (data.udcJsonLoc) {
+     //-         let jsfUrl = window.location.href + data.udcJsonLoc;
 
-              console.log('xumdeb', jsfUrl, data.udcJsonLoc);
-              loadrmtJson(jsfUrl, data.udcDimSets);
-           }
+     //-         console.log('xumdeb', jsfUrl, data.udcJsonLoc);
+     //-         loadrmtJson(jsfUrl, data.udcDimSets);
+     //-      }
 
 
-       })
-       .fail(function( jqxhr, textStatus, error ) {
-           _config = {};
-           var err = textStatus + ", " + error;
-           alert( "Request config Failed: " + err );
-           
-       });
+     //-  })
+     //-  .fail(function( jqxhr, textStatus, error ) {
+     //-      _config = {};
+     //-      var err = textStatus + ", " + error;
+     //-      alert( "Request config Failed: " + err );
+     //-      
+     //-  });
 
 
 });
@@ -514,7 +546,7 @@ function updateNormalizing() {
          var tempData = deepCopyFunction(tabTempJson); 
      }
      else {
-         var tempData = table.getData(); 
+         var tempData = table.getData('all'); 
          tabTempJson = deepCopyFunction(tempData);
      }
 
@@ -537,21 +569,83 @@ function updateNormalizing() {
      else {
          var colData = {};
          for (col_name of Object.keys(tempData[0])){
-             if (col_name != 'row_name') {
-                for (data of tempData){
-                    colData[data.row_name] = data[col_name];
-                }
+             if (col_name != 'row_name' && col_name != '_children') {
+
+                //for (data of tempData){
+                //    colData[data.row_name] = data[col_name];
+                //}
+                colData  = extractCol(tempData, col_name, '');
+
+                //for (k of Object.keys(colData)) {
+                //   if (colData[k] > 1000.) {
+                //       console.log('xxxxxx', k, colData[k]);
+                //       tttt;
+                //   }
+                //}
                 var newcolData = normalizer($('#select-choice-mini-sca').val(), colData);
 
-                for (data of newData) {
-                    data[col_name] = newcolData[data.row_name];
-                }
+                //for (data of newData) {
+                //    data[col_name] = newcolData[data.row_name];
+                //}
+                insertCol(newData, col_name, newcolData); 
              }
          }
     }
 
     return newData;
 
+}
+
+function extractCol(dataArr, colName, parentName){
+    var colData={};
+    for (data of dataArr) {
+         if (parentName != ''){
+            var cur_name = parentName+'::'+data.row_name;
+         }
+         else {
+            var cur_name = data.row_name;
+         }
+         colData[cur_name] = data[colName];
+
+         //console.log(cur_name, colData[cur_name]);
+         if (Object.keys(data).includes('_children')) {
+                 let newData = extractCol(data._children, colName, cur_name);
+                 //console.log(cur_name, newData, colData);
+                 colData = Object.assign({}, colData, newData);
+                 //console.log(cur_name, colData, 'after');
+         }
+    }
+    //console.log(cur_name, colData);
+    return colData;
+}
+
+
+function insertCol(dataArr, colName, colData, parentName) {
+
+    try {
+       for (data of dataArr) {
+            if (parentName != ''){
+               var cur_name = parentName+'::'+data.row_name;
+            }
+            else {
+               var cur_name = data.row_name;
+            }
+
+            data[colName] = colData[cur_name];
+
+            if (Object.keys(data).includes('_children')) {
+               //console.log(cur_name, data);
+               insertCol(data._children, colName, colData, cur_name);
+            }
+       }
+   }
+   catch(err) {
+
+       console.log('zzzzz', parentName, dataArr);
+
+   }
+
+   //console.log(dataArr);
 }
 
 
@@ -1041,7 +1135,7 @@ function loadlocJson() {
                ftwgt = 500;
                ftsty = "normal";
                txdec = "";
-               txcol = "white";
+               txcol = "black";
                let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
                grpsFirstCol.length = 0;
                tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, ini_xdim, ini_ydim, ydimField);
@@ -1374,7 +1468,7 @@ function colorLinear(cell, formatterParams, onRendered) {
      }
 
      if (Array.isArray(cell.getValue())) {
-         origVal = cell.getValue()[0];
+         origVal = cell.getValue()[1];
          normVal = cell.getValue()[1];
      }
      else {
@@ -1721,7 +1815,7 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
      var value = cell.getValue();
      onRendered(function(){
 
-        if(! cell.getRow().getTreeParent()){
+        if( (cell.getRow().getTreeParent()) ){
 
             if (formatterParams.yDim == "metric"){
                 fgFontColor = "#0808ff";
@@ -1751,6 +1845,8 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
                 var k = grpsModelSrc[value] % bgColorGroupFirstRow.length;
                 //setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgFontColor);
                 setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgColorGroupFirstRow[k]);
+
+                console.log('xxx', k, fgColorGroupFirstRow[k], bgColorGroupFirstRow[k]);
             }
         }
      });
@@ -1838,30 +1934,61 @@ function resetInput (){
     isJsonReady = false;
 }
 
-function normalizer(normMethod, data){
-    var normData = Object.assign({}, data);
 
-    if ("_children" in data) {
-        if (data._children.length > 0){
-           var i = 0;
-           for (cData of data._children) {
-               normData._children[i] = normalizer(normMethod, cData);
-               i = i + 1;
-           }
-        }
-    }
-             
-    var arr = [];
-    var kmp = [];
+
+function extractVals(data, arr, kmp, followTree) {
     for ( k of Object.keys(data) ){
         if ( (k != 'row_name') && (k != '_children') ){
            arr.push(data[k]);
            kmp.push(k);
         }
 
+        else if( k == '_children' && followTree == 1) {
+           extractVals(data, arr, kmp, followTree);
+        }
+    }
+}
+
+
+function insertVals(normData, data, newarr, kmp, i) {
+
+    for ( k of Object.keys(data) ){
+        if ( (k != 'row_name') && (k != '_children') ){
+            normData[k] = [data[k], newarr[i]]
+            i = i + 1;
+        }
+        else if ( k == '_children' ) {
+            insertVals(normData._children, data._children, newarr, kmp, i);
+        }
+    }
+}
+
+function normalizer(normMethod, scaDir, data){
+    var normData = Object.assign({}, data);
+
+    if ("_children" in data) {
+        if (scaDir == 'row') {
+           if (data._children.length > 0){
+              var i = 0;
+              for (cData of data._children) {
+                  normData._children[i] = normalizer(normMethod, scaDir, cData);
+                  i = i + 1;
+              }
+           }
+        }
+    }
+             
+    var arr = [];
+    var kmp = [];
+    if (scaDir == 'row') {
+        extractVals(data, arr, kmp, 0);
+    }
+    else {
+        extractVals(data, arr, kmp, 1);
     }
 
     var normArray = [];
+
     switch (normMethod){
        //case "0":
        //   normArray = arr;
@@ -1930,7 +2057,23 @@ function normalizer(normMethod, data){
                   min = (value < min) ? value : min
                   max = (value > max) ? value : max
                }
+
+               //if (value > 1000.) {
+               //    console.log(i, value, arr[i], arr.length);
+               //}
              }
+
+             let j = 0
+             for (k of kmp) {
+
+
+                 //if (j == 1657) {
+                 //    console.log(j, arr[j], k, 'deb');
+                 //}
+
+                 j = j + 1
+             }
+
 
              if ( min == 1.0e20 ){
                   min = -999.0;
@@ -1942,6 +2085,10 @@ function normalizer(normMethod, data){
              return [min, max]
           }
           const [vMin, vMax] = findMinMax()
+
+          console.log(vMin, vMax, 'vmaxvmin');
+          //console.log(arr, 'array');
+
           for ( val of arr ) {
               if (val > -999.0) {
                  if (vMax == vMin) {
@@ -1966,10 +2113,27 @@ function normalizer(normMethod, data){
           break;
     }
 
-    var i = 0;
-    for (k of kmp) {
-        normData[k] = [data[k], normArray[i]];
-        i = i + 1;
+    //console.log('norm', arr, normArray);
+
+    if (scaDir == 'row') {
+        var i = 0;
+        for (k of kmp) {
+            normData[k] = [data[k], normArray[i]];
+            i = i + 1;
+        }
+    }
+    else {
+        //if ('_children' in data){
+        //    insertVals(normData, data, normArray, kmp, 0);
+        //}
+
+        //else {
+            var i = 0;
+            for (k of kmp) {
+                normData[k] = [data[k], normArray[i]];
+                i = i + 1;
+            }
+        //}
     }
     return normData;
 }

@@ -67,8 +67,8 @@ gulp.task('build-css', function () {
 
 
 gulp.task('deploy', function () {
-  const manifest1 = gulp.src('public/build/js/rev-manifest.json');
-  const manifest2 = gulp.src('public/build/css/rev-manifest.json');
+  const manifest1 = gulp.src(['public/build/js/rev-manifest.json']);
+  const manifest2 = gulp.src(['public/build/css/rev-manifest.json']);
   return gulp.src(['assets/html/index.html'])
     .pipe(revRewrite({ manifest:manifest1 }))
     .pipe(revRewrite({ manifest:manifest2 }))
@@ -81,3 +81,5 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', gulp.series(gulp.parallel('clean-js', 'clean-css'), 'build-js', 'build-css', 'deploy'));
+//gulp.task('default', gulp.series('build-js', 'build-css', 'deploy'));
+//gulp.task('default', gulp.series('deploy'));
