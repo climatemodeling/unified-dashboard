@@ -4,6 +4,7 @@
   "description": "LMT Unified Dashboard to show benchmarking results",
   "main": "lmt_tab.js",
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,26 +26,28 @@
   },
   "homepage": "https://github.com/climatemodeling/unified-dashboard#readme",
   "devDependencies": {
-    "@babel/core": "^7.10.4",
-    "babel-core": "^6.26.3",
-    "babelify": "^8.0.0",
-    "browserify": "^16.5.1",
-    "browserify-css": "^0.15.0",
+    "@babel/core": "^7.11.0",
+    "babelify": ">=10.0.0",
+    "browserify": ">=16.5.2",
+    "browserify-css": ">=0.15.0",
     "del": "^5.1.0",
-    "gulp": "^4.0.2",
+    "gulp": ">=4.0.2",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
     "gulp-minify": "^3.1.0",
     "gulp-rev": "^9.0.0",
     "gulp-rev-rewrite": "^3.0.3",
     "jquery": "^3.5.1",
+    "lodash.template": ">=4.5.0",
     "select2": "^4.0.13",
     "slideout": "^1.0.1",
-    "tabulator-tables": "^4.7.1",
+    "tabulator-tables": "^4.8.1",
+    "uglify-js": "^3.10.4",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0",
-    "lodash.template": ">=4.5.0",
-    "uglify-js": ">=2.6.0"
+    "vinyl-source-stream": "^2.0.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "yargs-parser": ">=13.1.2"
+  }
 }
