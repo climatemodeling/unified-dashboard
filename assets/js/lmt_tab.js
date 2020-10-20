@@ -1499,7 +1499,7 @@ function colorLinear(cell, formatterParams, onRendered) {
      }
 
      if (Array.isArray(cell.getValue())) {
-         origVal = cell.getValue()[1];
+         origVal = cell.getValue()[0];
          normVal = cell.getValue()[1];
      }
      else {
