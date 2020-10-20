@@ -3,6 +3,12 @@
 @import url('slideout_index.css');
 @import url('slideout_test.css');
 @import url('checkbox.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+body, html{
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
 
 /* multi-select style */
 .select2-results__options{
@@ -48,13 +54,13 @@ div.legDiv{
 
 
 td {
-   height: 28px;
-   width: 28px;
-   border: 1px solid;
+   height: 25px;
+   width: 25px;
+   border: 0.5px solid;
 }
 
 p {
-   font-size:14px
+   font-size:16px;
    font-weight: bold;
    background-color:#FFFFFF;
 }
@@ -96,16 +102,22 @@ p {
 
 
 .tabulator{
-   font-size: 8px;
+   font-size: 11px;
    borderColor: "#FFFFFF";
 }
+
+/* Hide all icons by default */
+.tabulator-col .tabulator-col-sorter i{
+    display: none;
+}
+
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title{
    white-space: nowrap;
    text-overflow: clip;
    justify-content: center;
-   font-size:11px;
-   font-weight:600;
+   font-size:18px;
+   font-weight:300;
    color:black;
    text-shadow: none;
 }
@@ -124,8 +136,12 @@ p {
    border-collapse: collapse; 
    border-right: 0.25px solid black;
    border-left: 0.px solid black;
-   width:28px;
-   height:28px;
+   width:30px;
+   height:30px;
+   padding-top:5px;
+   padding-bottom:0;
+   padding-left:0;
+   padding-right:0;
 }
 
 
@@ -133,7 +149,7 @@ p {
 .tabulator-row .tabulator-frozen.tabulator-frozen-left{
    border-right: 0.1px solid black;
    border-left: 0.0px solid black;
-   font-size: 12px;
+   font-size: 18px;
    text-align: left;
 }
 
@@ -161,7 +177,7 @@ p {
   justify-content:center;
   font-size:11px;
   font-weight: 600;
-  width:28px;
+  width:30px;
   height:auto;
   overflow:auto;
   padding-top: 20px;

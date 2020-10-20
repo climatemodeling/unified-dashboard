@@ -28,12 +28,13 @@ jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/maste
 //var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/tab_ilamb_example.json";  // json file containing the benchmark results
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
 //const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
-const baseUrl = 'https://portal.nersc.gov/project/m2467/minxu/cmip6/ls3mip_elm_comparison/_build/';
+//const baseUrl = 'https://portal.nersc.gov/project/m2467/minxu/cmip6/ls3mip_elm_comparison/_build/';
+const baseUrl = 'https://www.ilamb.org/CMIP5v6/AR6/'
 
 const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
 //const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"];
-const bgColorGroupFirstRow = ["#0063B2FF", "black"];
-const fgColorGroupFirstRow = ["white", "white"];
+const bgColorGroupFirstRow = ["yellow", "#00FF00", "white"];
+const fgColorGroupFirstRow = ["black", "black", "black"];
 // color used default
 const PuOr = ['#b35806','#e08214','#fdb863','#fee0b6','#f7f7f7','#d8daeb','#b2abd2','#8073ac','#542788'];
 const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6dba0','#5aae61','#1b7837'];
@@ -192,6 +193,7 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
          return blob;
      },
 
+     headerSortElement:"",
      movableColumns: true, //enable user movable columns
      //movableRows: true, //enable user movable columns
 
@@ -229,17 +231,20 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
      //       row.treeToggle();
      //   }
      //},
-     //dataTreeStartExpanded:function(row, level){
-     //   return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
-     //},
+     dataTreeStartExpanded:function(row, level){
+        return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
+     },
      columns:[],
 
      maxHeight:"100%",
 
 
      tableBuilt:function(){
+
+        if (_config.udcScreenHeight != 0){
         var elmnt = document.getElementsByClassName("tabulator-header");
-        var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
+        //var totHeight = elmnt[0].offsetHeight + 28* table.getRows().length + 17;
+        var totHeight = elmnt[0].offsetHeight + 30* table.getRows().length + 20;
         console.log(elmnt);
         console.log(elmnt[0].offsetHeight);
         console.log(table.getRows().length);
@@ -278,6 +283,7 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
         catch(err){
             console.log(err);
 
+        }
         }
 
         //$("#dashboard-table").style.height="min(240, 82vh)";
@@ -512,29 +518,33 @@ $(document).ready(function() {
 
      // is this a good place to insert lmtUDConfig?
      //
-     //-const udcUrl = window.location.href + '_lmtUDConfig.json' // in same origin
-     //-var jqxhr = $.getJSON(udcUrl, {format: "json"})
-     //-  .done(function(data) {
+     //const udcUrl = window.location.href + '/_lmtUDConfig.json' // in same origin
+     const udcUrl = './_lmtUDConfig.json' // in same origin
 
-     //-      _config = data;
+     console.log(udcUrl, 'udc');
+     var jqxhr = $.getJSON(udcUrl, {format: "json"})
+       .done(function(data) {
 
-     //-      console.log(window.location.href + data.udcJsonLoc);
+           _config = data;
 
-     //-      if (data.udcJsonLoc) {
-     //-         let jsfUrl = window.location.href + data.udcJsonLoc;
+           console.log(window.location.href + data.udcJsonLoc);
 
-     //-         console.log('xumdeb', jsfUrl, data.udcJsonLoc);
-     //-         loadrmtJson(jsfUrl, data.udcDimSets);
-     //-      }
+           if (data.udcJsonLoc) {
+              //let jsfUrl = window.location.href + data.udcJsonLoc;
+              let jsfUrl = './' + data.udcJsonLoc;
+
+              console.log('xumdeb', jsfUrl, data.udcJsonLoc);
+              loadrmtJson(jsfUrl, data.udcDimSets);
+           }
 
 
-     //-  })
-     //-  .fail(function( jqxhr, textStatus, error ) {
-     //-      _config = {};
-     //-      var err = textStatus + ", " + error;
-     //-      alert( "Request config Failed: " + err );
-     //-      
-     //-  });
+       })
+       .fail(function( jqxhr, textStatus, error ) {
+           _config = {};
+           var err = textStatus + ", " + error;
+           alert( "Request config Failed: " + err );
+           
+       });
 
 
 });
@@ -692,6 +702,8 @@ function toggleTooltips(genTab){
 
 
 function toggleCellValue(genTab) {
+
+     console.log('intoo', $("#cellvalue[type=checkbox]").is(":checked"));
      if ($("#cellvalue[type=checkbox]").is(":checked")) { 
          for (x of tabOption.columns) {
              if (x.field != "row_name"){
@@ -735,7 +747,8 @@ function toggleScreenHeight() {
         document.getElementById('dashboard-table').style.removeProperty('min-height');
 
         var elmnt = document.getElementsByClassName("tabulator-header");
-        var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
+        //var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
+        var totHeight = elmnt[0].offsetHeight + 30* table.getRows().length + 20;
 
         console.log('intoggle', totHeight);
         if ( isTreeTable == 0 ){ 
@@ -991,6 +1004,9 @@ function prepareTab(cJson, dimSet={}) {
    }
    lmt_tool.add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
 
+
+
+
    // set tab column
    //
    tabOption.data = tabTreeJson;
@@ -1002,6 +1018,13 @@ function prepareTab(cJson, dimSet={}) {
    let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
    grpsFirstCol.length = 0;
    tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, ini_xdim, ini_ydim, ydimField);
+   
+
+   if (_config.udcCellValue == 1){
+      $('#cellvalue').prop('checked', true);
+      toggleCellValue(false);
+   }
+   
 
 }
 
@@ -1179,7 +1202,13 @@ $(document).on('jsonReady', function() {
 
      isJsonReady = true;
 
-     document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
+     //document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
+     document.getElementById('mytab').style.width = (400+(tabOption.columns.length-1)*30).toString()+'px';
+
+
+     if (_config.udcScreenHeight == 0){
+         toggleScreenHeight(false);
+     }
 
 
      try{
@@ -1351,7 +1380,8 @@ function menuShowHide(xDim, yDim, menuReset) {
                    grpsFirstCol.length = 0;
                    tabOption.columns = setTabColumns(tabJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, xDim, yDim, 'row_name');
 
-                   document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
+                   //document.getElementById('mytab').style.width = (360+(tabOption.columns.length-1)*28).toString()+'px';
+                   document.getElementById('mytab').style.width = (400+(tabOption.columns.length-1)*30).toString()+'px';
 
 
                    toggleTooltips(false);
@@ -1439,7 +1469,8 @@ function colorILAMB(cell, formatterParams, onRendered){
 
      if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
-        return Math.round((origVal + Number.EPSILON) * 100) / 100;
+        //return Math.round((origVal + Number.EPSILON) * 100) / 100;
+        return origVal.toFixed(2);
      }
 };
 
@@ -1547,7 +1578,7 @@ var lmtTitleFormatter = function(cell, titleFormatterParams, onRendered){
            cell.getElement().parentElement.parentElement.style.textDecoration = titleFormatterParams.txdec;
            cell.getElement().parentElement.parentElement.style.color = titleFormatterParams.color;
 
-           $('.tabulator-col-title').css("color", titleFormatterParams.color);
+           //$('.tabulator-col-title').css("color", titleFormatterParams.color);
 
            //cell.getElement()["style"] = {};
            //cell.getElement()["style"]["color"] = titleFormatterParams.color;
@@ -1563,8 +1594,9 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
     var Columns=[];
 
     var otherCol = { title:"col_name", field:"col-field", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
-            formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
-    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
+            formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:30, headerVertical:"flip", resizable:false, headerSort:true};
+            //formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
+    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:380, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim}, headerSort:true };
     //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
     //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
@@ -1587,11 +1619,13 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
            if (xdim == "model"){
               var k =  grpsModelSrc[x] % bgColorGroupFirstRow.length
               bgcol = bgColorGroupFirstRow[k];
-              ftwgt = 600;
+              ftwgt = 100;
               ftsty = "normal";
               txdec = "";
               //txcol = "white";
               txcol = fgColorGroupFirstRow[k];
+
+              console.log('txcol', txcol);
            }
            else if (xdim == "metric"){
 
@@ -1605,7 +1639,7 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
            else{
               //bgcol = "#9CC3D5";
               bgcol = "#0063B2FF";
-              ftwgt=600;
+              ftwgt=100;
               ftsty="normal";
               txdec="";
               txcol="white";
@@ -1626,7 +1660,11 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 var firstColIcon =  function(cell, titleFormatterParams) {
     //return "<img class='infoImage' src='https://avatars0.githubusercontent.com/u/36375040?s=200&v=4'>";
     //
-    return "<img class='infoImage' src='image/".concat(logoFile, "'>");
+    //
+    //
+    if (_config.logofile != 'None') {
+       return "<img class='infoImage' src='image/".concat(logoFile, "'>"); 
+    }
     //return "<img class='infoImage' src='image.png'>";
 };
 
@@ -1815,13 +1853,13 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
      var value = cell.getValue();
      onRendered(function(){
 
-        if( (cell.getRow().getTreeParent()) ){
+        if( !(cell.getRow().getTreeParent()) ){
 
             if (formatterParams.yDim == "metric"){
                 fgFontColor = "#0808ff";
             }
             else if (formatterParams.yDim == "model"){
-                fgFontColor = "white"
+                fgFontColor = "black"
             }
             else {
                 fgFontColor = "black"
@@ -1845,12 +1883,11 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
                 var k = grpsModelSrc[value] % bgColorGroupFirstRow.length;
                 //setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgFontColor);
                 setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgColorGroupFirstRow[k]);
-
-                console.log('xxx', k, fgColorGroupFirstRow[k], bgColorGroupFirstRow[k]);
             }
         }
      });
      return value;
+     //return cell;
 }
 
 
@@ -1868,7 +1905,7 @@ function setmetricbg(r, cell, value, bgcolor, fgcolor){
      else{
          r.getElement().style.color = fgcolor;
      }
-     return value;
+     //return value;
 }
 
 $(window).on('beforeunload', function(){
@@ -1888,11 +1925,16 @@ function resetSwitch () {
     $('.scarow').prop('checked', true);
     $('.scacol').prop('checked', false);
 
-    $('#cellvalue').prop('checked', false);
+    $('#cellvalue').prop('checked', true);
     $('#bottomtitle').prop('checked', false);
     $('#toptitle').prop('checked', true);
     $('#tooltips').prop('checked', true);
-    $('.screenheight').prop('checked', true);
+    if (_config.udcScreenHeight ==0) {
+       $('.screenheight').prop('checked', false);
+    }
+    else{
+       $('.screenheight').prop('checked', true);
+    }
 }
 
 
@@ -2203,6 +2245,8 @@ var numClicks = 0;
 
 function expandCollapse(action){
     var maxLevs = findMaxLevels() - 1; //the last level always cannot expand
+
+    console.log('maxlevs', maxLevs, numClicks, action);
     if (action == "expand"){
         if (numClicks < maxLevs) {
             timesExpl = timesExpl + 1;
@@ -2211,9 +2255,12 @@ function expandCollapse(action){
             timesExpl = timesExpl - 1;
         }
         var tempData = table.getData();
+
+        
         table.clearData();
         table.setData(tempData);
         table.redraw(true);
+        console.log('tabredraw');
         if (timesExpl == 0){
             numClicks = 0;
         }
