@@ -29,7 +29,7 @@ jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/maste
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
 //const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
 //const baseUrl = 'https://portal.nersc.gov/project/m2467/minxu/cmip6/ls3mip_elm_comparison/_build/';
-const baseUrl = 'https://www.ilamb.org/CMIP5v6/AR6/'
+const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/'
 
 const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
 //const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"];
@@ -1658,14 +1658,9 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
 
 var firstColIcon =  function(cell, titleFormatterParams) {
-    //return "<img class='infoImage' src='https://avatars0.githubusercontent.com/u/36375040?s=200&v=4'>";
-    //
-    //
-    //
     if (_config.logofile != 'None') {
        return "<img class='infoImage' src='image/".concat(logoFile, "'>"); 
     }
-    //return "<img class='infoImage' src='image.png'>";
 };
 
 
@@ -1822,15 +1817,34 @@ function  cellClickFuncGenetic(e, cell){
 
              var topmet = thisrow.getTreeParent().getTreeParent().getCell(ydimField).getValue().replace(/\s/g, '');
              var sndmet = thisrow.getTreeParent().getCell(ydimField).getValue().replace(/\s/g, '');
-             linkmetric = topmet.concat('/', sndmet, '/', rowFirst, '/', rowFirst);
 
+             if (topmet == "Relationships"){
+
+                let metVar = sndmet.split("/")[0];
+                let metSrc = sndmet.split("/")[1];
+
+
+                let metOrg = Object.keys(cmecJson.DIMENSIONS.dimensions['metric']).find(a => a.replace(/\s/g, '').includes(metVar));
+
+                let metAct = metOrg.split("::")[0].replace(/\s/g, '');
+
+                linkmetric = metAct.concat('/', sndmet, '/', metSrc, '.html#Relationships');
+
+                console.log('re', linkmetric);
+             }
+             else{
+
+                linkmetric = topmet.concat('/', sndmet, '/', rowFirst, '/', rowFirst, '.html');
+                console.log('other', linkmetric);
+
+             }
 
          }
 
 
 
          if (linkmetric != undefined) {
-             var newWin = window.open(baseUrl.concat(linkmetric,'.html?model=',linkmodel,'&region=', linkregion));
+             var newWin = window.open(baseUrl.concat(linkmetric,'?model=',linkmodel,'&region=', linkregion));
          }
 
          //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");
