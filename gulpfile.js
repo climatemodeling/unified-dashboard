@@ -9,6 +9,7 @@ var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var del = require('del');
+var rename = require("gulp-rename");
 
 gulp.task('clean-js', function () {
   return del([
@@ -34,10 +35,11 @@ gulp.task('build-js', function () {
                return relativeUrl;
            },
            rebaseUrls:false,
-           output: 'public/build/css/bundle.min.css'}]
+           output: 'public/build/css/lmtud_bundle.min.css'}]
     ]})
     .bundle()
     .pipe(source('bundle.js'))
+    .pipe(rename('lmtud_bundle.js'))
     .pipe(gulp.dest('public/build/js'))
     .pipe(buffer()) 
     .pipe(minify({
@@ -46,7 +48,7 @@ gulp.task('build-js', function () {
         },
         noSource: true
     }))
-    .pipe(rev())
+    //.pipe(rev())
     .pipe(gulp.dest('dist/js'))
     .pipe(rev.manifest('rev-manifest.json', {
       merge: true
@@ -55,9 +57,9 @@ gulp.task('build-js', function () {
 });
 
 gulp.task('build-css', function () {  
-  return gulp.src(['public/build/css/bundle.min.css'])
+  return gulp.src(['public/build/css/lmtud_bundle.min.css'])
     .pipe(cleanCss())
-    .pipe(rev())
+    //.pipe(rev())
     .pipe(gulp.dest('dist/css'))
     .pipe(rev.manifest('rev-manifest.json', {
       merge: true
@@ -67,11 +69,11 @@ gulp.task('build-css', function () {
 
 
 gulp.task('deploy', function () {
-  const manifest1 = gulp.src(['public/build/js/rev-manifest.json']);
-  const manifest2 = gulp.src(['public/build/css/rev-manifest.json']);
+  const manifest1 = gulp.src(['public/build/js/rev-manifest.json'], {allowEmpty: true});
+  const manifest2 = gulp.src(['public/build/css/rev-manifest.json'], {allowEmpty: true});
   return gulp.src(['assets/html/index.html'])
-    .pipe(revRewrite({ manifest:manifest1 }))
-    .pipe(revRewrite({ manifest:manifest2 }))
+    .pipe(revRewrite({ manifest:manifest1 }, {allowEmpty: true}))
+    .pipe(revRewrite({ manifest:manifest2 }, {allowEmpty: true}))
     .pipe(gulp.dest('dist'));
 });
 
@@ -80,6 +82,7 @@ gulp.task('watch', function() {
   gulp.watch('assets/css/**/*.css', ['pack-css']);
 });
 
+//gulp.task('default', gulp.series(gulp.parallel('clean-js', 'clean-css'), 'build-js', 'build-css'));
 gulp.task('default', gulp.series(gulp.parallel('clean-js', 'clean-css'), 'build-js', 'build-css', 'deploy'));
 //gulp.task('default', gulp.series('build-js', 'build-css', 'deploy'));
 //gulp.task('default', gulp.series('deploy'));
