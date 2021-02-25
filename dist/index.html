@@ -4,13 +4,32 @@
    <meta charset="utf-8" />
 
    <!-- js --!>
-   <script type="text/javascript" src="js/bundle.min.js"></script>
-   
-   
+   <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/climatemodeling/unified-dashboard@lmtUDConfig/dist/js/lmtud_bundle.min.js"></script>
    <!-- css--!>
-   <link rel="stylesheet" href="css/bundle.min.css">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/climatemodeling/unified-dashboard@lmtUDConfig/dist/css/lmtud_bundle.min.css">
+
+   <!-- fallback to local copies -->
+   <script>
+      if (typeof window.lmtUDLoaded === 'undefined') {
+        console.log('UDEB: Fallback to local JS and CSS files')
+        locUDScript = document.createElement('script');
+        locUDScript.type = 'text/javascript';
+        locUDScript.src = 'js/lmtud_bundle.min.js';
+        document.getElementsByTagName("head")[0].appendChild(locUDScript);
 
 
+        // Create new link Element 
+        var locUDLink = document.createElement('link');  
+        // set the attributes for link element 
+        locUDLink.rel = 'stylesheet';  
+        locUDLink.type = 'text/css'; 
+        locUDLink.href = 'css/lmtud_bundle.min.css';  
+  
+        // Get HTML head element to append  
+        // link element to it  
+        document.getElementsByTagName('head')[0].appendChild(locUDLink);  
+      }
+   </script>
 </head>
 
 <body>

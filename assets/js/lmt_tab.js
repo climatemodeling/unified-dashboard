@@ -20,6 +20,8 @@ window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
 window.savetoHtml = savetoHtml;
 
+window.lmtUDLoaded = 1;
+
 
 // major js to control the tabulator for LMT unified dashboard
 // user can change the vales of the following varaibles
