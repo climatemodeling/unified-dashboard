@@ -1535,7 +1535,8 @@ function colorLinear(cell, formatterParams, onRendered) {
 
      if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
-        return Math.round((origVal + Number.EPSILON) * 100) / 100;
+         //return Math.round((origVal + Number.EPSILON) * 100) / 100;
+         return  origVal.toFixed(2);
      }
 }
 
@@ -1581,7 +1582,8 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
 
      if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
-        return Math.round((origVal + Number.EPSILON) * 100) / 100;
+         //return Math.round((origVal + Number.EPSILON) * 100) / 100;
+         return  origVal.toFixed(2);
      }
 }
 

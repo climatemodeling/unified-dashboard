@@ -215,6 +215,58 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                     }
                  }
                  break;
+
+              case cmecJson.DIMENSIONS.json_structure[4]:
+                 fxDimName = cmecJson.DIMENSIONS.json_structure[4];
+
+                 for (reg of Object.keys(prevJson)){
+                    nextJson[reg] = {};
+                    for (mod of Object.keys(prevJson[reg])){
+                       nextJson[reg][mod]={};
+                       for (met of Object.keys(prevJson[reg][mod])){
+                           nextJson[reg][mod][met] = {};
+                           for (dm4 of Object.keys(prevJson[reg][mod][met])){
+                               nextJson[reg][mod][met][dm4] = {};
+                               if (Object.keys(prevJson[reg][mod][met][dm4]).includes(fixedDimsDict[fxDimName])){
+                                  nextJson[reg][mod][met][dm4][fixedDimsDict[fxDimName]] = prevJson[reg][mod][met][dm4][fixedDimsDict[fxDimName]];
+                               }
+                               else{
+                                  nextJson[reg][mod][met][dm4][fixedDimsDict[fxDimName]] = setcmecDefault(cmecJson, {[fxDimName]:fixedDimsDict[fxDimName]});
+                               }
+                           }
+
+                       }
+                    }
+                 }
+                 break;
+
+              case cmecJson.DIMENSIONS.json_structure[5]:
+                 fxDimName = cmecJson.DIMENSIONS.json_structure[5];
+
+                 for (reg of Object.keys(prevJson)){
+                    nextJson[reg] = {};
+                    for (mod of Object.keys(prevJson[reg])){
+                       nextJson[reg][mod]={};
+                       for (met of Object.keys(prevJson[reg][mod])){
+                           nextJson[reg][mod][met] = {};
+                           for (dm4 of Object.keys(prevJson[reg][mod][met])){
+                               nextJson[reg][mod][met][dm4] = {};
+                               for (dm5 of Object.keys(prevJson[reg][mod][met][dm4])){
+                                   nextJson[reg][mod][met][dm4][dm5] = {};
+                                   if (Object.keys(prevJson[reg][mod][met][dm4][dm5]).includes(fixedDimsDict[fxDimName])){
+                                      nextJson[reg][mod][met][dm4][dm5][fixedDimsDict[fxDimName]] = prevJson[reg][mod][met][dm4][dm5][fixedDimsDict[fxDimName]];
+                                   }
+                                   else{
+                                      nextJson[reg][mod][met][dm4][dm5][fixedDimsDict[fxDimName]] = setcmecDefault(cmecJson, {[fxDimName]:fixedDimsDict[fxDimName]});
+                                   }
+                               }
+                           }
+                       }
+                    }
+                 }
+                 break;
+
+
               default:
                  alert("fixed dimension not exist in the json file");
             }
