@@ -23,6 +23,16 @@ window.savetoHtml = savetoHtml;
 window.lmtUDLoaded = 1;
 
 
+DEBUG = false; // set to false to disable debugging
+old_console_log = console.log;
+console.log = function() {
+    if ( DEBUG ) {
+        old_console_log.apply(this, arguments);
+    }
+}
+
+
+
 // major js to control the tabulator for LMT unified dashboard
 // user can change the vales of the following varaibles
 //var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/cmec_ilamb_example.json";  // json file containing the benchmark results
@@ -519,14 +529,14 @@ $(document).ready(function() {
      };
 
      // is this a good place to insert lmtUDConfig?
-     //
-     //const udcUrl = window.location.href + '/_lmtUDConfig.json' // in same origin
-     const udcUrl = './_lmtUDConfig.json' // in same origin
+     // try to find a config file
 
-     console.log(udcUrl, 'udc');
+     const udcUrl = './_lmtUDConfig.json' // in same origin
+     console.log("UDEB: UD config file ", udcUrl);
+
+
      var jqxhr = $.getJSON(udcUrl, {format: "json"})
        .done(function(data) {
-
            _config = data;
 
            console.log(window.location.href + data.udcJsonLoc);
@@ -535,16 +545,20 @@ $(document).ready(function() {
               //let jsfUrl = window.location.href + data.udcJsonLoc;
               let jsfUrl = './' + data.udcJsonLoc;
 
-              console.log('xumdeb', jsfUrl, data.udcJsonLoc);
+              console.log("UDEB: ", jsfUrl, data.udcJsonLoc);
               loadrmtJson(jsfUrl, data.udcDimSets);
+           }
+           else {
+
+              console.log("UDEB: no JSON data file in the config file");
            }
 
 
        })
        .fail(function( jqxhr, textStatus, error ) {
            _config = {};
-           var err = textStatus + ", " + error;
-           alert( "Request config Failed: " + err );
+           var err = textStatus + ": " + error;
+           console.log( "UDEB: Request config Failed: " + err );
            
        });
 
