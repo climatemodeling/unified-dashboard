@@ -23,7 +23,7 @@ window.savetoHtml = savetoHtml;
 window.lmtUDLoaded = 1;
 
 
-DEBUG = false; // set to false to disable debugging
+DEBUG = true; // set to false to disable debugging
 old_console_log = console.log;
 console.log = function() {
     if ( DEBUG ) {
@@ -284,7 +284,8 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
 
         try{
             if ( isTreeTable == 0 ){ 
-                $("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
+                //$("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
+                $("#dashboard-table")[0].style["height"]="min(82vh, 100%)";
             }
             else{
                 $("#dashboard-table")[0].style["height"]="82vh";
