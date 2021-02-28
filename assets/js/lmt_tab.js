@@ -252,51 +252,52 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
 
 
      tableBuilt:function(){
-
         if (_config.udcScreenHeight != 0){
-        var elmnt = document.getElementsByClassName("tabulator-header");
-        //var totHeight = elmnt[0].offsetHeight + 28* table.getRows().length + 17;
-        var totHeight = elmnt[0].offsetHeight + 30* table.getRows().length + 20;
-        console.log(elmnt);
-        console.log(elmnt[0].offsetHeight);
-        console.log(table.getRows().length);
-        console.log('xxxdeb', totHeight,  table.getRows("visible").length);
-        console.log($("#dashboard-table")[0].style, table.getDataCount(true) );
-        console.log("min(82vh," + totHeight.toString() + ")");
+           var elmnt = document.getElementsByClassName("tabulator-header");
+           //var totHeight = elmnt[0].offsetHeight + 28* table.getRows().length + 17;
+           var totHeight = elmnt[0].offsetHeight + 30* table.getRows().length + 20;
+           console.log(elmnt);
+           console.log(elmnt[0].offsetHeight);
+           console.log(table.getRows().length);
+           console.log('xxxdeb', totHeight,  table.getRows("visible").length);
+           console.log($("#dashboard-table")[0].style, table.getDataCount(true) );
+           console.log("min(82vh," + totHeight.toString() + ")");
 
-        //isTreeTable = 0;
-        //console.log('xx', table.getRows());
-        //for (r of table.getRows()) {
-        //    try{
-        //       console.log('intreetable', r, r.getTreeChildren());
-        //       if(r.getTreeChildren().length > 0){
-        //          isTreeTable = 1;
-        //       }
-        //    }
-        //    catch(err){
-        //       console.log(err);
-        //       isTreeTable = 0;
-        //    }
-        //    break;
-        //}
+           //isTreeTable = 0;
+           //console.log('xx', table.getRows());
+           //for (r of table.getRows()) {
+           //    try{
+           //       console.log('intreetable', r, r.getTreeChildren());
+           //       if(r.getTreeChildren().length > 0){
+           //          isTreeTable = 1;
+           //       }
+           //    }
+           //    catch(err){
+           //       console.log(err);
+           //       isTreeTable = 0;
+           //    }
+           //    break;
+           //}
 
-        console.log('treetable', isTreeTable);
+           console.log('treetable', isTreeTable);
 
-        try{
-            if ( isTreeTable == 0 ){ 
-                //$("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
-                $("#dashboard-table")[0].style["height"]="min(82vh, 100%)";
-            }
-            else{
-                $("#dashboard-table")[0].style["height"]="82vh";
+           try{
+               if ( isTreeTable == 0 ){ 
+                   //$("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
+                   $("#dashboard-table")[0].style["height"]="min(82vh, 100%)";
+               }
+               else{
+                   $("#dashboard-table")[0].style["height"]="82vh";
+
+              }
+           }
+           catch(err){
+               console.log(err);
 
            }
-        }
 
-        catch(err){
-            console.log(err);
-
-        }
+           // reset the screen height switch
+           $('.screenheight').prop('checked', true);
         }
 
         //$("#dashboard-table").style.height="min(240, 82vh)";
@@ -1615,6 +1616,8 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
     var otherCol = { title:"col_name", field:"col-field", bottomCalc: bottomCalcFunc, headerContextMenu:headerContextMenu, //headerMenu:headerMenu, 
             formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:30, headerVertical:"flip", resizable:false, headerSort:true};
             //formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
+            //
+    // conflict with savehtml setfirstcolbgcolor
     var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:380, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim}, headerSort:true };
     //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
     //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
