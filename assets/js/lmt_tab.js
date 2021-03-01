@@ -123,7 +123,7 @@ var tabOption = {
          rowGroups:false, //do not include row groups in HTML table
          columnCalcs:true, //do not include column calcs in HTML table
          dataTree:true, //do not include data tree in HTML table
-         formatCells:false, //show raw cell values without formatter
+         formatCells:true, //show raw cell values without formatter
      },
 
      downloadConfig:{
@@ -132,7 +132,7 @@ var tabOption = {
          rowGroups:false, //do not include row groups in HTML table
          columnCalcs:true, //do not include column calcs in HTML table
          dataTree:true, //do not include data tree in HTML table
-         formatCells:false, //show raw cell values without formatter
+         formatCells:true, //show raw cell values without formatter
      },
 
 
