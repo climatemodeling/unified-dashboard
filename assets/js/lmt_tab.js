@@ -132,7 +132,7 @@ var tabOption = {
          rowGroups:false, //do not include row groups in HTML table
          columnCalcs:true, //do not include column calcs in HTML table
          dataTree:true, //do not include data tree in HTML table
-         formatCells:false, //show raw cell values without formatter
+         formatCells:true, //show raw cell values without formatter
      },
 
 
@@ -250,40 +250,13 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
 
      maxHeight:"100%",
 
-
      tableBuilt:function(){
         if (_config.udcScreenHeight != 0){
            var elmnt = document.getElementsByClassName("tabulator-header");
-           //var totHeight = elmnt[0].offsetHeight + 28* table.getRows().length + 17;
            var totHeight = elmnt[0].offsetHeight + 30* table.getRows().length + 20;
-           console.log(elmnt);
-           console.log(elmnt[0].offsetHeight);
-           console.log(table.getRows().length);
-           console.log('xxxdeb', totHeight,  table.getRows("visible").length);
-           console.log($("#dashboard-table")[0].style, table.getDataCount(true) );
-           console.log("min(82vh," + totHeight.toString() + ")");
-
-           //isTreeTable = 0;
-           //console.log('xx', table.getRows());
-           //for (r of table.getRows()) {
-           //    try{
-           //       console.log('intreetable', r, r.getTreeChildren());
-           //       if(r.getTreeChildren().length > 0){
-           //          isTreeTable = 1;
-           //       }
-           //    }
-           //    catch(err){
-           //       console.log(err);
-           //       isTreeTable = 0;
-           //    }
-           //    break;
-           //}
-
-           console.log('treetable', isTreeTable);
 
            try{
                if ( isTreeTable == 0 ){ 
-                   //$("#dashboard-table")[0].style["height"]="min(82vh," + totHeight.toString() + "px)";
                    $("#dashboard-table")[0].style["height"]="min(82vh, 100%)";
                }
                else{
@@ -299,8 +272,6 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
            // reset the screen height switch
            $('.screenheight').prop('checked', true);
         }
-
-        //$("#dashboard-table").style.height="min(240, 82vh)";
      },
 };
 
@@ -439,12 +410,6 @@ $(document).ready(function() {
 
          var newData = Object.assign([], tempData);
 
-         //console.log('firstnewData', newData);
-
-         //if (newData.length > 0){
-         //xxxx;
-         //}
-
          if ($('.scarow').is(':checked')){
              scadir = "row";
          }
@@ -475,37 +440,11 @@ $(document).ready(function() {
                     //}
                     colData  = extractCol(tempData, col_name, '');
 
-                    //for (k of Object.keys(colData)) {
-                    //   if (colData[k] > 1000.) {
-                    //       console.log('xxxxxx', k, colData[k]);
-                    //       tttt;
-                    //   }
-                    //}
-
- 
-                    //console.log(colData, 'coldata');
-
                     var newcolData = normalizer($('#select-choice-mini-sca').val(), scadir, colData);
-                    //newcolData = colData;
-
-                    //for (data of newData) {
-                    //    data[col_name] = newcolData[data.row_name];
-                    //}
                     insertCol(newData, col_name, newcolData, ''); 
-
-                    //if (col_name == 'SeasonalTauxLonRmse') {
-                    //console.log(newData, 'newData', col_name, newcolData);
-                    //pppppppppp;
-                    //}
                  }
              }
          }
-
-         //console.log('newdata', newData);
-
-         //if (newData.length > 0){
-         //yyyy;
-         //}
 
          updateColorMapping();
 
@@ -599,22 +538,10 @@ function updateNormalizing() {
          for (col_name of Object.keys(tempData[0])){
              if (col_name != 'row_name' && col_name != '_children') {
 
-                //for (data of tempData){
-                //    colData[data.row_name] = data[col_name];
-                //}
                 colData  = extractCol(tempData, col_name, '');
 
-                //for (k of Object.keys(colData)) {
-                //   if (colData[k] > 1000.) {
-                //       console.log('xxxxxx', k, colData[k]);
-                //       tttt;
-                //   }
-                //}
                 var newcolData = normalizer($('#select-choice-mini-sca').val(), colData);
 
-                //for (data of newData) {
-                //    data[col_name] = newcolData[data.row_name];
-                //}
                 insertCol(newData, col_name, newcolData); 
              }
          }
@@ -942,8 +869,6 @@ function prepareTab(cJson, dimSet={}) {
    }
 
 
-   console.log('xumdeb1', dimSet);
-
 
    for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
         if (dimn == 'statistic'){
@@ -1016,7 +941,7 @@ function prepareTab(cJson, dimSet={}) {
 
 
    for (fxdim of Object.keys(ini_fxdm)) {
-       console.log('xumdeb3', fxdim, selectIDbyDims[fxdim], ini_fxdm[fxdim])
+       console.log('UDEB:', fxdim, selectIDbyDims[fxdim], ini_fxdm[fxdim])
        $('#'.concat(selectIDbyDims[fxdim])).select2({ placeholder: 'Select '.concat(fxdim)});
        $('#'.concat(selectIDbyDims[fxdim])).val(ini_fxdm[fxdim]).trigger('change');
    }
@@ -1371,7 +1296,6 @@ function menuShowHide(xDim, yDim, menuReset) {
                    console.log(tabJson, Object.keys(tabJson[0]));
                    console.log(Object.keys(tabJson[0]).includes("_children"));
                    if (Object.keys(tabJson[0]).includes("_children")) {
-                      console.log ('xxxxx in children');
                       //tabOption.dataTreeCollapseElement = "<i class='fas fa-minus-square'></i>";
                       //tabOption.dataTreeExpandElement = "<i class='fas fa-plus-square'></i>";
                       tabOption.dataTreeCollapseElement = "";
@@ -1379,7 +1303,6 @@ function menuShowHide(xDim, yDim, menuReset) {
                       isTreeTable = 1;
                    }
                    else{
-                      console.log ('xxxxx no children');
                       tabOption.dataTreeCollapseElement = "<span></span>";
                       tabOption.dataTreeExpandElement = "<span></span>";
                       isTreeTable = 0;
@@ -1412,11 +1335,6 @@ function menuShowHide(xDim, yDim, menuReset) {
 
                    table.setColumns(tabOption.columns);
                    table.clearData();
-
-                   console.log('xumdeb2', tabJson);
-                   //table.setData(tabJson);
-                   //table.redraw(true);
-                   console.log(tabOption);
                    table = new Tabulator("#dashboard-table", tabOption);
                }
                
@@ -1425,15 +1343,6 @@ function menuShowHide(xDim, yDim, menuReset) {
      }
 }
 
-//select function
-//
-//
-
-
-
-//other functions
-//
-//
 
 var draw_legend = function (){
      //draw legend
@@ -1592,18 +1501,12 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
 var lmtTitleFormatter = function(cell, titleFormatterParams, onRendered){
      onRendered(function(){
 
-           cell.getElement().parentElement.parentElement.style.backgroundColor = titleFormatterParams.bgcol;
-           cell.getElement().parentElement.parentElement.style.fontStyle = titleFormatterParams.ftsty;
-           cell.getElement().parentElement.parentElement.style.fontWeight = titleFormatterParams.ftwgt;
-           cell.getElement().parentElement.parentElement.style.textDecoration = titleFormatterParams.txdec;
-           cell.getElement().parentElement.parentElement.style.color = titleFormatterParams.color;
+           cell.getElement().parentElement.parentElement.parentElement.style.backgroundColor = titleFormatterParams.bgcol;
+           cell.getElement().parentElement.parentElement.parentElement.style.fontStyle = titleFormatterParams.ftsty;
+           cell.getElement().parentElement.parentElement.parentElement.style.fontWeight = titleFormatterParams.ftwgt;
+           cell.getElement().parentElement.parentElement.parentElement.style.textDecoration = titleFormatterParams.txdec;
+           cell.getElement().parentElement.parentElement.parentElement.style.color = titleFormatterParams.color;
 
-           //$('.tabulator-col-title').css("color", titleFormatterParams.color);
-
-           //cell.getElement()["style"] = {};
-           //cell.getElement()["style"]["color"] = titleFormatterParams.color;
-
-           //cell.getElement().parentElement.parentElement.style.fontVariant = "small-caps";
      });
      return cell.getValue();
 };
@@ -1617,10 +1520,8 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
             formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:30, headerVertical:"flip", resizable:false, headerSort:true};
             //formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
             //
-    // conflict with savehtml setfirstcolbgcolor
+    // conflict with savehtml setfirstcolbgcolor fixed in tabulator 4.9
     var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:380, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim}, headerSort:true };
-    //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:320 };
-    //var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim} };
 
     firstCol.title = ydim.concat('/',xdim);
     //firstCol.field = 'row_name';
@@ -1906,10 +1807,8 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
 
                 if (! (grpsFirstCol.includes(value))){
                     grpsFirstCol.push(value);
-                    //grpsFirstCol = [... new Set(grpsFirstCol)];
                 }
                 chrow.forEach(function(r){
-                    //var k = (grpsFirstCol.length - 1) % bgColorGroup.length;
                     var k = grpsFirstCol.indexOf(value) % bgColorGroup.length;
                     setmetricbg(r, cell, value, bgColorGroup[k], fgFontColor);
                 });
@@ -1917,13 +1816,11 @@ function setFirstColBgColor(cell, formatterParams, onRendered){
             else if (formatterParams.yDim == "model"){
                 fgFontColor = "white"
                 var k = grpsModelSrc[value] % bgColorGroupFirstRow.length;
-                //setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgFontColor);
                 setmetricbg(cell.getRow(), cell, value, bgColorGroupFirstRow[k], fgColorGroupFirstRow[k]);
             }
         }
      });
      return value;
-     //return cell;
 }
 
 
@@ -1941,7 +1838,6 @@ function setmetricbg(r, cell, value, bgcolor, fgcolor){
      else{
          r.getElement().style.color = fgcolor;
      }
-     //return value;
 }
 
 $(window).on('beforeunload', function(){
@@ -2143,12 +2039,6 @@ function normalizer(normMethod, scaDir, data){
 
              let j = 0
              for (k of kmp) {
-
-
-                 //if (j == 1657) {
-                 //    console.log(j, arr[j], k, 'deb');
-                 //}
-
                  j = j + 1
              }
 
@@ -2163,9 +2053,6 @@ function normalizer(normMethod, scaDir, data){
              return [min, max]
           }
           const [vMin, vMax] = findMinMax()
-
-          console.log(vMin, vMax, 'vmaxvmin');
-          //console.log(arr, 'array');
 
           for ( val of arr ) {
               if (val > -999.0) {
