@@ -361,11 +361,11 @@ $(document).ready(function() {
      $('#select-choice-mini-logo').on('select2:select', function() {
          logoFile = $(this).val();
 
-         //var tempData = table.getData(); 
+         var tempData = table.getData(); 
+         table = new Tabulator("#dashboard-table", tabOption);  // only way to reformat col title
          table.clearData();
-         //table.setData(tempData);
-        // table.redraw(true);
-         table = new Tabulator("#dashboard-table", tabOption);
+         table.setData(tempData);
+         table.redraw(true);
 
          
      });
