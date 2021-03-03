@@ -189,6 +189,12 @@ p {
   font-variant:common-ligatures;
 }
 
+/* remove the sort icon but still keep sorting function */
+
+.tabulator-arrow {
+  display: none;
+}
+
 .inputfile {
 	width: 0.1px;
 	height: 0.1px;

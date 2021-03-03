@@ -137,10 +137,6 @@ var tabOption = {
 
 
      downloadReady:function(fileContents, blob){
-
-         console.log(fileContents);
-         console.log(blob);
-
          var preTable = " \
 <!DOCTYPE html> \
 <!-- saved from url=(0037)https://lmt.ornl.gov/test_lmtud/dist/ --> \
@@ -200,18 +196,14 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
          var aftTable = "</body></html>";
          var newContents = preTable + fileContents.replace(/undefined/g, '') + legTable + aftTable; 
 
-         console.log(newContents);
          blob = new Blob([newContents], {type: 'text/html'});
          return blob;
      },
 
-     headerSortElement:"",
      movableColumns: true, //enable user movable columns
-     //movableRows: true, //enable user movable columns
 
      layout:"fitColumns",
-     //layout:"fitData",
-     //tooltips: true,
+
      tooltips: function(cell){
         //cell - cell component
 
@@ -404,7 +396,6 @@ $(document).ready(function() {
          }
          else {
              var tempData = table.getData('all'); 
-             //console.log('yyy', tempData);
              tabTempJson = deepCopyFunction(tempData);
          }
 
@@ -562,15 +553,11 @@ function extractCol(dataArr, colName, parentName){
          }
          colData[cur_name] = data[colName];
 
-         //console.log(cur_name, colData[cur_name]);
          if (Object.keys(data).includes('_children')) {
                  let newData = extractCol(data._children, colName, cur_name);
-                 //console.log(cur_name, newData, colData);
                  colData = Object.assign({}, colData, newData);
-                 //console.log(cur_name, colData, 'after');
          }
     }
-    //console.log(cur_name, colData);
     return colData;
 }
 
@@ -589,18 +576,16 @@ function insertCol(dataArr, colName, colData, parentName) {
             data[colName] = colData[cur_name];
 
             if (Object.keys(data).includes('_children')) {
-               //console.log(cur_name, data);
                insertCol(data._children, colName, colData, cur_name);
             }
        }
    }
    catch(err) {
 
-       console.log('zzzzz', parentName, dataArr);
+       console.log('UDEB:', parentName, dataArr);
 
    }
 
-   //console.log(dataArr);
 }
 
 
@@ -648,7 +633,6 @@ function toggleTooltips(genTab){
 
 function toggleCellValue(genTab) {
 
-     console.log('intoo', $("#cellvalue[type=checkbox]").is(":checked"));
      if ($("#cellvalue[type=checkbox]").is(":checked")) { 
          for (x of tabOption.columns) {
              if (x.field != "row_name"){
@@ -695,14 +679,12 @@ function toggleScreenHeight() {
         //var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
         var totHeight = elmnt[0].offsetHeight + 30* table.getRows().length + 20;
 
-        console.log('intoggle', totHeight);
         if ( isTreeTable == 0 ){ 
             document.getElementById('dashboard-table').style['height'] = totHeight.toString() + "px";
         }
         else{
             document.getElementById('dashboard-table').style['height'] = "82vh";
         }
-        console.log(document.getElementById('dashboard-table').style['height']);
         table.setHeight(false);
         draw_legend();
 
@@ -915,13 +897,11 @@ function prepareTab(cJson, dimSet={}) {
 
    tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
    if (Object.keys(tabTreeJson[0]).includes('_children')) {
-      console.log ('in children');
       tabOption.dataTreeCollapseElement = "";
       tabOption.dataTreeExpandElement = "";
       isTreeTable = 1;
    }
    else{
-      console.log ('no children');
       tabOption.dataTreeCollapseElement = "<span></span>";
       tabOption.dataTreeExpandElement = "<span></span>";
       isTreeTable = 0;
@@ -1069,13 +1049,11 @@ function loadlocJson() {
                tabTreeJson = lmt_tool.cmec2tab_json(cmecJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
                if (Object.keys(tabTreeJson[0]).includes('_children')) {
-                  console.log ('in children');
                   tabOption.dataTreeCollapseElement = "";
                   tabOption.dataTreeExpandElement = "";
                   isTreeTable = 1;
                }
                else{
-                  console.log ('no children');
                   tabOption.dataTreeCollapseElement = "<span></span>";
                   tabOption.dataTreeExpandElement = "<span></span>";
                   isTreeTable = 0;
@@ -1293,8 +1271,8 @@ function menuShowHide(xDim, yDim, menuReset) {
 
                    tabJson = lmt_tool.cmec2tab_json(cmecJson, xDim, yDim, fixedDimsDict, cvtTree);
 
-                   console.log(tabJson, Object.keys(tabJson[0]));
-                   console.log(Object.keys(tabJson[0]).includes("_children"));
+                   //console.debug('UDEB:', tabJson, Object.keys(tabJson[0]));
+                   //console.debug('UDEB:', Object.keys(tabJson[0]).includes("_children"));
                    if (Object.keys(tabJson[0]).includes("_children")) {
                       //tabOption.dataTreeCollapseElement = "<i class='fas fa-minus-square'></i>";
                       //tabOption.dataTreeExpandElement = "<i class='fas fa-plus-square'></i>";
@@ -1547,8 +1525,6 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
               txdec = "";
               //txcol = "white";
               txcol = fgColorGroupFirstRow[k];
-
-              console.log('txcol', txcol);
            }
            else if (xdim == "metric"){
 
@@ -1753,24 +1729,21 @@ function  cellClickFuncGenetic(e, cell){
 
                 linkmetric = metAct.concat('/', sndmet, '/', metSrc, '.html#Relationships');
 
-                console.log('re', linkmetric);
+                console.log('UDEB:', 're', linkmetric);
              }
              else{
 
                 linkmetric = topmet.concat('/', sndmet, '/', rowFirst, '/', rowFirst, '.html');
-                console.log('other', linkmetric);
+                console.log('UDEB:', 'other', linkmetric);
 
              }
 
          }
-
-
 
          if (linkmetric != undefined) {
              var newWin = window.open(baseUrl.concat(linkmetric,'?model=',linkmodel,'&region=', linkregion));
          }
 
-         //var newWin= window.open("https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/BurnedArea/GFED4S/GFED4S.html");
      }
      else{
 
@@ -1778,7 +1751,7 @@ function  cellClickFuncGenetic(e, cell){
             cell.getRow().treeToggle();
          }
          else{
-            alert ("333 clickable cell only for lowest level metric");
+            alert ("Error: clickable cell only for lowest level metric");
          }
      }
 }
@@ -2031,10 +2004,6 @@ function normalizer(normMethod, scaDir, data){
                   min = (value < min) ? value : min
                   max = (value > max) ? value : max
                }
-
-               //if (value > 1000.) {
-               //    console.log(i, value, arr[i], arr.length);
-               //}
              }
 
              let j = 0
@@ -2078,7 +2047,6 @@ function normalizer(normMethod, scaDir, data){
           break;
     }
 
-    //console.log('norm', arr, normArray);
 
     if (scaDir == 'row') {
         var i = 0;
