@@ -39,7 +39,6 @@ div.leftcol{
 }
 
 div.tabDiv{
-   float: center;
    max-width: 1200px;
    min-width: 350px;
    margin: 0 auto;
@@ -48,7 +47,7 @@ div.tabDiv{
 }
 
 div.legDiv{
-   float: center;
+   float: none;
    justify-content: center;
 }
 
@@ -67,7 +66,7 @@ p {
 
 
 .infoImage {
-   float: center;
+   float: none;
    max-height: 100%;
    height:82px;
    cursor: pointer;
@@ -90,7 +89,7 @@ p {
 }
 
 .tabulator .tabulator-headers {
-   border-bottom: 0.px solid black;
+   border-bottom: 0.0px solid black;
 }
 
 .tabulator .tabulator-row:hover {
@@ -103,7 +102,7 @@ p {
 
 .tabulator{
    font-size: 11px;
-   borderColor: "#FFFFFF";
+   border-color: black;
 }
 
 /* Hide all icons by default */
@@ -135,7 +134,7 @@ p {
 .tabulator-row .tabulator-cell{
    border-collapse: collapse; 
    border-right: 0.25px solid black;
-   border-left: 0.px solid black;
+   border-left: 0.0px solid black;
    width:30px;
    height:30px;
    padding-top:5px;
@@ -156,7 +155,7 @@ p {
 .tabulator .tabulator-header .tabulator-frozen.tabulator-frozen-left{
    border-right: 0.1px solid black;
    border-left: 0.0px solid black;
-   float: center;
+   float: inherit;
    vertical-align: middle; 
 }
 
@@ -164,7 +163,7 @@ p {
    text-align:center;
    border-right: 0.1px solid black;
    border-left: 0.0px solid black;
-   border-bottom: 0.px solid black;
+   border-bottom: 0.0px solid black;
    border-top: 0.25px solid black;
 }
 
