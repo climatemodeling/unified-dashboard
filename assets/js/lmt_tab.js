@@ -2093,17 +2093,6 @@ const deepCopyFunction = (inObject) => {
   return outObject
 }
 
-//function expandCollapse(action){
-//  if (action == "expand"){
-//  	tabOption.dataTreeStartExpanded = [true, false];
-//  }
-//  else{
-//  	tabOption.dataTreeStartExpanded = false;
-//  }
-//  table = new Tabulator("#dashboard-table", option=tabOption);
-//}
-
-
 
 function findMaxLevels() {
     var maxLevels = 0;
@@ -2132,12 +2121,12 @@ function rowLevels(rows, nlevs) {
 }
 
 var timesExpl = 1;
-var numClicks = 0;
+var numClicks = 1;  // default expand the first level dataTreeStartExpanded:[true, false]
 
 function expandCollapse(action){
     var maxLevs = findMaxLevels() - 1; //the last level always cannot expand
 
-    console.log('maxlevs', maxLevs, numClicks, action);
+    console.log('UDEB:', 'maxlevs', maxLevs, numClicks, action, timesExpl);
     if (action == "expand"){
         if (numClicks < maxLevs) {
             timesExpl = timesExpl + 1;
@@ -2151,7 +2140,7 @@ function expandCollapse(action){
         table.clearData();
         table.setData(tempData);
         table.redraw(true);
-        console.log('tabredraw');
+        console.log('UDEB:', 'tabredraw');
         if (timesExpl == 0){
             numClicks = 0;
         }
