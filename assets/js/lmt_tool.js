@@ -170,13 +170,9 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
 
                     if (Object.keys(prevJson[reg]).includes(fixedDimsDict[fxDimName])){
                        nextJson[reg][fixedDimsDict[fxDimName]] = prevJson[reg][fixedDimsDict[fxDimName]];
-
-                       //console.log(fxDimName, reg, fixedDimsDict[fxDimName], nextJson);
-                       //console.log(fxDimName, reg, prevJson[reg][fixedDimsDict[fxDimName]]);
                     }
                     else{
                        nextJson[reg][fixedDimsDict[fxDimName]] = setcmecDefault(cmecJson, {[fxDimName]:fixedDimsDict[fxDimName]});
-                       //console.log('default', nextJson[reg][fixedDimsDict[fxDimName]]);
                     }
                  }
                  break;
@@ -274,7 +270,8 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
             prevJson = Object.assign(nextJson, {});
 
          }
-         //console.log('prevJson', prevJson);
+
+ 
          // now write to tab json
          //
          // dimX and dimY
@@ -309,29 +306,9 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
             ydimVal = Object.keys(cmecJson.DIMENSIONS.dimensions[dimY]);
          }
 
-         //console.log('dmarr=', dmarr, xdimVal, ydimVal, dimX, dimY);
-
          for (dm of dmarr){
-
-
-             //if (dm == 'r1i1p1f1') {
-
-                 //console.log(dm, dimX, dimY);
-
-                 //console.log((dimX != dm) &&  (dimY != dm));
-
-             //}
-             //if (! (dimX === dm) && ! (dimY === dm)){
              if ( (dimX != dm) &&  (dimY != dm) ){
-
-                //console.log(sdict, prevJson)
-                //console.log(sdict[dm])
                 sdict = sdict[dm];
-
-                //console.log(sdict);
-                //if (dm == 'r1i1p1f1') {
-                //    console.log(sdict, 'xxx');
-                //}
              }
 
              if (dimX === dm){
@@ -342,15 +319,8 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
              if (dimY === dm){
                 yKeys = Object.keys(sdict)
                 sdict = sdict[yKeys[0]];
-
-                //console.log('11111', sdict, yKeys[0]);
              }
          }
-
-
-         //console.log('xKeys=', xKeys);
-         //console.log('yKeys=', yKeys);
-         
 
          xkey = xdimVal;
          ykey = ydimVal;
@@ -373,7 +343,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                            else{
                                sdict={};
                            }
-                           //console.log('X', dimX, dm, sdict);
                        }
                        else if (dimY === dm){
                            if (yk in sdict){
@@ -382,7 +351,6 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                            else{
                                sdict={};
                            }
-                           //console.log('Y', dimY, dm, sdict);
                        }
                        else{
                            if (sdict != null && dm in sdict){
@@ -391,12 +359,8 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                            else{
                                sdict=null;
                            }
-                           //console.log('F', dm, sdict);
 
                        }
-                       //if (yk == "CESM2::r9i1p1f1" && xk == "BiasPrLatRmse" ) {
-                       //   console.log(xk, yk, sdict, dm); 
-                       //}
                   }
 
 
@@ -409,21 +373,16 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
                   }
              }
 
-             //console.log('tab_row', tab_row);
-             //
              if (isTreeStructure == 1 || tab_row.row_name.includes('::') || tab_row.row_name.includes('!!')) {
                 isTreeStructure = 1;
              }
              tabJson.push(tab_row);
          }
 
-         //console.log('before', tabJson);
 
-         //if (dimY == 'metric' && convertTree == 1){
          if (isTreeStructure == 1 && convertTree == 1) {
              tabJson = resolve_tree(tabJson);
          }
-         //console.log('after', tabJson);
          return tabJson;
      }
   }
@@ -489,11 +448,8 @@ function transpose_tab_json(data){
               }
               const uniq = new Set(newvars);
               newvars = [...uniq];
-              console.log(newjson);
 
-              console.log(newindx);
               importedJSON.forEach(filter);
-              console.log(Object.keys(comprow));
 
               compkey=Object.keys(comprow);
 
@@ -520,10 +476,7 @@ function transpose_tab_json(data){
 
                   //newjson[jx]._children=comprow[compkey[i]];
                   newjson[jx]._children.push(newdict);
-                  console.log(jx, modnm, newjson[jx]);
-                  //console.log(comprow[compkey[i]]);
               }
-              console.log(newvars);
 
               return newjson;
 };
@@ -672,11 +625,9 @@ function filterGeneric(data, xdim, ydim){
 
    if ((xdim == "metric" && ydim == "model") || (xdim == "model" && ydim == "metric")){
 
-       console.log(defaultfixDims['score']);
        scoreboard = defaultfixDims['score'].concat(' ', defaultfixDims['region']);
        filterData = filterScoreboard(data, scoreboard);
 
-       console.log(filterData);
        return filterData;
    }
 
@@ -692,7 +643,6 @@ function filterGeneric(data, xdim, ydim){
                tmpData.push(Object.assign({},newrow));
           }
           var xdata = tmpData;
-          console.log('model');
        }
 
        if (xdim != "region" && ydim != "region"){
@@ -705,7 +655,6 @@ function filterGeneric(data, xdim, ydim){
               }
           }
           var xdata = tmpData;
-          console.log('region');
        }
 
        if (xdim != "score" && ydim != "score"){
@@ -718,7 +667,6 @@ function filterGeneric(data, xdim, ydim){
               }
           }
           var xdata = tmpData;
-          console.log('score');
        }
 
 
@@ -735,7 +683,6 @@ function filterGeneric(data, xdim, ydim){
        }
 
        filterData=xdata;
-       console.log(filterData);
        return filterData;
    }
 }
@@ -764,7 +711,6 @@ function addAttribute(data){
        }  
     }
 
-    console.log(newdata);
     return newdata;
 }
 
@@ -896,10 +842,6 @@ var cellClickFunc = function(e, cell){
 
     var isTree = new Boolean(true);
 
-
-    console.log(typeof thisrow.getData()["metric"]);
-    console.log(thiscol.getField().trim());
-
     if (thiscol.getField().trim() === 'metric'){
 
         var firstCol = true;
@@ -935,7 +877,6 @@ var cellClickFunc = function(e, cell){
     else{
         var html_base="https://pcmdi.llnl.gov/pmp-preliminary-results/graphics/mean_climate/cmip5/historical/clim/v20191009/"
 
-        console.log(thisrow.getData());
         if (thisrow.getData()["metric"].trim().toLowerCase().includes("::")){
             isTree = false;
         }
@@ -947,7 +888,6 @@ var cellClickFunc = function(e, cell){
             var rowparent = thisrow;
         }
 
-        console.log('xx', typeof rowparent.getData === 'function');
 
         if(typeof rowparent.getData === 'function' && cell.getValue()!='DJF' && cell.getValue()!='MAM' && cell.getValue()!='JJA' && cell.getValue()!='SON'){
            var modname = thiscol.getField().trim();
@@ -1007,15 +947,11 @@ var cellClickFuncTransILAMB = function(e, cell){
          }
     }
 
-    console.log(titleFields);
     //var html_base=https://www.ilamb.org/CMIP5v6/historical/EcosystemandCarbonCycle/Biomass/GEOCARBON/GEOCARBON.html?model=CESM1-BGC
     var html_base="https://www.ilamb.org/CMIP5v6/historical/" //EcosystemandCarbonCycle/Biomass/GEOCARBON/GEOCARBON.html?model=CESM1-BGC
 
     if (modname in titleFields) {
        var html_link = html_base.concat(titleFields[modname], '/', modname.split('/').slice(-1)[0], '.html?model=', varname.trim());
-       console.log(modname);
-       console.log(varname);
-       console.log(html_link);
        var wdw2 = window.open(html_link);
     }
 
