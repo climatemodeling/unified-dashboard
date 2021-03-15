@@ -106,7 +106,13 @@ function setcmecDefault(cmecJson, fxdimDict) {
 
        fxdimNamNext = cmecJson.DIMENSIONS.json_structure[n+1];
        if (fxdimNamNext == 'statistic'){
-          fxdimValNext = cmecJson.DIMENSIONS.dimensions[fxdimNamNext]["indices"];
+
+          if (cmecJson.DIMENSIONS.dimensions[fxdimNamNext].hasOwnProperty("indices")) {
+              fxdimValNext = cmecJson.DIMENSIONS.dimensions[fxdimNamNext]["indices"];
+          }
+          else {
+              fxdimValNext = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdimNamNext]);
+          }
        } 
        else if (fxdimNamNext == 'metric' || fxdimNamNext == 'model' || fxdimNamNext == 'region'){
           fxdimValNext = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdimNamNext]);
@@ -294,13 +300,24 @@ function cmec2tab_json(cmecJson, dimX, dimY, fixedDimsDict, convertTree){
 
          // check if x and y have all dimension values
          if (dimX == 'statistic'){
-            xdimVal = cmecJson.DIMENSIONS.dimensions[dimX]["indices"];
+            if (cmecJson.DIMENSIONS.dimensions[dimX].hasOwnProperty("indices")) {
+                xdimVal = cmecJson.DIMENSIONS.dimensions[dimX]["indices"];
+            }
+            else {
+                xdimVal = Object.keys(cmecJson.DIMENSIONS.dimensions[dimX]);
+            }
          }
          else{
             xdimVal = Object.keys(cmecJson.DIMENSIONS.dimensions[dimX]);
          }
          if (dimY == 'statistic'){
-            ydimVal = cmecJson.DIMENSIONS.dimensions[dimY]["indices"];
+
+            if (cmecJson.DIMENSIONS.dimensions[dimY].hasOwnProperty("indices")) {
+                ydimVal = cmecJson.DIMENSIONS.dimensions[dimY]["indices"];
+            }
+            else {
+                ydimVal = Object.keys(cmecJson.DIMENSIONS.dimensions[dimY]);
+            }
          }
          else{
             ydimVal = Object.keys(cmecJson.DIMENSIONS.dimensions[dimY]);
