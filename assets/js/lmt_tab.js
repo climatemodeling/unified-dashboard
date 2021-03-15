@@ -32,25 +32,22 @@ console.log = function() {
 }
 
 
+// Control the tabulator for LMT Unified Dashboard
 
-// major js to control the tabulator for LMT unified dashboard
-// user can change the vales of the following varaibles
-//var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/cmec_ilamb_example.json";  // json file containing the benchmark results
 jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/";
-//var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/tab_ilamb_example.json";  // json file containing the benchmark results
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
-//const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
-//const baseUrl = 'https://portal.nersc.gov/project/m2467/minxu/cmip6/ls3mip_elm_comparison/_build/';
-const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/'
+
 
 const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
-//const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"];
 const bgColorGroupFirstRow = ["yellow", "#00FF00", "white"];
 const fgColorGroupFirstRow = ["black", "black", "black"];
-// color used default
+
+
+// colors used default directly from ILAMB
 const PuOr = ['#b35806','#e08214','#fdb863','#fee0b6','#f7f7f7','#d8daeb','#b2abd2','#8073ac','#542788'];
 const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6dba0','#5aae61','#1b7837'];
 
+var baseUrl = "./"
 
 var isTreeTable;
 
@@ -141,12 +138,12 @@ var tabOption = {
 <!DOCTYPE html> \
 <!-- saved from url=(0037)https://lmt.ornl.gov/test_lmtud/dist/ --> \
 <html lang='en' class=''><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'> \
-   <style> table {margin-left:auto; margin-right:auto; margin-top:30px;} \
-      th, td { min-width:28px; max-width:28px; width:28px; height:28px; overflow:hidden; \
-         word-wrap:break-word; font-size:xx-small; overflow:auto; text-align:center; } \
-      th { height: 150px; transform: translate(-1px, 52px) rotate(-90deg); word-wrap: unset; overflow:inherit; display:tabel-cell;\
-        white-space: nowrap; font-size:small; } td {border:1px solid;} \
-      table.tabulator-print-table td:nth-of-type(1) {width:320px;min-width:320px;text-align:left;font-size:small;} \
+   <style> table {margin-left:auto; margin-right:auto; margin-top:10px;} \
+      th, td { min-width:30px; max-width:30px; width:30px; height:30px; overflow:hidden; \
+         word-wrap:break-word; font-size:11.5px; overflow:auto; text-align:center; } \
+      th { height: 150px; transform: translate(-1px, 88px) rotate(-90deg); word-wrap: unset; overflow:inherit; display:tabel-cell;\
+        white-space: nowrap; font-size:20px; } td {border:1px solid;} \
+      table.tabulator-print-table td:nth-of-type(1) {width:320px;min-width:390px;text-align:right;font-size:20px;padding-right:10px;border:0px;} \
 .tabulator-print-table{border-collapse:collapse} .tabulator-print-table .tabulator-data-tree-branch \
 {display:inline-block;vertical-align:middle;height:9px;width:7px;margin-top:-9px;margin-right:5px;border-bottom-left-radius:1px;border-left:2px \
 solid #aaa;border-bottom:2px solid #aaa}.tabulator-print-table .tabulator-print-table-group{\
@@ -174,9 +171,68 @@ background:rgba(0,0,0,.1);overflow:hidden}\
 display:inline-block;position:relative;height:7px;width:1px;background:0 0}\
 .tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-collapse:after{\
 position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#333}\
-.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-expand{display:inline-block;position:relative;height:7px;width:1px;background:#333}.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-expand:after{position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#333} </style></head><body>";
+.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-expand{display:inline-block;position:relative;height:7px;width:1px;background:#333}\
+.tabulator-print-table .tabulator-data-tree-control .tabulator-data-tree-control-expand:after{position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#333} \
+table .table-header-rotated td:nth-of-type(1){max-width:30px; min-width:30px; width:30px;border:1px solid;padding:1px;} \
+.legDiv {transform: scale(1.0); font-size:20px; margin-right:0px; justify-content:center;display:table-cell; padding-left:35px}\
+.tabulator-print-table th:nth-of-type(1) {transform:none;}\
+.table-header-rotated td { min-width: 30px; max-width: 30px; width: 30px; height: 30px; }\
+#scoresLegend {margin-top:0px;}\
+.tabulator-print-table .tabulator-data-tree-control {display:none;}"
 
 
+         //var el = document.createElement( 'html' );
+         //el.innerHTML = fileContents;
+         //console.log(el.getElementsByTagName('td'));
+         var nowColumns = table.getColumns();
+
+
+         var cssString;
+         var nd=1;
+         for (col of nowColumns) {
+             if (col.isVisible()) {
+                var x = col.getField();
+                var k =  grpsModelSrc[x] % bgColorGroupFirstRow.length
+                if (nd == 1){
+                   cssString = '';
+                }
+
+                else {
+                   // let CMIP 5 and 6 Mean have the same colors with other models
+                   // removing 'x' will make their color diffent to others
+                   if (x.includes('xMean') || x.includes('xmean')){
+                       //bgcol = "white";
+                       //var cssSets = 'font-style:italic;';
+                       var cssSets = 'color:skyblue;';
+                       var cssTemp='.tabulator-print-table th:nth-of-type(nod){set}'
+                       cssString+=cssTemp.replace('nod', nd.toString()).replace('set', cssSets);
+                       
+                   }
+
+                   // 204 35 35
+                   // 37 81 204
+                   else {
+                       if (k == 0 || x.includes('CMIP5')){
+                          //var cssSets = 'color:darkgray;';
+                          var cssSets = 'color:rgb(37,81,204);';
+                          var cssTemp='.tabulator-print-table th:nth-of-type(nod){set}'
+                          cssString+=cssTemp.replace('nod', nd.toString()).replace('set', cssSets);
+                       }
+                       else {
+                          var cssSets = 'color:rgb(204,35,35);';
+                          var cssTemp='.tabulator-print-table th:nth-of-type(nod){set}'
+                          cssString+=cssTemp.replace('nod', nd.toString()).replace('set', cssSets);
+                       }
+                   }
+                }
+                nd=nd+1;
+             }
+         }
+
+  
+         var styleEnd = "</style></head><body>";
+
+         //.tabulator-print-table th:nth-of-type(2){}
          var colorBarRow;
          if(document.getElementById("colorblind").checked) {
              colorBarRow = "<td bgcolor='#b35806'></td><td bgcolor='#e08214'></td><td bgcolor='#fdb863'></td><td bgcolor='#fee0b6'></td>\
@@ -186,15 +242,29 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
              colorBarRow = "<td bgcolor='#b2182b'></td><td bgcolor='#d6604d'></td><td bgcolor='#f4a582'></td><td bgcolor='#fddbc7'></td>\
                   <td bgcolor='#f7f7f7'></td><td bgcolor='#d9f0d3'></td><td bgcolor='#a6dba0'></td><td bgcolor='#5aae61'></td><td bgcolor='#1b7837'></td>";
          }
-         var legTable = "<center> <div class='legDiv'> <p>Relative Scale <table class='table-header-rotated' id='scoresLegend'> <tbody> <tr>" +
+         var legTable = "<center> <div class='legDiv'> Relative Scale <table class='table-header-rotated' id='scoresLegend'> <tbody> <tr>" +
                         colorBarRow + "</tr> </tbody> </table> Worse Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Better Value \
             <table class='table-header-rotated' id='missingLegend'> \
               <tbody> <tr> <td bgcolor='#808080'></td> </tr> </tbody> \
             </table>Missing Data or Error\
             </div> </center> ";
 
+         //insert legend table into the top-left
+         let topleftcell = '<th colspan="1" rowspan="1"></th>'
+
          var aftTable = "</body></html>";
-         var newContents = preTable + fileContents.replace(/undefined/g, '') + legTable + aftTable; 
+         //var newContents = preTable + //"<div id='mytabs' style='width:1000px;'>" + 
+         //     fileContents.replace(/undefined/g, '') + //"</div>" + 
+         //     legTable + aftTable; 
+
+         var newContents = preTable + cssString + styleEnd +
+              fileContents.replace(/undefined/g, '').replace(topleftcell, '<th>'+legTable+'</th>') //.replace(\ /table-row"><td style="/g, "font-weight:bold; tabindex")  + 
+              .replace("background-color: rgb(236, 255, 230);", "background-color: rgb(236, 255, 230);font-weight:bold")
+              .replace("background-color: rgb(230, 249, 255);", "background-color: rgb(230, 249, 255);font-weight:bold")
+              .replace("background-color: rgb(255, 236, 230);", "background-color: rgb(255, 236, 230);font-weight:bold")
+              .replace("background-color: rgb(237, 237, 237);", "background-color: rgb(237, 237, 237);font-weight:bold") 
+              + aftTable; 
+         
 
          blob = new Blob([newContents], {type: 'text/html'});
          return blob;
@@ -222,8 +292,10 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
      nestedFieldSeparator:"|", 
 
 
-     //dataTreeBranchElement:false, //hide branch element
+     dataTreeBranchElement:false, //hide branch element
      dataTreeChildIndent:15, //indent child rows by 15 px
+     //dataTreeCollapseElement:"<i></i>", 
+     //dataTreeExpandElement:"<i></i>",
     
      selectable: true,
      rowContextMenu:rowMenu,
@@ -235,6 +307,7 @@ position:absolute;content:'';left:-3px;top:3px;height:1px;width:7px;background:#
      //       row.treeToggle();
      //   }
      //},
+     //
      dataTreeStartExpanded:function(row, level){
         return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
      },
@@ -372,6 +445,7 @@ $(document).ready(function() {
 
      //scaling
      //
+
      $('#checkboxsca[type="checkbox"]').on('change', function() {
          $('#checkboxsca[type="checkbox"]').not(this).prop('checked', false);
 
@@ -471,7 +545,7 @@ $(document).ready(function() {
        .done(function(data) {
            _config = data;
 
-           console.log(window.location.href + data.udcJsonLoc);
+           console.log("UDEB:", window.location.href + data.udcJsonLoc);
 
            if (data.udcJsonLoc) {
               //let jsfUrl = window.location.href + data.udcJsonLoc;
@@ -815,6 +889,14 @@ function loadrmtJson(jsfUrl, dimSet={}) {
 
               break;
           }
+
+
+          // baseUrl
+          if (cmecJson.hasOwnProperty("SETTINGS")) {
+              if (cmecJson.SETTINGS.hasOwnProperty("baseUrl")) {
+                  baseUrl = cmecJson.SETTINGS.baseUrl;
+              }
+          }
      
           // trigger an event to indicate that the json is ready
           $(document).trigger('jsonReady');
@@ -894,7 +976,6 @@ function prepareTab(cJson, dimSet={}) {
       }
    }
 
-
    tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
    if (Object.keys(tabTreeJson[0]).includes('_children')) {
       tabOption.dataTreeCollapseElement = "";
@@ -956,8 +1037,8 @@ function prepareTab(cJson, dimSet={}) {
 function loadlocJson() {
 
 
-     resetSwitch();
-     resetSelect();
+    resetSwitch();
+    resetSelect();
 
     $('.select-choice-ex').val(null).trigger('change');
 
@@ -1015,7 +1096,7 @@ function loadlocJson() {
                    }
                    grpsTopMetric = [...new Set(t)];
                }
-              
+
                selectIDbyDims = {};
                dimBySelectIDs = {};
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
@@ -1045,6 +1126,7 @@ function loadlocJson() {
                       ini_fxdm[fxdim] = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdim])[0];
                    }
                }
+
 
                tabTreeJson = lmt_tool.cmec2tab_json(cmecJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
@@ -1083,6 +1165,14 @@ function loadlocJson() {
                let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
                grpsFirstCol.length = 0;
                tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, ini_xdim, ini_ydim, ydimField);
+
+
+               // baseUrl
+               if (cmecJson.hasOwnProperty("SETTINGS")) {
+                   if (cmecJson.SETTINGS.hasOwnProperty("baseUrl")) {
+                       baseUrl = cmecJson.SETTINGS.baseUrl;
+                   }
+               }
 
                // trigger an event to indicate that the json is ready
                $(document).trigger('jsonReady');
@@ -1191,6 +1281,76 @@ $(document).on('jsonReady', function() {
      //catch(err){
      //   alert('Error when handling the table:', err.message);
      //}
+     // udc 
+     //
+     if (_config.hasOwnProperty("udcNormAxis")) {
+
+         switch (_config.udcNormAxis.toLowerCase()) {
+            case "x": case "col":
+                $('.scarow').prop('checked', false);
+                $('.scacol').prop('checked', true);
+                break;
+            case "y": case "row":
+                $('.scarow').prop('checked', true);
+                $('.scacol').prop('checked', false);
+                break;
+            default:
+                console.log("UDEB: error setting in udcNormAxis");
+                break;
+         }
+     }
+
+     if (_config.hasOwnProperty("udcNormType")) {
+         switch (_config.udcNormType.toLowerCase()) {
+            case "standarized":
+                $('#select-choice-mini-sca').val("1").trigger('change');
+                break;
+            case "normalized[-1:1]":
+                $('#select-choice-mini-sca').val("2").trigger('change');
+                break;
+            case "normalized[0:1]":
+                $('#select-choice-mini-sca').val("3").trigger('change');
+                break;
+            default:
+                console.log("UDEB: error setting in udcNormType");
+                break;
+         }
+     }
+
+     if (_config.hasOwnProperty("udcColorMapping")) {
+         switch (_config.udcColorMapping.toLowerCase()) {
+            case 'ilamb':
+                $('#select-choice-mini-map').val("0").trigger('change');
+                //$('#select-choice-mini-map').val("0");
+                //$('#select-choice-mini-map').trigger('change.select2');
+                break;
+            case 'linear':
+                $('#select-choice-mini-map').val("1").trigger('change');
+                break;
+            case 'linear reverse':
+                $('#select-choice-mini-map').val("2").trigger('change');
+                break;
+            default:
+                console.log("UDEB: error setting in udcColorMapping");
+                break;
+         }
+     }
+
+     if (_config.hasOwnProperty("udcBaseUrl")) {
+         //check url is valid and available
+         //
+         //$.ajax({
+         //    type: "GET",
+         //    url: _config.udcBaseUrl
+         //}).done(function (result) {
+         //    console.log("working");
+         //    baseUrl = _config.udcBaseUrl;
+         //}).fail(function () {
+         //    alert("UDEB: please provide a valid udcBaseUrl");
+         //});
+         baseUrl = _config.udcBaseUrl;
+
+     }
 });
 
 
@@ -1268,7 +1428,6 @@ function menuShowHide(xDim, yDim, menuReset) {
                if( Object.values(fixedDimsDict).every(checkDefine) ) {
 
                    var cvtTree=1;
-
                    tabJson = lmt_tool.cmec2tab_json(cmecJson, xDim, yDim, fixedDimsDict, cvtTree);
 
                    //console.debug('UDEB:', tabJson, Object.keys(tabJson[0]));
@@ -1375,7 +1534,8 @@ function colorILAMB(cell, formatterParams, onRendered){
      if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
         //return Math.round((origVal + Number.EPSILON) * 100) / 100;
-        return origVal.toFixed(2);
+        //return origVal.toFixed(2);
+        return normVal.toFixed(2);
      }
 };
 
@@ -1425,7 +1585,8 @@ function colorLinear(cell, formatterParams, onRendered) {
      if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
          //return Math.round((origVal + Number.EPSILON) * 100) / 100;
-         return  origVal.toFixed(2);
+         //return  origVal.toFixed(2);
+         return  normVal.toFixed(2);
      }
 }
 
@@ -1472,7 +1633,7 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
      if (formatterParams.showCellValue && origVal > -900){
          cell.getElement().style.color = "black";
          //return Math.round((origVal + Number.EPSILON) * 100) / 100;
-         return  origVal.toFixed(2);
+         return  normVal.toFixed(2);
      }
 }
 
@@ -1499,7 +1660,8 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
             //formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
             //
     // conflict with savehtml setfirstcolbgcolor fixed in tabulator 4.9
-    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:380, formatter:setFirstColBgColor, formatterParams:{"xDim":xdim,"yDim":ydim}, headerSort:true };
+    var firstCol = { title:"row_name", field:"row_field", frozen: true, titleFormatter: firstColIcon, minWidth:380, formatter:setFirstColBgColor, 
+            formatterParams:{"xDim":xdim,"yDim":ydim}, headerSort:true, headerContextMenu:firstColHeaderContextMenu };
 
     firstCol.title = ydim.concat('/',xdim);
     //firstCol.field = 'row_name';
@@ -1519,7 +1681,13 @@ var setTabColumns = function(tabJson, addBottomTitle, firstColIcon, lmtTitleForm
 
            if (xdim == "model"){
               var k =  grpsModelSrc[x] % bgColorGroupFirstRow.length
-              bgcol = bgColorGroupFirstRow[k];
+
+              if (col.title.includes('Mean') || col.title.includes('mean')){
+                 bgcol = "white";
+              }
+              else {
+                 bgcol = bgColorGroupFirstRow[k];
+              }
               ftwgt = 100;
               ftsty = "normal";
               txdec = "";
@@ -1615,6 +1783,35 @@ var headerContextMenu = [
             $('#hlist').val(hideItems).trigger('change');
         }
     },
+];
+
+
+var firstColHeaderContextMenu = [
+    {
+        label:"Toggle Tree Icon",
+        action:function(e, column){
+
+           var len = document.getElementsByClassName("tabulator-data-tree-control").length;
+           for (let i=0; i < len; i++) { 
+               if (document.getElementsByClassName("tabulator-data-tree-control")[i].style.display == "none") {
+                  document.getElementsByClassName("tabulator-data-tree-control")[i].style.display="inline-flex"; 
+               }
+               else {
+                  document.getElementsByClassName("tabulator-data-tree-control")[i].style.display="none"; 
+               }
+           }
+        
+        }
+    },
+
+
+    {
+        label:"Hide Logo",
+        action:function(e, column){
+           document.getElementsByClassName("infoImage")[0].style.display="none";
+        }
+    },
+
 ];
 
 
@@ -1717,31 +1914,74 @@ function  cellClickFuncGenetic(e, cell){
              var topmet = thisrow.getTreeParent().getTreeParent().getCell(ydimField).getValue().replace(/\s/g, '');
              var sndmet = thisrow.getTreeParent().getCell(ydimField).getValue().replace(/\s/g, '');
 
-             if (topmet == "Relationships"){
 
-                let metVar = sndmet.split("/")[0];
-                let metSrc = sndmet.split("/")[1];
+             //mx: this part code only worked for IPCC figure as it combined ILAMB and IOMB results
+             var isLandBenchMark = 0;
+             if (topmet.substring(0,4) == 'Land' || topmet.substring(0,5) == 'Ocean') {
 
 
-                let metOrg = Object.keys(cmecJson.DIMENSIONS.dimensions['metric']).find(a => a.replace(/\s/g, '').includes(metVar));
+                 if (topmet.substring(0,4) == 'Land') {
+                     xtopmet = topmet.replace('Land','');
+                     isLandBenchMark = 1;
+                 }
+                 else {
+                     xtopmet = topmet.replace('Ocean','');
+                     isLandBenchMark = -1;
+                 }
 
-                let metAct = metOrg.split("::")[0].replace(/\s/g, '');
+                if (xtopmet == "Relationships"){
+                   let metVar = sndmet.split("/")[0];
+                   let metSrc = sndmet.split("/")[1];
+                   let metOrg = Object.keys(cmecJson.DIMENSIONS.dimensions['metric']).find(a => a.replace(/\s/g, '').includes(metVar));
 
-                linkmetric = metAct.concat('/', sndmet, '/', metSrc, '.html#Relationships');
+                   if (isLandBenchMark == 1) {
+                       var metAct = metOrg.split("::")[0].replace(/\s/g, '').replace('Land','');
+                   }
+                   else {
+                       var metAct = metOrg.split("::")[0].replace(/\s/g, '').replace('Ocean','');
+                   }
+                   linkmetric = metAct.concat('/', sndmet, '/', metSrc, '.html#Relationships');
+                   console.log('UDEB:', 're', linkmetric);
+                }
+                else{
+                   linkmetric = xtopmet.concat('/', sndmet, '/', rowFirst, '/', rowFirst, '.html');
+                   console.log('UDEB:', 'other', linkmetric);
 
-                console.log('UDEB:', 're', linkmetric);
+                }
              }
-             else{
+             else {
+                if (topmet == "Relationships"){
+                   let metVar = sndmet.split("/")[0];
+                   let metSrc = sndmet.split("/")[1];
+                   let metOrg = Object.keys(cmecJson.DIMENSIONS.dimensions['metric']).find(a => a.replace(/\s/g, '').includes(metVar));
+                   let metAct = metOrg.split("::")[0].replace(/\s/g, '');
+                   linkmetric = metAct.concat('/', sndmet, '/', metSrc, '.html#Relationships');
+                   console.log('UDEB:', 're', linkmetric);
+                }
+                else{
+                   linkmetric = topmet.concat('/', sndmet, '/', rowFirst, '/', rowFirst, '.html');
+                   console.log('UDEB:', 'other', linkmetric);
 
-                linkmetric = topmet.concat('/', sndmet, '/', rowFirst, '/', rowFirst, '.html');
-                console.log('UDEB:', 'other', linkmetric);
-
-             }
+                }
+            }
 
          }
 
+
+         if (baseUrl.slice(-1) != '/') {
+             baseUrl = baseUrl + '/'
+         }
+
          if (linkmetric != undefined) {
-             var newWin = window.open(baseUrl.concat(linkmetric,'?model=',linkmodel,'&region=', linkregion));
+             if (isLandBenchMark == 0) {
+                 var newWin = window.open(baseUrl.concat(linkmetric,'?model=',linkmodel,'&region=', linkregion));
+             }
+             else if (isLandBenchMark ==  1) {
+                 var newWin = window.open("https://www.ilamb.org/CMIP5v6/ILAMB_AR6/".concat(linkmetric,'?model=',linkmodel,'&region=', linkregion));
+             }
+             else if (isLandBenchMark == -1) {
+                 var newWin = window.open("https://www.ilamb.org/CMIP5v6/IOMB_AR6/".concat(linkmetric,'?model=',linkmodel,'&region=', linkregion));
+             }
          }
 
      }
@@ -2158,9 +2398,30 @@ function setLevelExpand(row, level) {
 
 
 function savetoHtml() {
-    //var htmlTable = table.getHtml("active", true);
-    //console.log(htmlTable);
-    //var newwdw = window.open(htmlTable); 
+    //-var htmlTable = table.getHtml("active", true);
+    //-console.log(htmlTable);
+    //-var newwdw = window.open(htmlTable); 
     table.download("html", "test.html",  {style:true});
+
+//-table.download("pdf", "data.pdf", {
+//-    orientation:"portrait", //set page orientation to portrait
+//-    title:"Dynamics Quotation Report", //add title to report
+//-    jsPDF:{
+//-        unit:"in", //set units to inches
+//-    },
+//-    //autoTable:{ //advanced table styling
+//-    //    styles: {
+//-    //        fillColor: [100, 255, 255]
+//-    //    },
+//-    //    columnStyles: {
+//-    //        id: {fillColor: 255}
+//-    //    },
+//-    //    margin: {top: 60},
+//-    //},
+//-    //documentProcessing:function(doc){
+//-    //    //carry out an action on the doc object
+//-    //}
+//-});
+
 }
 
