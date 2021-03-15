@@ -32,25 +32,22 @@ console.log = function() {
 }
 
 
+// Control the tabulator for LMT Unified Dashboard
 
-// major js to control the tabulator for LMT unified dashboard
-// user can change the vales of the following varaibles
-//var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/cmec_ilamb_example.json";  // json file containing the benchmark results
 jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/";
-//var jsonFileUrl = "https://raw.githubusercontent.com/minxu74/benchmark_results/master/tab_ilamb_example.json";  // json file containing the benchmark results
 const corsProxy = "https://cors-anywhere.herokuapp.com/";  // cors proxy to remove the cors limit
-//const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/';
-//const baseUrl = 'https://portal.nersc.gov/project/m2467/minxu/cmip6/ls3mip_elm_comparison/_build/';
-const baseUrl = 'https://www.ilamb.org/CMIP5v6/historical/'
+
 
 const bgColorGroup = ["#ECFFE6", "#E6F9FF", "#FFECE6", "#EDEDED", "#FFF2E5"];
-//const bgColorGroupFirstRow = ["#0063B2FF", "#9CC3D5FF"];
 const bgColorGroupFirstRow = ["yellow", "#00FF00", "white"];
 const fgColorGroupFirstRow = ["black", "black", "black"];
-// color used default
+
+
+// colors used default directly from ILAMB
 const PuOr = ['#b35806','#e08214','#fdb863','#fee0b6','#f7f7f7','#d8daeb','#b2abd2','#8073ac','#542788'];
 const GnRd = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d9f0d3','#a6dba0','#5aae61','#1b7837'];
 
+var baseUrl = "./"
 
 var isTreeTable;
 
@@ -548,7 +545,7 @@ $(document).ready(function() {
        .done(function(data) {
            _config = data;
 
-           console.log(window.location.href + data.udcJsonLoc);
+           console.log("UDEB:", window.location.href + data.udcJsonLoc);
 
            if (data.udcJsonLoc) {
               //let jsfUrl = window.location.href + data.udcJsonLoc;
@@ -892,6 +889,14 @@ function loadrmtJson(jsfUrl, dimSet={}) {
 
               break;
           }
+
+
+          // baseUrl
+          if (cmecJson.hasOwnProperty("SETTINGS")) {
+              if (cmecJson.SETTINGS.hasOwnProperty("baseUrl")) {
+                  baseUrl = cmecJson.SETTINGS.baseUrl;
+              }
+          }
      
           // trigger an event to indicate that the json is ready
           $(document).trigger('jsonReady');
@@ -971,8 +976,6 @@ function prepareTab(cJson, dimSet={}) {
       }
    }
 
-               console.log('cmec2', cmecJson);
-
    tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
    if (Object.keys(tabTreeJson[0]).includes('_children')) {
       tabOption.dataTreeCollapseElement = "";
@@ -1034,8 +1037,8 @@ function prepareTab(cJson, dimSet={}) {
 function loadlocJson() {
 
 
-     resetSwitch();
-     resetSelect();
+    resetSwitch();
+    resetSelect();
 
     $('.select-choice-ex').val(null).trigger('change');
 
@@ -1124,7 +1127,6 @@ function loadlocJson() {
                    }
                }
 
-               console.log('cmec', cmecJson);
 
                tabTreeJson = lmt_tool.cmec2tab_json(cmecJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
@@ -1163,6 +1165,14 @@ function loadlocJson() {
                let lmtTitleFormatterParams = {"bgcol":bgcol, "ftsty":ftsty, "ftwgt":ftwgt, "txdec":txdec, "color":txcol};
                grpsFirstCol.length = 0;
                tabOption.columns = setTabColumns(tabTreeJson, addBottomTitle=false, firstColIcon, lmtTitleFormatterParams, ini_xdim, ini_ydim, ydimField);
+
+
+               // baseUrl
+               if (cmecJson.hasOwnProperty("SETTINGS")) {
+                   if (cmecJson.SETTINGS.hasOwnProperty("baseUrl")) {
+                       baseUrl = cmecJson.SETTINGS.baseUrl;
+                   }
+               }
 
                // trigger an event to indicate that the json is ready
                $(document).trigger('jsonReady');
@@ -1272,18 +1282,75 @@ $(document).on('jsonReady', function() {
      //   alert('Error when handling the table:', err.message);
      //}
      // udc 
-     if (_config.udcScaRow == 1) {
-         $('.scarow').prop('checked', true);
-         $('.scacol').prop('checked', false);
+     //
+     if (_config.hasOwnProperty("udcNormAxis")) {
+
+         switch (_config.udcNormAxis.toLowerCase()) {
+            case "x": case "col":
+                $('.scarow').prop('checked', false);
+                $('.scacol').prop('checked', true);
+                break;
+            case "y": case "row":
+                $('.scarow').prop('checked', true);
+                $('.scacol').prop('checked', false);
+                break;
+            default:
+                console.log("UDEB: error setting in udcNormAxis");
+                break;
+         }
      }
-     if (_config.udcScaCol == 1) {
-         $('.scarow').prop('checked', false);
-         $('.scacol').prop('checked', true);
+
+     if (_config.hasOwnProperty("udcNormType")) {
+         switch (_config.udcNormType.toLowerCase()) {
+            case "standarized":
+                $('#select-choice-mini-sca').val("1").trigger('change');
+                break;
+            case "normalized[-1:1]":
+                $('#select-choice-mini-sca').val("2").trigger('change');
+                break;
+            case "normalized[0:1]":
+                $('#select-choice-mini-sca').val("3").trigger('change');
+                break;
+            default:
+                console.log("UDEB: error setting in udcNormType");
+                break;
+         }
      }
-     if (_config.udcNormType == "Standaried"){
-         $('#select-choice-mini-sca').val("1").trigger('change');
+
+     if (_config.hasOwnProperty("udcColorMapping")) {
+         switch (_config.udcColorMapping.toLowerCase()) {
+            case 'ilamb':
+                $('#select-choice-mini-map').val("0").trigger('change');
+                //$('#select-choice-mini-map').val("0");
+                //$('#select-choice-mini-map').trigger('change.select2');
+                break;
+            case 'linear':
+                $('#select-choice-mini-map').val("1").trigger('change');
+                break;
+            case 'linear reverse':
+                $('#select-choice-mini-map').val("2").trigger('change');
+                break;
+            default:
+                console.log("UDEB: error setting in udcColorMapping");
+                break;
+         }
      }
-     console.log('xxx', _config.udcScaRow, _config.udcNormType);
+
+     if (_config.hasOwnProperty("udcBaseUrl")) {
+         //check url is valid and available
+         //
+         //$.ajax({
+         //    type: "GET",
+         //    url: _config.udcBaseUrl
+         //}).done(function (result) {
+         //    console.log("working");
+         //    baseUrl = _config.udcBaseUrl;
+         //}).fail(function () {
+         //    alert("UDEB: please provide a valid udcBaseUrl");
+         //});
+         baseUrl = _config.udcBaseUrl;
+
+     }
 });
 
 
@@ -1361,8 +1428,6 @@ function menuShowHide(xDim, yDim, menuReset) {
                if( Object.values(fixedDimsDict).every(checkDefine) ) {
 
                    var cvtTree=1;
-
-                   console.log('cmec3', cmecJson);
                    tabJson = lmt_tool.cmec2tab_json(cmecJson, xDim, yDim, fixedDimsDict, cvtTree);
 
                    //console.debug('UDEB:', tabJson, Object.keys(tabJson[0]));
@@ -1851,9 +1916,9 @@ function  cellClickFuncGenetic(e, cell){
 
 
              //mx: this part code only worked for IPCC figure as it combined ILAMB and IOMB results
+             var isLandBenchMark = 0;
              if (topmet.substring(0,4) == 'Land' || topmet.substring(0,5) == 'Ocean') {
 
-                 var isLandBenchMark = 0;
 
                  if (topmet.substring(0,4) == 'Land') {
                      xtopmet = topmet.replace('Land','');
@@ -1900,6 +1965,11 @@ function  cellClickFuncGenetic(e, cell){
                 }
             }
 
+         }
+
+
+         if (baseUrl.slice(-1) != '/') {
+             baseUrl = baseUrl + '/'
          }
 
          if (linkmetric != undefined) {
