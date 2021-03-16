@@ -1358,15 +1358,15 @@ function menuShowHide(xDim, yDim, menuReset) {
 
      //trying to reset scaling and normalizing part
      //
-     //
-     $('.scarow').prop('checked', true);
-     $('.scacol').prop('checked', false);
+     //what is difference between chang and change.select2?
+     //mxu$('.scarow').prop('checked', true);
+     //mxu$('.scacol').prop('checked', false);
      //$('#select-choice-mini-sca').val("0").trigger('change');
      //$('#select-choice-mini-map').val("0").trigger('change');
-     $('#select-choice-mini-sca').val("0");
-     $('#select-choice-mini-sca').trigger('change.select2');
-     $('#select-choice-mini-map').val("0");
-     $('#select-choice-mini-map').trigger('change.select2');
+     //mxu$('#select-choice-mini-sca').val("0");
+     //mxu$('#select-choice-mini-sca').trigger('change.select2');
+     //mxu$('#select-choice-mini-map').val("0");
+     //mxu$('#select-choice-mini-map').trigger('change.select2');
 
      tabTempJson = [];
 
@@ -1402,6 +1402,12 @@ function menuShowHide(xDim, yDim, menuReset) {
                else{
                    lmt_tool.add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]), 'hlist');
                }
+
+               // need to reset the scaling part
+               $('.scarow').prop('checked', true);
+               $('.scacol').prop('checked', false);
+               $('#select-choice-mini-sca').val("0").trigger('change.select2');
+               $('#select-choice-mini-map').val("0").trigger('change.select2');
             }
 
 
@@ -1410,11 +1416,10 @@ function menuShowHide(xDim, yDim, menuReset) {
 
             $("#".concat(selectIDbyDims[dimn])).on('select2:select', function (e) {
 
-               $('.scarow').prop('checked', true);
-               $('.scacol').prop('checked', false);
-               
-               $('#select-choice-mini-sca').val("0").trigger('change.select2');
-               $('#select-choice-mini-map').val("0").trigger('change.select2');
+               //mxu $('.scarow').prop('checked', true);
+               //mxu $('.scacol').prop('checked', false);
+               //mxu $('#select-choice-mini-sca').val("0").trigger('change.select2');
+               //mxu $('#select-choice-mini-map').val("0").trigger('change.select2');
                tabTempJson = [];
            
                selId = $(this).attr('id');
@@ -1473,6 +1478,17 @@ function menuShowHide(xDim, yDim, menuReset) {
                    table.setColumns(tabOption.columns);
                    table.clearData();
                    table = new Tabulator("#dashboard-table", tabOption);
+
+                   // keep the scaling options
+                   xscaopt = $('#select-choice-mini-sca').val();
+                   xmapopt = $('#select-choice-mini-map').val();
+
+                   //if ($('.scarow').is(':checked'))
+                   //console.log(xscaopt, xmapopt, 'mxudeb');
+                   //$('.scarow').prop('checked', true);
+                   //$('.scacol').prop('checked', false);
+                   $('#select-choice-mini-sca').val(xscaopt).trigger('change');
+                   $('#select-choice-mini-map').val(xmapopt).trigger('change');
                }
                
             });
