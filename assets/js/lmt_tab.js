@@ -936,7 +936,13 @@ function prepareTab(cJson, dimSet={}) {
 
    for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
         if (dimn == 'statistic'){
-            lmt_tool.add_options(cJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+
+            if (cJson.DIMENSIONS.dimensions[dimn].hasOwnProperty("indices")) {
+                lmt_tool.add_options(cJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+            }
+            else {
+                lmt_tool.add_options(Object.keys(cJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
+            }
         }
         else{
             lmt_tool.add_options(Object.keys(cJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
@@ -968,7 +974,13 @@ function prepareTab(cJson, dimSet={}) {
 
       for (fxdim of cJson.DIMENSIONS.json_structure.slice(2, cJson.DIMENSIONS.json_structure.length)) {
           if (fxdim == 'statistic'){
-             ini_fxdm[fxdim] = cJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+
+             if (cJson.DIMENSIONS.dimensions['statistic'].hasOwnProperty("indices")) {
+                 ini_fxdm[fxdim] = cJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+             }
+             else {
+                 ini_fxdm[fxdim] = Object.keys(cJson.DIMENSIONS.dimensions[fxdim])[0];
+             }
           }
           else {
              ini_fxdm[fxdim] = Object.keys(cJson.DIMENSIONS.dimensions[fxdim])[0];
@@ -1101,7 +1113,13 @@ function loadlocJson() {
                dimBySelectIDs = {};
                for (let [i, dimn] of Object.entries(cmecJson.DIMENSIONS.json_structure)) {
                     if (dimn == 'statistic'){
-                        lmt_tool.add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+
+                        if (cmecJson.DIMENSIONS.dimensions[dimn].hasOwnProperty("indices")) {
+                            lmt_tool.add_options(cmecJson.DIMENSIONS.dimensions[dimn].indices, 'select-choice-mini-'.concat(i.toString()));
+                        }
+                        else {
+                            lmt_tool.add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
+                        }
                     }
                     else{
                         lmt_tool.add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[dimn]), 'select-choice-mini-'.concat(i.toString()));
@@ -1120,7 +1138,13 @@ function loadlocJson() {
                let ini_fxdm = {};
                for (fxdim of cmecJson.DIMENSIONS.json_structure.slice(2, cmecJson.DIMENSIONS.json_structure.length)) {
                    if (fxdim == 'statistic'){
-                      ini_fxdm[fxdim] = cmecJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+
+                      if (cmecJson.DIMENSIONS.dimensions['statistic'].hasOwnProperty("indices")) {
+                          ini_fxdm[fxdim] = cmecJson.DIMENSIONS.dimensions['statistic']['indices'][0];
+                      }
+                      else {
+                          ini_fxdm[fxdim] = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdim])[0];
+                      }
                    } 
                    else {
                       ini_fxdm[fxdim] = Object.keys(cmecJson.DIMENSIONS.dimensions[fxdim])[0];
@@ -1397,7 +1421,13 @@ function menuShowHide(xDim, yDim, menuReset) {
                    sel.remove(i);
                }
                if (xDim == 'statistic'){
-                   lmt_tool.add_options(cmecJson.DIMENSIONS.dimensions[xDim].indices, 'hlist');
+
+                   if (cmecJson.DIMENSIONS.dimensions[xDim].hasOwnProperty("indices")) {
+                       lmt_tool.add_options(cmecJson.DIMENSIONS.dimensions[xDim].indices, 'hlist');
+                   }
+                   else {
+                       lmt_tool.add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]), 'hlist');
+                   }
                }
                else{
                    lmt_tool.add_options(Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]), 'hlist');
