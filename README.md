@@ -23,6 +23,7 @@ The main functions of LMT Unified Dashboard include:
 - **Scale and normalize cell values in the column and row direction:** users can select the scaling and normalization direction by clicking the checkboxes named row and column in the left side panel.  Users can further select the normalization methods in the drop-down menu below the checkboxes.
 - **Show/hide the nested tree icons:** users can show and hide the nested tree icons by right-clicking the top-left cell and selecting the menu item of "Toggle Tree Icon".
 - **Hide logo:** users can hide the logo in the top-left cell by right-clicking it and selecting the menu item "Hide Logo".
+- **Clickable Cell:** users can click cells and then go to the HTML pages showing detailed results (this function is applicable to ILAMB results and will be extended to results of other benchmark software).
 
 
 ### Example Sites:
