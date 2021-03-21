@@ -300,7 +300,8 @@ table .table-header-rotated td:nth-of-type(1){max-width:30px; min-width:30px; wi
      selectable: true,
      rowContextMenu:rowMenu,
 
-     cellClick:cellClickFuncGenetic,
+     //cellClick:cellClickFuncGenetic,
+     cellClick:newCellClickFunc,
  
      //rowClick: function(e, row){
      //   if (row.getTreeChildren().length != 0) {
@@ -1880,9 +1881,90 @@ function tableColor(){
 
 }
 
-//
+
+function getRowTreeStruct(rowClick) {
+
+    var rowTreeStruct;
+
+    rowTreeStruct = rowClick.getCells()[0].getValue().replace(/\s+/g, '');
+
+    if (rowClick.getTreeParent()) {
+         rowTreeStruct = getRowTreeStruct(rowClick.getTreeParent()) + "::" + rowTreeStruct; 
+    }
+
+    return rowTreeStruct;
+
+}
+
+
+function newCellClickFunc(e, cell) {
+     //var template_test = "metric", "model", "region", "return metric.includes(Relationships)? :metric.replace(/::/g,'/') + metric.split('/')[-1]+'.html?model='+model";
+
+     var thisRow = cell.getRow();
+     var thiscol = cell.getColumn();
+     var isTree = new Boolean(true);
+
+     var colField = thiscol.getField().replace(/\s+/g,'');
+     var rowField = getRowTreeStruct(thisRow)
+
+     xDimName = $('#select-choice-mini-x').val();
+     yDimName = $('#select-choice-mini-y').val();
+
+     var input={};
+     
+     input[xDimName] = colField;
+     input[yDimName] = rowField;
+     for (dim of cmecJson.DIMENSIONS.json_structure) {
+        if (dim != xDimName && dim != yDimName) { 
+           selectVal = $('#'.concat(selectIDbyDims[dim])).val();
+           input[dim] = selectVal.replace(/\s+/g, '');
+        }
+     }
+
+     input.metric = input.metric.replace('!!','::');
+
+     var metricList=[];
+ 
+     for (met of Object.keys(cmecJson.DIMENSIONS.dimensions.metric)) {
+          if ( ! met.includes('Relationships') ){
+              metricList.push(met.replace(/\s+/g,'').replace(/::/g,'/').replace(/!!/g,'/'));
+          }
+     }
+
+     metricArr = input.metric.split('::');
+     metricLen = metricArr.length;
+
+     if (input.metric.includes('Relationships')) {
+          var myLink = metricList.filter(s => s.includes(metricArr[1]))[0] + '/' + metricArr[1].split('/')[1] + '.html#Relationships';
+     }
+     else {
+          var myLink = input.metric.replace(/::/g, '/') + '/' + input.metric.split('::')[metricLen-1] + '.html';
+     }
+
+     if (baseUrl.slice(-1) != '/') {
+          baseUrl = baseUrl + '/'
+     }
+     console.log('UDEB: mylink', metricArr, myLink, input.metric.split('::'), baseUrl + myLink.concat('?model=', input.model, '&region=', input.region));
+
+     if ( metricLen < 3 ) {
+          if (colField == 'row_name') {
+              thisRow.treeToggle();
+          }
+          else {
+              alert("Only the lowest level metric is clickable"); 
+          }
+     }
+     else {
+          var newWin = window.open(baseUrl + myLink.concat('?model=', input.model, '&region=', input.region));
+     }
+
+
+}
+
 //
 function  cellClickFuncGenetic(e, cell){
+
+
      //e - the click event object
      //cell - cell component
      var thisrow = cell.getRow();
