@@ -2,10 +2,9 @@
   "name": "lmt_unified_dashboard",
   "version": "1.0.0",
   "description": "LMT Unified Dashboard to show benchmarking results",
-  "main": "lmt_tab.js",
+  "main": "dist/js/lmtud_bundle.min.js",
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "preinstall": "npx npm-force-resolutions"
   },
   "repository": {
     "type": "git",
@@ -19,37 +18,43 @@
     "system",
     "models"
   ],
-  "author": "Min Xu",
-  "license": "MIT",
+  "author": {
+    "name": "Min Xu, the ORNL Land Model Testbed LDRD project, and US Department of Energy RUBISCO Science Focus Area",
+    "url": "https://github.com/climatemodeling/unified-dashboard.git"
+  },
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/climatemodeling/unified-dashboard/issues"
   },
   "homepage": "https://github.com/climatemodeling/unified-dashboard#readme",
+  "dependencies": {
+    "el-checkbox": "github:EvanLiu2968/el-checkbox#f34baa7",
+    "jquery": "^3.5.1",
+    "select2": "^4.0.13",
+    "select2-multi-checkboxes": "github:wasikuss/select2-multi-checkboxes#74f4eb4",
+    "slideout": "^1.0.1",
+    "tabulator-tables": "^4.9.3"
+  },
   "devDependencies": {
     "@babel/core": "^7.13.8",
     "babelify": ">=10.0.0",
     "browserify": "^17.0.0",
     "browserify-css": ">=0.15.0",
     "del": "^5.1.0",
-    "gulp": ">=4.0.2",
+    "gulp": "^4.0.2",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
-    "gulp-minify": "^3.1.0",
-    "gulp-rev": "^9.0.0",
-    "gulp-rev-rewrite": "^3.0.3",
-    "jquery": "^3.5.1",
-    "lodash.template": ">=4.5.0",
-    "select2": "^4.0.13",
-    "slideout": "^1.0.1",
-    "tabulator-tables": "4.9.3",
-    "uglify-js": "^3.10.4",
+    "gulp-cssimport": "^7.0.0",
+    "gulp-include": "^2.3.1",
+    "gulp-insert": "^0.5.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-uglify": "^3.0.2",
+    "license-checker": "^25.0.1",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0",
-    "yargs": "^13.3.2",
-    "hosted-git-info": ">=2.8.9",
-    "lodash": ">=4.17.21"
+    "vinyl-source-stream": "^2.0.0"
   },
-  "dependencies": {
-    "gulp-rename": "^2.0.0"
+  "resolutions": {
+    "yargs-parser": "^20.2.9",
+    "glob-parent": ">=5.1.2"
   }
 }
