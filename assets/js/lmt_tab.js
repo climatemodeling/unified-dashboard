@@ -1,13 +1,21 @@
 // require modules
 
 var $ = require( "jquery" );
+var jQuery = require( "jquery" );
 var Tabulator = require('tabulator-tables');
 var select2 = require('select2')(); // note you're calling a function here!
-var select2MultiCheckboxes = require('./select2.multi-checkboxes.js');
+
+// have to include select2-multi-checkboxes instead of require, as the jQuery and $
+// will be undefined in that package if we require it
+/*! Start including the select2-multi-checkboxes package */
+//var select2MultiCheckboxes = require('./select2.multi-checkboxes.js');
+/*=include './node_modules/select2-multi-checkboxes/select2.multi-checkboxes.js'*/
+/*! End including the select2-multi-checkboxes package*/
+
 var lmt_tool = require('./lmt_tool.js');
 var Slideout = require('slideout');
 
-var css = require('../css/lmtstyle.css');
+//var css = require('../css/lmtstyle.css');
 
 //globalize functions
 window.loadlocJson = loadlocJson;
