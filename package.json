@@ -53,5 +53,8 @@
   "dependencies": {
     "gulp-rename": "^2.0.0",
     "path-dirname": "^1.0.2"
-  }
+  },
+  "resolutions":{
+   "set-value": "4.0.1"
+ }
 }
