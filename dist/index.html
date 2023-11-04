@@ -3,10 +3,13 @@
 <head>
    <meta charset="utf-8" />
 
-   <!-- js --!>
-   <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/climatemodeling/unified-dashboard@1.0.0/dist/js/lmtud_bundle.min.js"></script>
-   <!-- css--!>
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/climatemodeling/unified-dashboard@1.0.0/dist/css/lmtud_bundle.min.css">
+   <!-- js -->
+   <!--script type="text/javascript" src="https://cdn.jsdelivr.net/gh/climatemodeling/unified-dashboard@1.0.0/dist/js/lmtud_bundle.min.js"></script-->
+   <!-- css-->
+   <!--link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/climatemodeling/unified-dashboard@1.0.0/dist/css/lmtud_bundle.min.css"-->
+
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
+   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
    <!-- fallback to local copies -->
    <script>
@@ -41,62 +44,62 @@
         </header>
       </a>
 
+
+
+      <!--multiple select box-->
       <section class="menu-section">
-         <div id="ck-button">
-             <label>
-                <input type="checkbox" name="colorblind" id="colorblind" class="mybtn" onchange="tableColor()" checked="true"><span>Colorblind colors</span>
-             </label>
-         </div>
+          <h3 class="menu-section-title"> Hide Columns </h3>
+          <select class="js-choice-hide" id="hlist" name="hide-list" multiple="multiple" style="width:75%"> </select>
       </section>
 
+
+      <!-- X and Y dimension selection -->
       <section class="menu-section">
-          <select class="hide-list" id="hlist" name="states[]" multiple="multiple" style="width:75%"> </select>
+          <select class="js-choice-xdim" id="js-choice-mini-dim1" style="width:75%"> <option disabled=true>Select X/Column</option></select>
+          <select class="js-choice-ydim" id="js-choice-mini-dim2" style="width:75%"> <option disabled=true>Select Y/Row</option></select>
       </section>
 
-      <section class="menu-section">
-          <select class="select-choice-x" id="select-choice-mini-x" style="width:75%"> <option></option></select>
-          <select class="select-choice-y" id="select-choice-mini-y" style="width:75%"> <option></option></select>
-      </section>
-
-      <section class="menu-section">
-          <select class="select-choice-1" id="select-choice-mini-0" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-2" id="select-choice-mini-1" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-3" id="select-choice-mini-2" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-4" id="select-choice-mini-3" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-5" id="select-choice-mini-4" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-6" id="select-choice-mini-5" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-7" id="select-choice-mini-6" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-8" id="select-choice-mini-7" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-9" id="select-choice-mini-8" style="width:75%; display:none"> <option></option></select>
-          <select class="select-choice-9" id="select-choice-mini-9" style="width:75%; display:none"> <option></option></select>
+      <section class="menu-section" id="menu-section-fixdim">
+          <select class="js-choice-0" id="js-choice-mini-0" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-1" id="js-choice-mini-1" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-2" id="js-choice-mini-2" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-3" id="js-choice-mini-3" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-4" id="js-choice-mini-4" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-5" id="js-choice-mini-5" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-6" id="js-choice-mini-6" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-7" id="js-choice-mini-7" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-8" id="js-choice-mini-8" style="width:75%; display:none"> <option></option></select>
+          <select class="js-choice-9" id="js-choice-mini-9" style="width:75%; display:none"> <option></option></select>
       </section>
 
 
       
       <section class="menu-section">
-          <h3 class="menu-section-title">Scaling</h3>
+          <h3 class="menu-section-title">Scaling/Normalization</h3>
 
-          <label class="el-checkbox el-checkbox-sm">
              <span class="margin-r">Row</span>
              <input type="checkbox" class="scarow" value='scarow' id="checkboxsca" checked>
              <span class="el-checkbox-style  pull-right"></span>
-          </label>
-
-          <label class="el-checkbox el-checkbox-sm">
              <span class="margin-r">Column</span>
              <input type="checkbox" class="scacol" value='scacol' id="checkboxsca">
              <span class="el-checkbox-style  pull-right"></span>
-          </label>
 
+          <!--label class="el-checkbox el-checkbox-sm">
+             <span class="margin-r">Column</span>
+             <input type="checkbox" class="scacol" value='scacol' id="checkboxsca">
+             <span class="el-checkbox-style  pull-right"></span>
+          </label!-->
 
-          <select class="select-choice-sca" id="select-choice-mini-sca" style="width:75%"> 
+          <br><br>
+
+          <select class="js-choice-norm" id="js-choice-mini-norm" style="width:75%"> 
              <option value="0" selected> Not normalized </option>
              <option value="1"> Normalized [x-mean(x)]/sigma(x) </option>
              <option value="2"> Normalized [-1:1] </option>
              <option value="3"> Normalized [ 0:1] </option>
           </select>
 
-          <select class="select-choice-map" id="select-choice-mini-map" style="width:75%"> 
+          <select class="js-choice-cmap" id="js-choice-mini-cmap" style="width:75%"> 
              <option value="0" selected> ILAMB color mapping </option>
              <option value="1"> Linear color mapping </option>
              <option value="2"> Linear color mapping reverse </option>
@@ -108,19 +111,22 @@
       <hr>
       <section class="menu-section">
           <h3 class="menu-section-title">Examples</h3>
-          <select class="select-choice-ex" id="select-choice-mini-ex" style="width:75%"> 
+          <select class="js-choice-exam" id="js-choice-mini-exam" style="width:75%"> 
+	     <option disabled=true> Select an example </option>
              <option value="cmec_ilamb_example_addsource.json"> CMEC ILAMB</option>
              <option value="pmp_enso_tel.json"> CMEC PMP</option>
           </select>
 
           <h3 class="menu-section-title">Logo</h3>
-          <select class="select-choice-logo" id="select-choice-mini-logo" style="width:75%"> 
+          <select class="js-choice-logo" id="js-choice-mini-logo" style="width:75%"> 
+	     <option disabled=true> Select a logo </option>
              <option value="rubisco_logo.png"> RUBISCO</option>
              <option value="cmec_logo.png"> CMEC</option>
              <option value="pmp_logo.png"> PMP</option>
              <option value="lmt-logo.png"> LMT</option>
           </select>
       </section>
+
 
       <section class="menu-section">
           <h3 class="menu-section-title">Switch</h3>
@@ -153,11 +159,15 @@
               <span class="el-switch-style"></span>
               <span class="margin-r">Screen Height</span>
           </label>
-
-
       </section>
 
       <hr>
+
+      <section class="menu-section">
+          <!--input type="checkbox" name="colorblind" id="colorblind" class="mybtn" onchange="tableColor()" checked="true"><span>Colorblind colors</span-->
+          <button type="button" onchange="tableColor()" class="togglebutton" class="tooglebutton">Colorbind colors</button>
+      </section>
+
       <section class="menu-section">
           <button type="button" onclick="expandCollapse('expand');" class="togglebutton">Row Expand/Collapse</button>
       </section>
@@ -176,6 +186,7 @@
 
       <section style="text-align:center">
         <input name="file" id="file" type="file" onchange="loadlocJson()"/> 
+	<label for="file" class="selFile">Select a file</label>
       </section>
 
       <section>

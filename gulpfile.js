@@ -48,21 +48,20 @@ gulp.task('build-js', function () {
   var lics = JSON.parse(fs.readFileSync("./dist/LICENSE.checker"));
 
   for (var key of Object.keys(lics)) {
-      ctext = "/*! \n " + key.replace("@", " v") + " Copyright (c) " + lics[key].publisher + "\n" + 
+      const ctext = "/*! \n " + key.replace("@", " v") + " Copyright (c) " + lics[key].publisher + "\n" + 
                  "* @license " + lics[key].licenses + "\n" + 
-	         "* For the full copyright and license information, \n" + 
-		 "* please read LICENSE.dependencies and LICENSE that was distributed " + 
-		 "* with this code in the dist directory \n  */ \n";
+          "* For the full copyright and license information, \n" + 
+          "* please read LICENSE.dependencies and LICENSE that was distributed " + 
+          "* with this code in the dist directory \n  */ \n";
       if ( key.split('@')[0] == "emitter" ) {
-
          gulp.src("./node_modules/" + key.split('@')[0] + "/dist/index.js")
-	 .pipe(insert.prepend(ctext))
-	 .pipe(gulp.dest("./node_modules/" + key.split('@')[0] + "/dist/"), {overwrite:true});
+             .pipe(insert.prepend(ctext))
+             .pipe(gulp.dest("./node_modules/" + key.split('@')[0] + "/dist/"), {overwrite:true});
       }
       if ( key.split('@')[0] == "decouple" || key.split('@')[0] == "slideout" ) {
          gulp.src("./node_modules/" + key.split('@')[0] + "/index.js")
-	 .pipe(insert.prepend(ctext))
-	 .pipe(gulp.dest("./node_modules/" + key.split('@')[0] + "/"), {overwrite:true});
+             .pipe(insert.prepend(ctext))
+             .pipe(gulp.dest("./node_modules/" + key.split('@')[0] + "/"), {overwrite:true});
       }
   };
 
@@ -71,9 +70,6 @@ gulp.task('build-js', function () {
     .pipe(source('bundle.js'))
     .pipe(rename('lmtud_bundle.js'))
     .pipe(insert.prepend(copyrightheader))
-    //.pipe(gulp.dest('dist/js'))
-    //.pipe(gulp.dest('public/build/js'))
-    //.pipe(source('dist/js/lmtud_bundle.js'))
     .pipe(rename('lmtud_bundle.min.js'))
     .pipe(buffer()) 
     .pipe(include())
