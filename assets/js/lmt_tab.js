@@ -3,7 +3,7 @@
 var $ = require('jquery');
 var jQuery = require('jquery');
 var Tabulator = require('tabulator-tables');
-var select2 = require('select2')(); // note you're calling a function here!
+//var select2 = require('select2')(); // note you're calling a function here!
 var Choices = require('choices.js');
 var lmt_tool = require('./lmt_tool.js');
 var Slideout = require('slideout');
@@ -297,74 +297,10 @@ function initlmtUD() {
     tabTempJson = [];
   });
 
-  //document.getElementById('select-choice-mini-sca').onchange = function (){
-  $('#select-choice-mini-sca').change(function () {
-    if (tabTempJson.length > 0) {
-      var tempData = deepCopyFunction(tabTempJson);
-    } else {
-      var tempData = table.getData('all');
-      tabTempJson = deepCopyFunction(tempData);
-    }
-
-    var newData = Object.assign([], tempData);
-
-    if ($('.scarow').is(':checked')) {
-      scadir = 'row';
-    }
-    if ($('.scacol').is(':checked')) {
-      scadir = 'column';
-    }
-
-    if (scadir == 'row') {
-      var j = 0;
-      for (data of tempData) {
-        newData[j] = normalizer(
-          $('#select-choice-mini-sca').val(),
-          scadir,
-          data
-        );
-        j = j + 1;
-      }
-    } else {
-      //for (data of tempData) {
-      //    if ("_children" in data && data._children.length > 0){
-      //       alert("cannot normalize along the colum with tree structures");
-      //       throw new Error("cannot normalize along the colum with tree structures");
-      //    }
-      //}
-
-      var colData = {};
-      for (col_name of Object.keys(tempData[0])) {
-        if (col_name != 'row_name' && col_name != '_children') {
-          //for (data of tempData){
-          //    colData[data.row_name] = data[col_name];
-          //}
-          colData = extractCol(tempData, col_name, '');
-
-          var newcolData = normalizer(
-            $('#select-choice-mini-sca').val(),
-            scadir,
-            colData
-          );
-          insertCol(newData, col_name, newcolData, '');
-        }
-      }
-    }
 
     console.log('xxx in document ready');
     updateColorMapping();
 
-    if ($('#select-choice-mini-sca').val() != '0') {
-      table.setData(newData);
-      table.redraw(true);
-      draw_legend();
-    } else {
-      table.clearData();
-      tabOption.data = tabTempJson;
-      table = new Tabulator('#dashboard-table', tabOption);
-      draw_legend();
-    }
-  });
 
   //-xum document.getElementById('select-choice-mini-map').onchange = function (){
   //-xum     updateColorMapping();
@@ -488,7 +424,7 @@ function insertCol(dataArr, colName, colData, parentName) {
 }
 
 function updateColorMapping() {
-  switch ($('#select-choice-mini-map').val()) {
+    switch (dictChoices['cmapChoices'].getValue(true)) {
     case '0':
       lmtCellColorFormatter = colorILAMB;
       break;
@@ -503,7 +439,7 @@ function updateColorMapping() {
   for (x of tabOption.columns) {
     if (x.field != 'row_name') {
       x['formatter'] = lmtCellColorFormatter;
-      x['formatterParams']['scaopt'] = $('#select-choice-mini-sca').val();
+      x['formatterParams']['scaopt'] = dictChoices['normChoices'].getValue(true);
     }
   }
 }
@@ -1042,9 +978,9 @@ function initChoicesEvent(cJson) {
     dictChoices[dim + 'Choices'].passedElement.element.addEventListener(
       'addItem', //select item
       function (event) {
-        console.log('fire event for exam');
 
         if (dim == 'exam') {
+          console.log('fire event for exam');
           let jsfURL = event.detail.value;
           jsfURL = jsonFileURL + jsfURL;
           loadrmtJson(jsfURL);
@@ -1058,6 +994,60 @@ function initChoicesEvent(cJson) {
           table.setData(tempData);
           table.redraw(true);
         }
+
+
+	//normalization
+	if (dim == 'norm') {
+            if (tabTempJson.length > 0) {
+              var tempData = deepCopyFunction(tabTempJson);
+            } else {
+              var tempData = table.getData('all');
+              tabTempJson = deepCopyFunction(tempData);
+            }
+         
+            var newData = Object.assign([], tempData);
+            if (scadir == 'row') {
+              let j = 0;
+              for (data of tempData) {
+                newData[j] = normalizer(
+                  event.detail.value,
+                  scadir,
+                  data
+                );
+                j = j + 1;
+              }
+            } else if (scadir == 'column') {
+              let colData = {};
+              for (col_name of Object.keys(tempData[0])) {
+                if (col_name != 'row_name' && col_name != '_children') {
+                  colData = extractCol(tempData, col_name, '');
+
+                  var newcolData = normalizer(
+                    event.detail.value,
+                    scadir,
+                    colData
+                  );
+                  insertCol(newData, col_name, newcolData, '');
+                }
+              }
+            } else {
+               alert("please select the direction of the normalization");
+            }
+
+            if (scadir == 'row' || scadir == 'column') {
+                table.setData(newData);
+                table.redraw(true);
+                draw_legend(); 
+            }
+
+	}
+
+	if (dim == 'cmap') {
+	   console.log('fire event for cmap');
+           updateColorMapping();
+           tabOption.data = table.getData();
+           table = new Tabulator("#dashboard-table", tabOption);
+	}
       },
       false
     );
