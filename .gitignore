@@ -3,5 +3,8 @@ public/
 public/build/css
 public/build/js
 public/build/css/rev-manifest.json
+*.bak
+*.bak*
+*.map
 
 
