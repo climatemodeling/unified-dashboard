@@ -1,22 +1,23 @@
 // require modules
-
-var $ = require('jquery');
-var jQuery = require('jquery');
 var Tabulator = require('tabulator-tables');
-//var select2 = require('select2')(); // note you're calling a function here!
 var Choices = require('choices.js');
-var lmt_tool = require('./lmt_tool.js');
 var Slideout = require('slideout');
 
-var downloadFunc = require('./downloadFunctions.js');
+
+var lmt_tool = require('./lmt_tool.js');
+var tabOptions = require('./tabOptions.js');
+
+var tabOption = tabOptions.tabOption;
+
+tabOption.dataTreeStartExpanded = function (row, level) {
+     return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
+};
+
+
 
 //globalize functions
 window.loadlocJson = loadlocJson;
-window.toggleTooltips = toggleTooltips;
-window.toggleCellValue = toggleCellValue;
-window.toggleBottomTitle = toggleBottomTitle;
 window.toggleScreenHeight = toggleScreenHeight;
-window.toggleTopTitle = toggleTopTitle;
 window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
 window.savetoHtml = savetoHtml;
@@ -73,7 +74,11 @@ var logoFile = 'rubisco_logo.png';
 
 var cmap = PuOr;
 
-var scadir;
+
+var lmtSettings = {"normMethod":"-1", "cmapMethod":"-1", "normDir":"-1", 
+                   "setTootip":false, "setTopTitle":false, "setBottomTitle":false, "setCellValue":false, 
+		   "timesExpl":1, "numClicks":1};
+
 
 var tabTempJson = [];
 //
@@ -106,126 +111,16 @@ var dimBySelectIDs = {};
 var fixedDimsDict = {};
 var grpsFirstCol = [];
 
-var grpsModelSrc = {};
+var grpsModSrcIdx = {};
 var grpsTopMetric = [];
 
 var isJsonReady = false;
 var isTableBuilt = false;
 
+
 var _config = {};
 
-var tabOption = {
-  dataTree: true,
-  dataTreeStartExpanded: [true, false],
 
-  reactiveData: true,
-
-  headerSortTristate: true,
-
-  placeholder: 'Loading Data',
-
-  //ajax loading
-  //ajaxURL: jsonFileURL,
-  //ajaxConfig:{
-  //     mode:"cors", //set request mode to cors
-  //     credentials: "same-origin", //send cookies with the request from the matching origin
-  //     headers: {
-  //         "Accept": "application/json", //tell the server we need JSON back
-  //         "X-Requested-With": "XMLHttpRequest", //fix to help some frameworks respond correctly to request
-  //         "Content-type": 'application/json; charset=utf-8', //set the character encoding of the request
-  //         "Access-Control-Allow-Origin": "https://cmorchecker.github.io", //the URL origin of the site making the request
-  //},},
-  //
-
-  htmlOutputConfig: {
-    columnHeaders: true, //do not include column headers in HTML table
-    columnGroups: false, //do not include column groups in column headers for HTML table
-    rowGroups: false, //do not include row groups in HTML table
-    columnCalcs: true, //do not include column calcs in HTML table
-    dataTree: true, //do not include data tree in HTML table
-    formatCells: true //show raw cell values without formatter
-  },
-
-  downloadConfig: {
-    columnHeaders: true, //do not include column headers in HTML table
-    columnGroups: false, //do not include column groups in column headers for HTML table
-    rowGroups: false, //do not include row groups in HTML table
-    columnCalcs: true, //do not include column calcs in HTML table
-    dataTree: true, //do not include data tree in HTML table
-    formatCells: true //show raw cell values without formatter
-  },
-
-  //mxu: need to rewrite it in future, it may not work any more, after adding link rel
-  //downloadReady: downloadFunc.downloadHTML4CMIP(fileContents, blob), //error no fileContents
-  //downloadReady: function(fileContents, blob){}, //work
-  //downloadReady: testFunc,  //work
-  downloadReady: downloadFunc.downloadHTML4CMIP,  //may cause error. will revisit later
-
-
-  movableColumns: true, //enable user movable columns
-
-  layout: 'fitColumns',
-
-  tooltips: function (cell) {
-    //cell - cell component
-
-    //function should return a string for the tooltip of false to hide the tooltip
-    //return  cell.getColumn().getField() + " - " + cell.getValue(); //return cells "field - value";
-    if (cell.getField() == 'row_name') {
-      return false;
-    } else {
-      return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
-    }
-    //return cell.getValue().toFixed(2);
-  },
-
-  columnMinWidth: 10,
-  nestedFieldSeparator: '|',
-
-  dataTreeBranchElement: false, //hide branch element
-  dataTreeChildIndent: 15, //indent child rows by 15 px
-  //dataTreeCollapseElement:"<i></i>",
-  //dataTreeExpandElement:"<i></i>",
-
-  selectable: true,
-  rowContextMenu: rowMenu,
-
-  //cellClick:cellClickFuncGenetic,
-  cellClick: newCellClickFunc,
-
-  //rowClick: function(e, row){
-  //   if (row.getTreeChildren().length != 0) {
-  //       row.treeToggle();
-  //   }
-  //},
-  //
-  dataTreeStartExpanded: function (row, level) {
-    return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
-  },
-  columns: [],
-
-  maxHeight: '100%',
-
-  tableBuilt: function () {
-    if (_config.udcScreenHeight != 0) {
-      var elmnt = document.getElementsByClassName('tabulator-header');
-      var totHeight = elmnt[0].offsetHeight + 30 * table.getRows().length + 20;
-
-      try {
-        if (isTreeTable == 0) {
-          $('#dashboard-table')[0].style['height'] = 'min(82vh, 100%)';
-        } else {
-          $('#dashboard-table')[0].style['height'] = '82vh';
-        }
-      } catch (err) {
-        console.log(err);
-      }
-
-      // reset the screen height switch
-      $('.screenheight').prop('checked', true);
-    }
-  }
-};
 
 if (document.readyState !== 'loading') {
   initlmtUD();
@@ -242,28 +137,13 @@ function initlmtUD() {
   // initialize the select and multiselect boxes
   initChoices();
 
+
+  // initialize checkbox
+  initCheckBoxes();
+
   // initialize the tabulator
 
-  //-tabInit()
   table = new Tabulator('#dashboard-table', (option = {}));
-  //-table = new Tabulator("#dashboard-table", option=tabOption);
-
-  // -xum
-  //-xum $('.hide-list').on("select2:select", function (e) {
-  //-xum      //this returns all the selected item
-  //-xum      var items= $(this).val();
-  //-xum      //Gets the last selected item
-  //-xum      var lastSelectedItem = e.params.data.id;
-  //-xum      table.hideColumn(lastSelectedItem) ////toggle the visibility of the "name" column
-  //-xum });
-  //-xum
-  //-xum $('.hide-list').on("select2:unselect", function (e) {
-  //-xum      //this returns all the selected item
-  //-xum      var items= $(this).val();
-  //-xum      //Gets the last selected item
-  //-xum      var lastSelectedItem = e.params.data.id;
-  //-xum      table.showColumn(lastSelectedItem) ////toggle the visibility of the "name" column
-  //-xum });
 
   //var doc = window.document;
   var slideout = new Slideout({
@@ -277,25 +157,6 @@ function initlmtUD() {
       slideout.toggle();
     });
 
-
-  //scaling
-  //
-
-  $('#checkboxsca[type="checkbox"]').on('change', function () {
-    $('#checkboxsca[type="checkbox"]').not(this).prop('checked', false);
-
-    if ($('.scarow').is(':checked')) {
-      scadir = 'row';
-    }
-    if ($('.scacol').is(':checked')) {
-      scadir = 'column';
-    }
-
-    $('#select-choice-mini-sca').val('0').trigger('change');
-    $('#select-choice-mini-map').val('0').trigger('change');
-
-    tabTempJson = [];
-  });
 
 
     console.log('xxx in document ready');
@@ -316,74 +177,71 @@ function initlmtUD() {
   const udcUrl = './_lmtUDConfig.json'; // in same origin
   console.log('UDEB: UD config file ', udcUrl);
 
-  setConfig(udcUrl);
+  //setConfig(udcUrl);
 }
 
 function setConfig(jsfURL) {
   const udcUrl = './_lmtUDConfig.json'; // in same origin
   console.log('UDEB: UD config file ', udcUrl);
+  readFile(udcUrl)
+    .then(function(filePromise) {
+      try {
+        _config = JSON.parse(filePromise.content);
+        if (_config.udcJsonLoc) {
+          //let jsfUrl = window.location.href + data.udcJsonLoc;
+          let jsfURL = './' + data.udcJsonLoc;
 
-  var jqxhr = $.getJSON(udcUrl, { format: 'json' })
-    .done(function (data) {
-      _config = data;
-
-      console.log('UDEB:', window.location.href + data.udcJsonLoc);
-
-      if (data.udcJsonLoc) {
-        //let jsfUrl = window.location.href + data.udcJsonLoc;
-        let jsfURL = './' + data.udcJsonLoc;
-
-        console.log('UDEB: ', jsfURL, data.udcJsonLoc);
-        loadrmtJson(jsfURL, data.udcDimSets);
-      } else {
-        console.log('UDEB: no JSON data file in the config file');
+          console.log('UDEB: ', jsfURL, data.udcJsonLoc);
+          loadrmtJson(jsfURL, data.udcDimSets);
+        } else {
+          console.log('UDEB: no JSON data file in the config file');
+        }
+      } 
+      catch (err) {
+        alert('JSON parsing config file', err.message);
       }
     })
-    .fail(function (jqxhr, textStatus, error) {
-      _config = {};
-      var err = textStatus + ': ' + error;
-      console.log('UDEB: Request config Failed: ' + err);
-    });
+    .catch(err => alert(err));
 }
 
-function updateNormalizing() {
-  if (tabTempJson.length > 0) {
-    var tempData = deepCopyFunction(tabTempJson);
-  } else {
-    var tempData = table.getData('all');
-    tabTempJson = deepCopyFunction(tempData);
-  }
-
-  var newData = Object.assign([], tempData);
-
-  if ($('.scarow').is(':checked')) {
-    scadir = 'row';
-  }
-  if ($('.scacol').is(':checked')) {
-    scadir = 'column';
-  }
-
-  if (scadir == 'row') {
-    var j = 0;
-    for (data of tempData) {
-      newData[j] = normalizer($('#select-choice-mini-sca').val(), data);
-      j = j + 1;
-    }
-  } else {
-    var colData = {};
-    for (col_name of Object.keys(tempData[0])) {
-      if (col_name != 'row_name' && col_name != '_children') {
-        colData = extractCol(tempData, col_name, '');
-
-        var newcolData = normalizer($('#select-choice-mini-sca').val(), colData);
-
-        insertCol(newData, col_name, newcolData);
-      }
-    }
-  }
-
-  return newData;
-}
+//-function updateNormalizing() {
+//-  if (tabTempJson.length > 0) {
+//-    var tempData = deepCopyFunction(tabTempJson);
+//-  } else {
+//-    var tempData = table.getData('all');
+//-    tabTempJson = deepCopyFunction(tempData);
+//-  }
+//-
+//-  var newData = Object.assign([], tempData);
+//-
+//-  //if ($('.scarow').is(':checked')) {
+//-  //  scadir = 'row';
+//-  //}
+//-  //if ($('.scacol').is(':checked')) {
+//-  //  scadir = 'column';
+//-  //}
+//-
+//-  if (scadir == 'row') {
+//-    var j = 0;
+//-    for (data of tempData) {
+//-      newData[j] = normalizer($('#select-choice-mini-sca').val(), data);
+//-      j = j + 1;
+//-    }
+//-  } else {
+//-    var colData = {};
+//-    for (col_name of Object.keys(tempData[0])) {
+//-      if (col_name != 'row_name' && col_name != '_children') {
+//-        colData = extractCol(tempData, col_name, '');
+//-
+//-        var newcolData = normalizer($('#select-choice-mini-sca').val(), colData);
+//-
+//-        insertCol(newData, col_name, newcolData);
+//-      }
+//-    }
+//-  }
+//-
+//-  return newData;
+//-}
 
 function extractCol(dataArr, colName, parentName) {
   var colData = {};
@@ -444,53 +302,6 @@ function updateColorMapping() {
   }
 }
 
-function toggleTooltips(genTab) {
-  if ($('#tooltips[type=checkbox]').is(':checked')) {
-    tabOption.tooltips = function (cell) {
-      if (cell.getField() == 'row_name') {
-        return false;
-      } else {
-        return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
-      }
-    };
-  } else {
-    tabOption.tooltips = false;
-  }
-  if (genTab) {
-    table.clearData();
-    table = new Tabulator('#dashboard-table', tabOption);
-  }
-}
-
-function toggleCellValue(genTab) {
-  if ($('#cellvalue[type=checkbox]').is(':checked')) {
-    for (x of tabOption.columns) {
-      if (x.field != 'row_name') {
-        x['formatterParams'] = { showCellValue: true };
-      }
-    }
-  } else {
-    for (x of tabOption.columns) {
-      if (x.field != 'row_name') {
-        x['formatterParams'] = { showCellValue: false };
-      }
-    }
-  }
-
-  if (genTab) {
-    var tempData = table.getData();
-    table.clearData();
-    //table.setData(tempData);
-    tabOption.data = tempData;
-    tabOption.maxHeight = false;
-    table = new Tabulator('#dashboard-table', tabOption);
-
-    //document.getElementById('dashboard-table').style.removeProperty('max-height');
-    //document.getElementById('dashboard-table').style.height = "100%";
-    //table.setHeight(false);
-    //draw_legend();
-  }
-}
 
 function toggleScreenHeight() {
   if ($('#screenheight[type=checkbox]').is(':checked')) {
@@ -524,43 +335,6 @@ function toggleScreenHeight() {
   }
 }
 
-function toggleBottomTitle(genTab) {
-  if ($('#bottomtitle[type=checkbox]').is(':checked')) {
-    for (x of tabOption.columns) {
-      if (x.field != 'row_name') {
-        x['bottomCalc'] = bottomCalcFunc;
-      }
-    }
-  } else {
-    for (x of tabOption.columns) {
-      if (x.field != 'row_name') {
-        delete x['bottomCalc'];
-      }
-    }
-  }
-
-  if (genTab) {
-    var tempData = table.getData();
-    table.clearData();
-    tabOption.data = tempData;
-    table = new Tabulator('#dashboard-table', tabOption);
-  }
-}
-
-function toggleTopTitle(genTab) {
-  if ($('#toptitle[type=checkbox]').is(':checked')) {
-    tabOption['headerVisible'] = true;
-  } else {
-    tabOption['headerVisible'] = false;
-  }
-
-  if (genTab) {
-    var tempData = table.getData();
-    table.clearData();
-    tabOption.data = tempData;
-    table = new Tabulator('#dashboard-table', tabOption);
-  }
-}
 
 function loadrmtJson(jsfURL, dimSet = {}) {
   if (jsfURL !== '') {
@@ -689,7 +463,7 @@ function loadrmtJson(jsfURL, dimSet = {}) {
         alert('Request ' + jsfURL + '\nFailed: ' + err);
       });
   }
-}
+} //loadrmtJson
 
 function prepareTab(cJson, dimSet = {}) {
   let ini_xdim,
@@ -767,14 +541,17 @@ function initChoices() {
   // mx: initialize all choices objects
 
   // hide items along the x dimension
-  const hideChoices = new Choices(document.querySelector('.js-choice-hide'), {
-    shouldSort: false,
-    removeItemButton: true,
-    placeholderValue: 'Select models to show'
-  });
-  dictChoices['hideChoices'] = hideChoices;
+  dictChoices['hideChoices'] = new Choices(
+    document.querySelector('.js-choice-hide'),
+    {
+      searchEnabled: false,
+      shouldSort: false,
+      removeItemButton: true,
+      placeholderValue: 'Select models to show'
+    }
+  );
 
-  // x and y dimensions
+  // x and y dimensions that are always shown
   for (const dim of ['xdim', 'ydim']) {
     dictChoices[dim + 'Choices'] = new Choices(
       document.querySelector('.js-choice-' + dim),
@@ -795,7 +572,7 @@ function initChoices() {
       {
         searchEnabled: false,
         shouldSort: false,
-        removeItemButton: true
+        removeItemButton: false
       }
     );
     // hide them first during initialization
@@ -809,13 +586,72 @@ function initChoices() {
       {
         searchEnabled: false,
         shouldSort: false,
-        removeItemButton: true
+        removeItemButton: false
       }
     );
   }
 }
 
 function initChoicesEvent(cJson) {
+
+  for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
+    // i start from zero
+
+    let k = parseInt(i) + 1;
+    let tempChoices = dictChoices['dim' + k.toString() + 'Choices'];
+
+    if (
+      dimn == 'statistic' &&
+      cJson.DIMENSIONS.dimensions[dimn].hasOwnProperty('indices')
+    ) {
+      tempChoices.setChoices(
+        combineArraysToObject(
+          cJson.DIMENSIONS.dimensions[dimn].indices,
+          cJson.DIMENSIONS.dimensions[dimn].indices
+        ),
+        'value',
+        'label',
+        false
+      );
+    } else {
+      tempChoices.setChoices(
+        combineArraysToObject(
+          Object.keys(cJson.DIMENSIONS.dimensions[dimn]),
+          Object.keys(cJson.DIMENSIONS.dimensions[dimn])
+        ),
+        'value',
+        'label',
+        false
+      );
+    }
+
+    selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
+    selectIdByDims[dimn] = 'dim' + k.toString() + 'Choices';
+    dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
+  }
+
+  // for x and y dims, only one initialization
+  dictChoices['xdimChoices'].setChoices(
+    combineArraysToObject(
+      cJson.DIMENSIONS.json_structure,
+      cJson.DIMENSIONS.json_structure
+    ),
+    'value',
+    'label',
+    false
+  );
+  dictChoices['ydimChoices'].setChoices(
+    combineArraysToObject(
+      cJson.DIMENSIONS.json_structure,
+      cJson.DIMENSIONS.json_structure
+    ),
+    'value',
+    'label',
+    false
+  );
+  //initialization
+
+
   // x and y dimensions
   for (const dim of ['xdim', 'ydim']) {
     dictChoices[dim + 'Choices'].passedElement.element.addEventListener(
@@ -998,52 +834,56 @@ function initChoicesEvent(cJson) {
 
 	//normalization
 	if (dim == 'norm') {
-            if (tabTempJson.length > 0) {
-              var tempData = deepCopyFunction(tabTempJson);
-            } else {
-              var tempData = table.getData('all');
-              tabTempJson = deepCopyFunction(tempData);
-            }
+           console.log('UDEB: fire event for normalization');
+	   lmtSettings["normMethod"] = event.detail.value;
+
+           if (tabTempJson.length > 0) {
+             var tempData = deepCopyFunction(tabTempJson);
+           } else {
+             var tempData = table.getData('all');
+             tabTempJson = deepCopyFunction(tempData);
+           }
          
-            var newData = Object.assign([], tempData);
-            if (scadir == 'row') {
-              let j = 0;
-              for (data of tempData) {
-                newData[j] = normalizer(
-                  event.detail.value,
-                  scadir,
-                  data
-                );
-                j = j + 1;
-              }
-            } else if (scadir == 'column') {
-              let colData = {};
-              for (col_name of Object.keys(tempData[0])) {
-                if (col_name != 'row_name' && col_name != '_children') {
-                  colData = extractCol(tempData, col_name, '');
+           var newData = Object.assign([], tempData);
+           if (lmtSettings["normDir"] == 'row') {
+             let j = 0;
+             for (data of tempData) {
+               newData[j] = normalizer(
+                 event.detail.value,
+                 lmtSettings["normDir"],
+                 data
+               );
+               j = j + 1;
+             }
+           } else if (lmtSettings["normDir"] == 'column') {
+             let colData = {};
+             for (col_name of Object.keys(tempData[0])) {
+               if (col_name != 'row_name' && col_name != '_children') {
+                 colData = extractCol(tempData, col_name, '');
 
-                  var newcolData = normalizer(
-                    event.detail.value,
-                    scadir,
-                    colData
-                  );
-                  insertCol(newData, col_name, newcolData, '');
-                }
-              }
-            } else {
-               alert("please select the direction of the normalization");
-            }
+                 var newcolData = normalizer(
+                   event.detail.value,
+                   lmtSettings["normDir"],
+                   colData
+                 );
+                 insertCol(newData, col_name, newcolData, '');
+               }
+             }
+           } else {
+              alert("please select the direction of the normalization");
+           }
 
-            if (scadir == 'row' || scadir == 'column') {
-                table.setData(newData);
-                table.redraw(true);
-                draw_legend(); 
-            }
+           if (lmtSettings["normDir"] == 'row' || lmtSettings["normDir"] == 'column') {
+               table.setData(newData);
+               table.redraw(true);
+               draw_legend(); 
+           }
 
 	}
 
 	if (dim == 'cmap') {
 	   console.log('fire event for cmap');
+	   lmtSettings["cmapMethod"] = event.detail.value;
            updateColorMapping();
            tabOption.data = table.getData();
            table = new Tabulator("#dashboard-table", tabOption);
@@ -1054,46 +894,54 @@ function initChoicesEvent(cJson) {
   }
 }
 
-function prepareSel(cJson, ini_xdim, ini_ydim, ini_fxdm, setXY = false) {
-  // add options:
-  for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
-    // i start from zero
 
-    let k = parseInt(i) + 1;
-    let tempChoices = dictChoices['dim' + k.toString() + 'Choices'];
+function setChoicesDefault(setNorm, setCmap) {
+  dictChoices["normChoices"].setChoiceByValue(setNorm);
+  dictChoices["cmapChoices"].setChoiceByValue(setCmap);
+}
 
-    if (
-      dimn == 'statistic' &&
-      cJson.DIMENSIONS.dimensions[dimn].hasOwnProperty('indices')
-    ) {
-      tempChoices.setChoices(
-        combineArraysToObject(
-          cJson.DIMENSIONS.dimensions[dimn].indices,
-          cJson.DIMENSIONS.dimensions[dimn].indices
-        ),
-        'value',
-        'label',
-        false
-      );
-    } else {
-      tempChoices.setChoices(
-        combineArraysToObject(
-          Object.keys(cJson.DIMENSIONS.dimensions[dimn]),
-          Object.keys(cJson.DIMENSIONS.dimensions[dimn])
-        ),
-        'value',
-        'label',
-        false
-      );
-    }
 
-    selectIDbyDims[dimn] = 'select-choice-mini-'.concat(i.toString());
-    selectIdByDims[dimn] = 'dim' + k.toString() + 'Choices';
-    dimBySelectIDs['select-choice-mini-'.concat(i.toString())] = dimn;
+function setCheckBoxesDefault(normDir, setTooltip, setTopTitle, setBottomTitle, setCellValue){
+
+  if (normDir == "row") { 
+    document.getElementById("cb-scarow").checked = true;
+    document.getElementById("cb-scacol").checked = false;
+  } else {
+    document.getElementById("cb-scarow").checked = false;
+    document.getElementById("cb-scacol").checked = true;
   }
 
+  if (setTopTitle){
+    document.getElementById("cb-toptitle").checked = true;
+  } else {
+    document.getElementById("cb-toptitle").checked = false;
+  }
+  if (setBottomTitle){
+    document.getElementById("cb-bottomtitle").checked = true;
+  } else {
+    document.getElementById("cb-bottomtitle").checked = false;
+  }
+
+  if (setTooltip){
+    document.getElementById("cb-tooltip").checked = true;
+  } else {
+    document.getElementById("cb-tooltip").checked = false;
+  }
+
+  if (setCellValue) {
+    document.getElementById("cb-cellvalue").checked = true;
+  } else {
+    document.getElementById("cb-cellvalue").checked = false;
+  }
+
+}
+
+// set the selection based on the x, y and fixed dimensions
+function prepareSel(cJson, ini_xdim, ini_ydim, ini_fxdm) {
   console.log('sel', selectIdByDims);
 
+  // set the hide menu for the X dimension
+  dictChoices['hideChoices'].clearStore();
   dictChoices['hideChoices'].setChoices(
     combineArraysToObject(
       Object.keys(cJson.DIMENSIONS.dimensions[ini_xdim]),
@@ -1104,88 +952,94 @@ function prepareSel(cJson, ini_xdim, ini_ydim, ini_fxdm, setXY = false) {
     false
   );
 
-  // for x and y dims, only one initialization
-
-  if (setXY) {
-    dictChoices['xdimChoices'].setChoices(
-      combineArraysToObject(
-        cJson.DIMENSIONS.json_structure,
-        cJson.DIMENSIONS.json_structure
-      ),
-      'value',
-      'label',
-      false
-    );
-    dictChoices['ydimChoices'].setChoices(
-      combineArraysToObject(
-        cJson.DIMENSIONS.json_structure,
-        cJson.DIMENSIONS.json_structure
-      ),
-      'value',
-      'label',
-      false
-    );
-  }
-
-  // set options
+  // set the options from dimensions
   dictChoices['xdimChoices'].setChoiceByValue(ini_xdim);
   dictChoices['ydimChoices'].setChoiceByValue(ini_ydim);
 
-  for (let fxdim of cJson.DIMENSIONS.json_structure.slice(
-    2,
-    cJson.DIMENSIONS.json_structure.length
+  for (let fxdim of cJson.DIMENSIONS.json_structure.filter(item => 
+            item !== ini_xdim &&
+	    item !== ini_ydim
   )) {
+
+    console.log('UDEB:', fxdim, selectIdByDims[fxdim], ini_fxdm[fxdim]);
+    dictChoices[selectIdByDims[fxdim]].containerInner.element.style.display = 'block';
     dictChoices[selectIdByDims[fxdim]].setChoiceByValue(ini_fxdm[fxdim]);
   }
-}
+
+  // set the options for normalization and color mapping
+
+ if (lmtSettings["normMethod"] !== "-1"){
+    dictChoices["normChoices"].setChoiceByValue(lmtSettings["normMethod"]);
+ }
+
+ if (lmtSettings["cmapMethod"] !== "-1"){
+    dictChoices["cmapChoices"].setChoiceByValue(lmtSettings["cmapMethod"]);
+ }
+} //prepareSel
 
 // load local json files
-
 function loadlocJson() {
-  //-xum temporialy disable the reset
-  //-xum resetSwitch();
-  //-xum resetSelect();
-  //-xum $('.select-choice-ex').val(null).trigger('change');
 
-  var file = document.getElementById('file').files[0];
+  const file = document.getElementById('file').files[0];
 
   if (!file) {
-    alert('please input file');
+    alert('Please input file');
     table.setColumns([]);
     table.clearData();
   } else {
     if (!file.type.includes('json')) {
-      alert('please input json file like *.json');
+      alert('Please input json file like *.json');
     } else {
-      console.log('starting read the local CMEC json file');
+      console.log('UDEB: starting read the local CMEC json file');
 
-      var filePromise = readFile(file);
-
-      filePromise
-        .then(function (file) {
+      readFile(file)
+        .then(function(filePromise) {
           try {
-            cmecJson = JSON.parse(file.content);
+            cmecJson = JSON.parse(filePromise.content);
           } catch (err) {
-            alert('xxx', err.message);
+            alert('JSON parsing', err.message);
           }
 
           //CMEC json schema validation will be added soon
 
           jsonType = 'CMEC';
 
+          // initialize dimensions
           let ini_xdim,
             ini_ydim,
             ini_fxdm = {}
             ;[ini_xdim, ini_ydim, ini_fxdm] = initDim(cmecJson, (dimSet = {}));
 
-          // select choices based on the initial dimension setting
-          console.log('start prepareSel');
-          prepareSel(cmecJson, ini_xdim, ini_ydim, ini_fxdm, (setXY = true));
 
+
+          //default is from ILAMB style
+	  // always assume the data is unnormalized
+	  setChoicesDefault("0", "0");
+	  lmtSettings.normMethod = "1";
+	  lmtSettings.cmapMethod = "0";
+
+	  setCheckBoxesDefault("row", true, true, false, false)
+	  lmtSettings.normDir = "row";
+	  lmtSettings.setTooltip = true;
+	  lmtSettings.setTopTitle = true;
+	  lmtSettings.setBottomTitle = false;
+	  lmtSettings.setCellValue = true;
+
+
+          // initialize choices events
+          initChoicesEvent(cmecJson);
+
+	  // initialize checkbox events
+	  initCheckBoxesEvent();
+
+          // select choices based on the initial dimension setting
+          console.log('UDEB: start prepareSel');
+          prepareSel(cmecJson, ini_xdim, ini_ydim, ini_fxdm, (setNorm="1"), (setCmap="0"));
+
+          // set tab options
           preSetTab(ini_xdim, ini_ydim, cmecJson);
 
-          // add event for json read
-          // Create a custom event
+          // add event for json ready
           let event = new CustomEvent('jsonReady', {
             bubbles: true, // Allow the event to bubble up the DOM tree
             cancelable: true // Allow the event to be cancelable
@@ -1196,7 +1050,7 @@ function loadlocJson() {
         .catch(err => alert(err));
     }
   }
-}
+} //loadlocJson
 
 function preSetTab(ini_xdim, ini_ydim, cJson) {
   if (Object.keys(tabTreeJson[0]).includes('_children')) {
@@ -1208,6 +1062,8 @@ function preSetTab(ini_xdim, ini_ydim, cJson) {
     tabOption.dataTreeExpandElement = '<span></span>';
     isTreeTable = 0;
   }
+
+  console.log(tabOption);
 
   console.log('starting read the local CMEC json file 3');
 
@@ -1237,7 +1093,7 @@ function preSetTab(ini_xdim, ini_ydim, cJson) {
   console.log('starting read the local CMEC json file 4', tabTreeJson);
   tabOption.columns = setTabColumns(
     tabTreeJson,
-    (addBottomTitle = false),
+    (addBottomTitle = lmtSettings.setBottomTitle),
     firstColIcon,
     lmtTitleFormatterParams,
     ini_xdim,
@@ -1254,8 +1110,12 @@ function preSetTab(ini_xdim, ini_ydim, cJson) {
   }
 }
 
+// initialize dimensions and convert CMEC json to tabulator json
+
 function initDim(cJson, dimSet) {
-  console.log('in initDim');
+  console.log('UDEB: in initDim');
+
+
   //Get model groups
   if (cJson.DIMENSIONS.json_structure.includes('model')) {
     var t = [];
@@ -1264,7 +1124,7 @@ function initDim(cJson, dimSet) {
     }
     t = [...new Set(t)];
     for (x of Object.keys(cJson.DIMENSIONS.dimensions.model)) {
-      grpsModelSrc[x] = t.indexOf(cJson.DIMENSIONS.dimensions.model[x].Source);
+      grpsModSrcIdx[x] = t.indexOf(cJson.DIMENSIONS.dimensions.model[x].Source);
     }
   }
   if (cJson.DIMENSIONS.json_structure.includes('metric')) {
@@ -1295,25 +1155,23 @@ function initDim(cJson, dimSet) {
       2,
       cJson.DIMENSIONS.json_structure.length
     )) {
-      if (fxdim == 'statistic') {
-        if (
-          cJson.DIMENSIONS.dimensions['statistic'].hasOwnProperty('indices')
-        ) {
+      if (fxdim == 'statistic' && cJson.DIMENSIONS.dimensions['statistic'].hasOwnProperty('indices')
+         ) {
           ini_fxdm[fxdim] =
             cJson.DIMENSIONS.dimensions['statistic']['indices'][0];
-        } else {
-          ini_fxdm[fxdim] = Object.keys(cJson.DIMENSIONS.dimensions[fxdim])[0];
-        }
       } else {
-        ini_fxdm[fxdim] = Object.keys(cJson.DIMENSIONS.dimensions[fxdim])[0];
+          ini_fxdm[fxdim] = Object.keys(cJson.DIMENSIONS.dimensions[fxdim])[0];
       }
     }
   }
   tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
-  console.log('in initDim return');
+  console.log('UDEB: in initDim return');
 
   return [ini_xdim, ini_ydim, ini_fxdm];
 }
+
+
+// read a file in ascii format
 
 function readFile(file) {
   return new Promise(function (resolve, reject) {
@@ -1341,23 +1199,17 @@ function readFile(file) {
 }
 
 document.addEventListener('jsonReady', function () {
-  console.log('xxxxxxxxxxxxxx');
-
   isJsonReady = true;
 
   //document.getElementById('mytab').style.width = (320+(tabOption.columns.length-1)*28).toString()+'px';
   document.getElementById('mytab').style.width =
     (400 + (tabOption.columns.length - 1) * 30).toString() + 'px';
 
-  if (_config.udcScreenHeight == 0) {
-    toggleScreenHeight(false);
-  }
 
   try {
-    toggleTooltips(false);
-
     table = new Tabulator('#dashboard-table', tabOption);
     draw_legend();
+
   } catch (err) {
     alert('Error when rending the table:', err.message);
   }
@@ -1375,68 +1227,64 @@ document.addEventListener('jsonReady', function () {
     var yDimName = cmecJson.DIMENSIONS.json_structure[1];
   }
 
-  //for (dimn of Object.keys(selectIDbyDims)) {
-  //     if (dimn != xDimName && dimn != yDimName){
-  //        fixedDimsDict[dimn] = $("#".concat(selectIDbyDims[dimn])).val();
-  //     }
+
+  //if (_config.udcScreenHeight == 0) {
+  //  toggleScreenHeight(false);
   //}
 
-  console.log('xxxx menuShowHide');
-  initChoicesEvent(cmecJson);
+  //if (_config.hasOwnProperty('udcNormAxis')) {
+  //  switch (_config.udcNormAxis.toLowerCase()) {
+  //    case 'x':
+  //    case 'col':
+  //      $('.scarow').prop('checked', false);
+  //      $('.scacol').prop('checked', true);
+  //      break;
+  //    case 'y':
+  //    case 'row':
+  //      $('.scarow').prop('checked', true);
+  //      $('.scacol').prop('checked', false);
+  //      break;
+  //    default:
+  //      console.log('UDEB: error setting in udcNormAxis');
+  //      break;
+  //  }
+  //}
 
-  if (_config.hasOwnProperty('udcNormAxis')) {
-    switch (_config.udcNormAxis.toLowerCase()) {
-      case 'x':
-      case 'col':
-        $('.scarow').prop('checked', false);
-        $('.scacol').prop('checked', true);
-        break;
-      case 'y':
-      case 'row':
-        $('.scarow').prop('checked', true);
-        $('.scacol').prop('checked', false);
-        break;
-      default:
-        console.log('UDEB: error setting in udcNormAxis');
-        break;
-    }
-  }
+  //if (_config.hasOwnProperty('udcNormType')) {
+  //  switch (_config.udcNormType.toLowerCase()) {
+  //    case 'standarized':
+  //      $('#select-choice-mini-sca').val('1').trigger('change');
+  //      break;
+  //    case 'normalized[-1:1]':
+  //      $('#select-choice-mini-sca').val('2').trigger('change');
+  //      break;
+  //    case 'normalized[0:1]':
+  //      $('#select-choice-mini-sca').val('3').trigger('change');
+  //      break;
+  //    default:
+  //      console.log('UDEB: error setting in udcNormType');
+  //      break;
+  //  }
+  //}
 
-  if (_config.hasOwnProperty('udcNormType')) {
-    switch (_config.udcNormType.toLowerCase()) {
-      case 'standarized':
-        $('#select-choice-mini-sca').val('1').trigger('change');
-        break;
-      case 'normalized[-1:1]':
-        $('#select-choice-mini-sca').val('2').trigger('change');
-        break;
-      case 'normalized[0:1]':
-        $('#select-choice-mini-sca').val('3').trigger('change');
-        break;
-      default:
-        console.log('UDEB: error setting in udcNormType');
-        break;
-    }
-  }
-
-  if (_config.hasOwnProperty('udcColorMapping')) {
-    switch (_config.udcColorMapping.toLowerCase()) {
-      case 'ilamb':
-        $('#select-choice-mini-map').val('0').trigger('change');
-        //$('#select-choice-mini-map').val("0");
-        //$('#select-choice-mini-map').trigger('change.select2');
-        break;
-      case 'linear':
-        $('#select-choice-mini-map').val('1').trigger('change');
-        break;
-      case 'linear reverse':
-        $('#select-choice-mini-map').val('2').trigger('change');
-        break;
-      default:
-        console.log('UDEB: error setting in udcColorMapping');
-        break;
-    }
-  }
+  //if (_config.hasOwnProperty('udcColorMapping')) {
+  //  switch (_config.udcColorMapping.toLowerCase()) {
+  //    case 'ilamb':
+  //      $('#select-choice-mini-map').val('0').trigger('change');
+  //      //$('#select-choice-mini-map').val("0");
+  //      //$('#select-choice-mini-map').trigger('change.select2');
+  //      break;
+  //    case 'linear':
+  //      $('#select-choice-mini-map').val('1').trigger('change');
+  //      break;
+  //    case 'linear reverse':
+  //      $('#select-choice-mini-map').val('2').trigger('change');
+  //      break;
+  //    default:
+  //      console.log('UDEB: error setting in udcColorMapping');
+  //      break;
+  //  }
+  //}
 
   if (_config.hasOwnProperty('udcBaseUrl')) {
     //check url is valid and available
@@ -1454,168 +1302,144 @@ document.addEventListener('jsonReady', function () {
   }
 });
 
-function menuShowHide(xDim, yDim, menuReset) {
-  //trying to reset scaling and normalizing part
-  //
-  //what is difference between chang and change.select2?
-  //mxu$('.scarow').prop('checked', true);
-  //mxu$('.scacol').prop('checked', false);
-  //$('#select-choice-mini-sca').val("0").trigger('change');
-  //$('#select-choice-mini-map').val("0").trigger('change');
-  //mxu$('#select-choice-mini-sca').val("0");
-  //mxu$('#select-choice-mini-sca').trigger('change.select2');
-  //mxu$('#select-choice-mini-map').val("0");
-  //mxu$('#select-choice-mini-map').trigger('change.select2');
 
-  tabTempJson = [];
+function initCheckBoxes() {
+  document.getElementById("cb-scarow").checked = false;
+  document.getElementById("cb-scacol").checked = false;
+  document.getElementById("cb-toptitle").checked = false;
+  document.getElementById("cb-bottomtitle").checked = false;
+  document.getElementById("cb-tooltip").checked = false;
+  document.getElementById("cb-cellvalue").checked = false;
+}
 
-  fixedDimsDict = {};
 
-  for (dimn of Object.keys(selectIDbyDims)) {
-    if (xDim == dimn || yDim == dimn) {
-      //-xum $("#".concat(selectIDbyDims[dimn])).val(null).trigger('change');
-      //-xum $("#".concat(selectIDbyDims[dimn])).select2().next().hide();
-      document.querySelector('#'.concat(selectIDbyDims[dimn]));
+function initCheckBoxesEvent() {
+
+  document.getElementById("cb-scarow").addEventListener("change", () => {
+    console.log("fire event for checking row", document.getElementById("cb-scarow").checked);
+    if (document.getElementById("cb-scarow").checked) {
+      document.getElementById("cb-scacol").checked = false;
+      lmtSettings["normDir"] = "row";
+
+      //set the normalized method to default
+      //dictChoices['normChoices'].setChoiceByValue('0');
     } else {
-      //nullify fixedDimsDict
-      fixedDimsDict[dimn] = $('#'.concat(selectIDbyDims[dimn])).val();
-
-      if (menuReset == 1) {
-        //clear selction
-        fixedDimsDict[dimn] = null;
-        $('#'.concat(selectIDbyDims[dimn])).val(null).trigger('change');
-        //show it
-        $('#'.concat(selectIDbyDims[dimn])).select2().next().show();
-        $('#'.concat(selectIDbyDims[dimn])).select2({
-          placeholder: 'Select '.concat(dimn)
-        });
-
-        //update hide list
-        var sel = document.getElementById('hlist');
-        for (var i = sel.options.length - 1; i >= 0; i--) {
-          sel.remove(i);
-        }
-        if (xDim == 'statistic') {
-          if (cmecJson.DIMENSIONS.dimensions[xDim].hasOwnProperty('indices')) {
-            lmt_tool.add_options(
-              cmecJson.DIMENSIONS.dimensions[xDim].indices,
-              'hlist'
-            );
-          } else {
-            lmt_tool.add_options(
-              Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]),
-              'hlist'
-            );
-          }
-        } else {
-          lmt_tool.add_options(
-            Object.keys(cmecJson.DIMENSIONS.dimensions[xDim]),
-            'hlist'
-          );
-        }
-
-        // need to reset the scaling part
-        $('.scarow').prop('checked', true);
-        $('.scacol').prop('checked', false);
-        $('#select-choice-mini-sca').val('0').trigger('change.select2');
-        $('#select-choice-mini-map').val('0').trigger('change.select2');
-      }
-
-      $('#'.concat(selectIDbyDims[dimn])).off('select2:select');
-
-      $('#'.concat(selectIDbyDims[dimn])).on('select2:select', function (e) {
-        //mxu $('.scarow').prop('checked', true);
-        //mxu $('.scacol').prop('checked', false);
-        //mxu $('#select-choice-mini-sca').val("0").trigger('change.select2');
-        //mxu $('#select-choice-mini-map').val("0").trigger('change.select2');
-        tabTempJson = [];
-
-        selId = $(this).attr('id');
-        fixedDimsDict[dimBySelectIDs[selId]] = $(this).val();
-
-        function checkDefine(data) {
-          return data != undefined;
-        }
-
-        if (Object.values(fixedDimsDict).every(checkDefine)) {
-          var cvtTree = 1;
-          tabJson = lmt_tool.cmec2tab_json(
-            cmecJson,
-            xDim,
-            yDim,
-            fixedDimsDict,
-            cvtTree
-          );
-
-          //console.debug('UDEB:', tabJson, Object.keys(tabJson[0]));
-          //console.debug('UDEB:', Object.keys(tabJson[0]).includes("_children"));
-          if (Object.keys(tabJson[0]).includes('_children')) {
-            //tabOption.dataTreeCollapseElement = "<i class='fas fa-minus-square'></i>";
-            //tabOption.dataTreeExpandElement = "<i class='fas fa-plus-square'></i>";
-            tabOption.dataTreeCollapseElement = '';
-            tabOption.dataTreeExpandElement = '';
-            isTreeTable = 1;
-          } else {
-            tabOption.dataTreeCollapseElement = '<span></span>';
-            tabOption.dataTreeExpandElement = '<span></span>';
-            isTreeTable = 0;
-          }
-
-          tabOption.data = tabJson;
-
-          bgcol = '#0063B2FF';
-          ftwgt = 500;
-          ftsty = 'normal';
-          txdec = '';
-          txcol = 'black';
-
-          let lmtTitleFormatterParams = {
-            bgcol: bgcol,
-            ftsty: ftsty,
-            ftwgt: ftwgt,
-            txdec: txdec,
-            color: txcol
-          };
-          grpsFirstCol.length = 0;
-          tabOption.columns = setTabColumns(
-            tabJson,
-            (addBottomTitle = false),
-            firstColIcon,
-            lmtTitleFormatterParams,
-            xDim,
-            yDim,
-            'row_name'
-          );
-
-          //document.getElementById('mytab').style.width = (360+(tabOption.columns.length-1)*28).toString()+'px';
-          document.getElementById('mytab').style.width =
-            (400 + (tabOption.columns.length - 1) * 30).toString() + 'px';
-
-          toggleTooltips(false);
-
-          //check the switches
-          toggleCellValue(false);
-          toggleBottomTitle(false);
-          toggleTopTitle(false);
-
-          table.setColumns(tabOption.columns);
-          table.clearData();
-          table = new Tabulator('#dashboard-table', tabOption);
-
-          // keep the scaling options
-          xscaopt = $('#select-choice-mini-sca').val();
-          xmapopt = $('#select-choice-mini-map').val();
-
-          //if ($('.scarow').is(':checked'))
-          //console.log(xscaopt, xmapopt, 'mxudeb');
-          //$('.scarow').prop('checked', true);
-          //$('.scacol').prop('checked', false);
-          $('#select-choice-mini-sca').val(xscaopt).trigger('change');
-          $('#select-choice-mini-map').val(xmapopt).trigger('change');
-        }
-      });
+      lmtSettings["normDir"] = "column";
+      document.getElementById("cb-scacol").checked = true;
+      dictChoices['normChoices'].setChoiceByValue('0');
     }
-  }
+  });
+
+  document.getElementById("cb-scacol").addEventListener("change", () => {
+    console.log("fire event for checking column");
+    if (document.getElementById("cb-scacol").checked) {
+      document.getElementById("cb-scarow").checked = false;
+      lmtSettings["normDir"] = "column";
+      //set the normalized method to default
+      //dictChoices['normChoices'].setChoiceByValue('0');
+    } else {
+      lmtSettings["normDir"] = "row";
+      document.getElementById("cb-scarow").checked = true;
+      dictChoices['normChoices'].setChoiceByValue('0');
+    }
+  });
+
+
+  document.getElementById("cb-tooltip").addEventListener("change", () => {
+    console.log("fire event for tooltip");
+    if (document.getElementById("cb-tooltip").checked) {
+
+      lmtSettings.setTooltip = true;
+      tabOption.tooltips = function (cell) {
+         if (cell.getField() == 'row_name') {
+	   return false;
+	 } else {
+	   return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+	 }
+      }					        
+
+    } else {
+      lmtSettings.setTooltip = false;
+      tabOption.tooltips = false;
+
+      console.log("tooltip is false");
+    }
+    
+    //table redraw needed?
+    table = new Tabulator('#dashboard-table', tabOption);
+  });
+
+  document.getElementById("cb-toptitle").addEventListener("change", () => {
+    console.log("fire event for toptitle");
+    if (document.getElementById("cb-toptitle").checked) {
+
+      lmtSettings.setTopTitle = true;
+      tabOption['headerVisible'] = true;
+    } else {
+      lmtSettings.setTopTitle = false;
+      tabOption['headerVisible'] = false;
+    }
+    //table redraw needed?
+    // clear memory, otherwise will be very slow
+    var tempData = table.getData();
+    table.clearData();
+    table.setData(tempData);
+    table = new Tabulator('#dashboard-table', tabOption);
+  });
+
+
+  document.getElementById("cb-bottomtitle").addEventListener("change", () => {
+    console.log("fire event for bottomtitle");
+    if (document.getElementById("cb-bottomtitle").checked) {
+
+      lmtSettings.setBottomTitle = true;
+      for (let x of tabOption.columns) {
+        if (x.field != 'row_name') {
+	  x['bottomCalc'] = bottomCalcFunc;
+        }
+      }
+    } else {
+      lmtSettings.setBottomTitle = false;
+      for (let x of tabOption.columns) {
+        if (x.field != 'row_name') {
+          delete x['bottomCalc'];
+	}
+      }
+    }
+    //table redraw needed?
+    var tempData = table.getData();
+    table.clearData();
+    table.setData(tempData);
+    table = new Tabulator('#dashboard-table', tabOption);
+
+  });
+
+
+
+  document.getElementById("cb-cellvalue").addEventListener("change", () => {
+    console.log("fire event for cellvalue");
+    if (document.getElementById("cb-cellvalue").checked) {
+
+      lmtSettings.setCellValue = true;
+      for (x of tabOption.columns) {
+        if (x.field != 'row_name') {
+          x['formatterParams'] = { showCellValue: true };
+        }
+      }
+    } else {
+      lmtSettings.setCellValue = false;
+      for (x of tabOption.columns) {
+        if (x.field != 'row_name') {
+          x['formatterParams'] = { showCellValue: false };
+        }
+      }
+    }
+    var tempData = table.getData();
+    table.clearData();
+    table.setData(tempData);
+    table = new Tabulator('#dashboard-table', tabOption);
+  });
+
 }
 
 var draw_legend = function () {
@@ -1834,7 +1658,7 @@ var setTabColumns = function (
       col.bottomCalcParams = x;
 
       if (xdim == 'model') {
-        var k = grpsModelSrc[x] % bgColorGroupFirstRow.length;
+        var k = grpsModSrcIdx[x] % bgColorGroupFirstRow.length;
 
         if (col.title.includes('Mean') || col.title.includes('mean')) {
           bgcol = 'white';
@@ -1871,6 +1695,14 @@ var setTabColumns = function (
 
       if (!addBottomTitle) {
         delete col['bottomCalc'];
+      }
+
+
+      if (lmtSettings.setCellValue) {
+        col['formatterParams'] = { showCellValue: true };
+      } else {
+        col['formatterParams'] = { showCellValue: false };
+
       }
       Columns.push(col);
     }
@@ -2323,7 +2155,7 @@ function setFirstColBgColor(cell, formatterParams, onRendered) {
         });
       } else if (formatterParams.yDim == 'model') {
         fgFontColor = 'white';
-        var k = grpsModelSrc[value] % bgColorGroupFirstRow.length;
+        var k = grpsModSrcIdx[value] % bgColorGroupFirstRow.length;
         setmetricbg(
           cell.getRow(),
           cell,
@@ -2628,18 +2460,18 @@ function rowLevels(rows, nlevs) {
   return tlevs;
 }
 
-var timesExpl = 1;
-var numClicks = 1; // default expand the first level dataTreeStartExpanded:[true, false]
 
 function expandCollapse(action) {
   var maxLevs = findMaxLevels() - 1; //the last level always cannot expand
 
-  console.log('UDEB:', 'maxlevs', maxLevs, numClicks, action, timesExpl);
+  //let timesExpl = lmtSettings["timesExpl"];
+  //let numClicks = lmtSettings["numClicks"]; // default expand the first level dataTreeStartExpanded:[true, false]
+  console.log('UDEB:', 'maxlevs', maxLevs, lmtSettings.numClicks, action, lmtSettings.timesExpl);
   if (action == 'expand') {
-    if (numClicks < maxLevs) {
-      timesExpl = timesExpl + 1;
+    if (lmtSettings.numClicks < maxLevs) {
+      lmtSettings.timesExpl = lmtSettings.timesExpl + 1;
     } else {
-      timesExpl = timesExpl - 1;
+      lmtSettings.timesExpl = lmtSettings.timesExpl - 1;
     }
     var tempData = table.getData();
 
@@ -2647,15 +2479,17 @@ function expandCollapse(action) {
     table.setData(tempData);
     table.redraw(true);
     console.log('UDEB:', 'tabredraw');
-    if (timesExpl == 0) {
-      numClicks = 0;
+    if (lmtSettings.timesExpl == 0) {
+      lmtSettings.numClicks = 0;
     } else {
-      numClicks = numClicks + 1;
+      lmtSettings.numClicks = lmtSettings.numClicks + 1;
     }
   }
 }
 
 function setLevelExpand(row, level) {
+
+  let timesExpl = lmtSettings["timesExpl"];
   if (level < timesExpl) {
     return true;
   }
@@ -2698,27 +2532,3 @@ function combineArraysToObject(keys, values) {
     return result;
   }, []);
 }
-
-function tabRedraw(oldTab, reCreateTab, newData) {
-  if (reCreateTab) {
-    newTab = new Tabulator('#dashboard-table'); // only way to reformat col title
-  } else {
-    newTab = oldTab;
-  }
-
-  if (newData === undefined) {
-    let oldData = oldTab.getData();
-
-    console.log('deb', oldTab, oldData);
-    oldTab.clearData();
-    newTab.setData(oldData);
-  } else {
-    newTab.setData(newData);
-  }
-
-  console.log('xxxx bgn redraw', newTab, newTab.data);
-  newTab.redraw(true);
-  draw_legend();
-}
-
-var testFunc = function(fileContents, blob){}
