@@ -1,0 +1,43 @@
+
+/*! License documents for the dependencies */
+
+
+/*! almond */
+/*=include Licenses/almond.LICENSE */
+
+
+/*! decouple */
+/*=include Licenses/decouple.LICENSE */
+
+
+/*! el-checkbox */
+/*=include Licenses/el-checkbox.LICENSE */
+
+
+/*! emitter */
+/*=include Licenses/emitter.LICENSE */
+
+
+/*! jQuery */
+/*=include Licenses/jquery.LICENSE */
+
+
+/*! Select2 */
+/*=include Licenses/Select2.LICENSE */
+
+
+/*! Select-multi-checkboxes */
+/*=include Licenses/select2-multi-checkboxes.LICENSE */
+
+
+/*! sizzle */
+/*=include Licenses/sizzle.LICENSE */
+
+
+/*! Slideout.js */
+/*=include Licenses/Slideout.js.LICENSE */
+
+
+/*! Tabulator */
+/*=include Licenses/Tabulator.LICENSE */
+

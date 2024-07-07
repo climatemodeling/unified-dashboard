@@ -1,0 +1,63 @@
+{
+  "decouple@0.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/pazguille/decouple",
+    "publisher": "@pazguille",
+    "email": "guille87paz@gmail.com",
+    "licenseFile": "node_modules/decouple/LICENSE"
+  },
+  "el-checkbox@1.0.0": {
+    "licenses": "MIT",
+    "publisher": "evanliu2968",
+    "licenseFile": "node_modules/el-checkbox/LICENSE"
+  },
+  "emitter@0.0.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mango/emitter",
+    "publisher": "Guille Paz",
+    "email": "guille87paz@gmail.com",
+    "licenseFile": "node_modules/emitter/LICENSE"
+  },
+  "jquery@3.5.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jquery/jquery",
+    "publisher": "JS Foundation and other contributors",
+    "url": "https://github.com/jquery/jquery/blob/3.5.1/AUTHORS.txt",
+    "licenseFile": "node_modules/jquery/LICENSE.txt"
+  },
+  "lmt_unified_dashboard@1.0.0": {
+    "licenses": "BSD-3-Clause",
+    "repository": "https://github.com/climatemodeling/unified-dashboard",
+    "publisher": "Min Xu, the ORNL Land Model Testbed LDRD project, and US Department of Energy RUBISCO Science Focus Area",
+    "url": "https://github.com/climatemodeling/unified-dashboard.git",
+    "licenseFile": "LICENSE"
+  },
+  "select2-multi-checkboxes@1.0.0": {
+    "licenses": "MIT*",
+    "repository": "https://github.com/wasikuss/select2-multi-checkboxes",
+    "publisher": "wasikuss",
+    "url": "https://github.com/wasikuss",
+    "licenseFile": "node_modules/select2-multi-checkboxes/LICENSE"
+  },
+  "select2@4.0.13": {
+    "licenses": "MIT",
+    "repository": "https://github.com/select2/select2",
+    "publisher": "Kevin Brown",
+    "url": "https://github.com/kevin-brown",
+    "licenseFile": "node_modules/select2/LICENSE.md"
+  },
+  "slideout@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mango/slideout",
+    "publisher": "Guille Paz",
+    "email": "guille87paz@gmail.com",
+    "licenseFile": "node_modules/slideout/LICENSE"
+  },
+  "tabulator-tables@4.9.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/olifolkerd/tabulator",
+    "publisher": "Oli Folkerd",
+    "licenseFile": "node_modules/tabulator-tables/LICENSE"
+  }
+}
+

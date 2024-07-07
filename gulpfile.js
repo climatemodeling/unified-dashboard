@@ -1,15 +1,30 @@
+/* 
+  This is a gulpfile.js for building the LMTUD
+  JS app using gulp
+*/
 var gulp = require('gulp');
-var concat = require('gulp-concat');
-var minify = require('gulp-minify');
 var cleanCss = require('gulp-clean-css');
-var rev = require('gulp-rev');
-var revRewrite = require('gulp-rev-rewrite');
+var rename = require("gulp-rename");
+var uglify = require('gulp-uglify');
+var insert = require('gulp-insert');
+var include = require('gulp-include');
 var browserify = require('browserify');
 var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var del = require('del');
-var rename = require("gulp-rename");
+
+
+var fs = require('fs');
+
+var cssimport = require("gulp-cssimport");
+
+
+var version = "1.0.0";
+
+var copyrightheader = "/** \n \
+   LMTUD v" + version + " (c) Min Xu the ORNL Land Model Testbed (LMT) LDRD project, and US Department of Energy RUBISCO Science Focus Area \n \
+   @license BSD-3-Clause \n */ \n";
 
 gulp.task('clean-js', function () {
   return del([
@@ -25,57 +40,97 @@ gulp.task('clean-css', function () {
   ]);
 });
 
+
+//build js
 gulp.task('build-js', function () {
-  return browserify({entries:['assets/js/lmt_tab.js'],
-    transform: [
-        ['babelify'],
-        ['browserify-css',{
-           minify: true,
-           processRelativeUrl: function(relativeUrl) {
-               return relativeUrl;
-           },
-           rebaseUrls:false,
-           output: 'public/build/css/lmtud_bundle.min.css'}]
-    ]})
+
+  // add the copyright notice manually
+  var apps = ["slideout", "emitter", "decouple"];
+  var lics = JSON.parse(fs.readFileSync("./dist/LICENSE.checker"));
+
+  for (var key of Object.keys(lics)) {
+      ctext = "/*! \n " + key.replace("@", " v") + " Copyright (c) " + lics[key].publisher + "\n" + 
+                 "* @license " + lics[key].licenses + "\n" + 
+	         "* For the full copyright and license information, \n" + 
+		 "* please read LICENSE.dependencies and LICENSE that was distributed " + 
+		 "* with this code in the dist directory \n  */ \n";
+      if ( key.split('@')[0] == "emitter" ) {
+
+         gulp.src("./node_modules/" + key.split('@')[0] + "/dist/index.js")
+	 .pipe(insert.prepend(ctext))
+	 .pipe(gulp.dest("./node_modules/" + key.split('@')[0] + "/dist/"), {overwrite:true});
+      }
+      if ( key.split('@')[0] == "decouple" || key.split('@')[0] == "slideout" ) {
+         gulp.src("./node_modules/" + key.split('@')[0] + "/index.js")
+	 .pipe(insert.prepend(ctext))
+	 .pipe(gulp.dest("./node_modules/" + key.split('@')[0] + "/"), {overwrite:true});
+      }
+  };
+
+  browserify({entries:['assets/js/lmt_tab.js']})
     .bundle()
     .pipe(source('bundle.js'))
     .pipe(rename('lmtud_bundle.js'))
-    .pipe(gulp.dest('public/build/js'))
+    .pipe(insert.prepend(copyrightheader))
     .pipe(buffer()) 
-    .pipe(minify({
-        ext:{
-            min:'.min.js'
-        },
-        noSource: true
-    }))
-    //.pipe(rev())
+    .pipe(include())
     .pipe(gulp.dest('dist/js'))
-    .pipe(rev.manifest('rev-manifest.json', {
-      merge: true
+    .pipe(gulp.dest('public/build/js'))
+
+
+  return browserify({entries:['assets/js/lmt_tab.js']})
+    .bundle()
+    .pipe(source('bundle.js'))
+    .pipe(rename('lmtud_bundle.js'))
+    .pipe(insert.prepend(copyrightheader))
+    //.pipe(gulp.dest('dist/js'))
+    //.pipe(gulp.dest('public/build/js'))
+    //.pipe(source('dist/js/lmtud_bundle.js'))
+    .pipe(rename('lmtud_bundle.min.js'))
+    .pipe(buffer()) 
+    .pipe(include())
+    .pipe(uglify({
+        output: {
+            beautify: true,
+            //comments: "/^\/*!|^\/\*.*Select2|^'\/\*'*/m"
+            comments: "/^!|\\bSelect2\\b|\\blicense\\b|\\btabulator\\b/i"
+        }
     }))
+    .pipe(gulp.dest('dist/js'))
     .pipe(gulp.dest('public/build/js'));
 });
 
 gulp.task('build-css', function () {  
-  return gulp.src(['public/build/css/lmtud_bundle.min.css'])
-    .pipe(cleanCss())
-    //.pipe(rev())
+  return gulp.src('assets/css/lmtstyle.css')
+    .pipe(cssimport({skipComments:false}))
+    .pipe(rename('lmtud_bundle.css'))
     .pipe(gulp.dest('dist/css'))
-    .pipe(rev.manifest('rev-manifest.json', {
-      merge: true
-    }))
+    .pipe(gulp.dest('public/build/css'))
+    .pipe(rename('lmtud_bundle.min.css'))
+    .pipe(cleanCss({specialComments: 1}))
+    //.pipe(insert.prepend(copyrightheader))
+    .pipe(gulp.dest('dist/css'))
     .pipe(gulp.dest('public/build/css'));
 });
 
 
 gulp.task('deploy', function () {
-  const manifest1 = gulp.src(['public/build/js/rev-manifest.json'], {allowEmpty: true});
-  const manifest2 = gulp.src(['public/build/css/rev-manifest.json'], {allowEmpty: true});
   return gulp.src(['assets/html/index.html'])
-    .pipe(revRewrite({ manifest:manifest1 }, {allowEmpty: true}))
-    .pipe(revRewrite({ manifest:manifest2 }, {allowEmpty: true}))
     .pipe(gulp.dest('dist'));
 });
+
+gulp.task('licenses', function () {
+
+  gulp.src(['LICENSE'])
+    .pipe(gulp.dest('dist'));
+  
+  return gulp.src(['LICENSE.dependencies'])
+    .pipe(include())
+    .pipe(gulp.dest('dist'));
+});
+
+
+
 
 gulp.task('watch', function() {
   gulp.watch('assets/js/**/*.js', ['pack-js']);
@@ -83,6 +138,6 @@ gulp.task('watch', function() {
 });
 
 //gulp.task('default', gulp.series(gulp.parallel('clean-js', 'clean-css'), 'build-js', 'build-css'));
-gulp.task('default', gulp.series(gulp.parallel('clean-js', 'clean-css'), 'build-js', 'build-css', 'deploy'));
+gulp.task('default', gulp.series(gulp.parallel('clean-js', 'clean-css'), 'build-css', 'build-js', 'deploy', 'licenses'));
 //gulp.task('default', gulp.series('build-js', 'build-css', 'deploy'));
 //gulp.task('default', gulp.series('deploy'));
