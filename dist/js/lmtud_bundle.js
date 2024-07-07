@@ -3679,6 +3679,12 @@ function setLegend(){
 * For the full copyright and license information, 
 * please read LICENSE.dependencies and LICENSE that was distributed * with this code in the dist directory 
   */ 
+/*! 
+ decouple v0.0.2 Copyright (c) @pazguille
+* @license MIT
+* For the full copyright and license information, 
+* please read LICENSE.dependencies and LICENSE that was distributed * with this code in the dist directory 
+  */ 
 'use strict';
 
 var requestAnimFrame = (function() {
@@ -3721,6 +3727,12 @@ function decouple(node, event, fn) {
 module.exports = decouple;
 
 },{}],4:[function(require,module,exports){
+/*! 
+ emitter v0.0.7 Copyright (c) Guille Paz
+* @license MIT
+* For the full copyright and license information, 
+* please read LICENSE.dependencies and LICENSE that was distributed * with this code in the dist directory 
+  */ 
 /*! 
  emitter v0.0.7 Copyright (c) Guille Paz
 * @license MIT
@@ -20871,6 +20883,12 @@ S2.define('jquery.select2',[
 }));
 
 },{"jquery":5}],7:[function(require,module,exports){
+/*! 
+ slideout v1.0.1 Copyright (c) Guille Paz
+* @license MIT
+* For the full copyright and license information, 
+* please read LICENSE.dependencies and LICENSE that was distributed * with this code in the dist directory 
+  */ 
 /*! 
  slideout v1.0.1 Copyright (c) Guille Paz
 * @license MIT
