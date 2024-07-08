@@ -9,7 +9,6 @@ var uglify = require('gulp-uglify');
 var insert = require('gulp-insert');
 var include = require('gulp-include');
 var browserify = require('browserify');
-var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var del = require('del');
@@ -66,17 +65,6 @@ gulp.task('build-js', function () {
 	 .pipe(gulp.dest("./node_modules/" + key.split('@')[0] + "/"), {overwrite:true});
       }
   };
-
-  browserify({entries:['assets/js/lmt_tab.js']})
-    .bundle()
-    .pipe(source('bundle.js'))
-    .pipe(rename('lmtud_bundle.js'))
-    .pipe(insert.prepend(copyrightheader))
-    .pipe(buffer()) 
-    .pipe(include())
-    .pipe(gulp.dest('dist/js'))
-    .pipe(gulp.dest('public/build/js'))
-
 
   return browserify({entries:['assets/js/lmt_tab.js']})
     .bundle()

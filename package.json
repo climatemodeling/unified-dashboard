@@ -33,46 +33,34 @@
     "select2": "^4.0.13",
     "select2-multi-checkboxes": "github:wasikuss/select2-multi-checkboxes#74f4eb4",
     "slideout": "^1.0.1",
-    "tabulator-tables": "^4.9.3"
+    "tabulator-tables": "4.9.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.8",
-    "babelify": ">=10.0.0",
     "browserify": "^17.0.0",
     "browserify-css": ">=0.15.0",
     "del": "^5.1.0",
-    "glob-parent": ">=5.1.2",
+    "glob-parent": ">=6.0.2",
     "gulp": ">=5.0.0",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
-    "gulp-minify": "^3.1.0",
     "gulp-cssimport": "^7.0.0",
     "gulp-include": "^2.3.1",
     "gulp-insert": "^0.5.0",
     "gulp-rename": "^2.0.0",
-    "gulp-uglify": "^3.0.2",
     "gulp-rev": "^9.0.0",
     "gulp-rev-rewrite": "^3.0.3",
+    "gulp-uglify": "^3.0.2",
     "hosted-git-info": ">=2.8.9",
-    "jquery": "^3.5.1",
-    "lodash": ">=4.17.21",
-    "lodash.template": ">=4.5.0",
-    "select2": "^4.0.13",
-    "slideout": "^1.0.1",
-    "tabulator-tables": "4.9.3",
+    "license-checker": "^25.0.1",
+    "path-dirname": "^1.0.2",
     "uglify-js": "^3.10.4",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
-    "license-checker": "^25.0.1",
     "yargs": "^13.3.2"
   },
-  "dependencies": {
-    "gulp-rename": "^2.0.0",
-    "path-dirname": "^1.0.2"
-  },
-  "resolutions":{
+  "resolutions": {
     "set-value": "4.0.1",
     "yargs-parser": "^20.2.9",
-    "glob-parent": ">=5.1.2"
- }
+    "glob-parent": "6.0.2"
+  }
 }

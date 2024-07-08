@@ -18,11 +18,11 @@
     "email": "guille87paz@gmail.com",
     "licenseFile": "node_modules/emitter/LICENSE"
   },
-  "jquery@3.5.1": {
+  "jquery@3.7.1": {
     "licenses": "MIT",
     "repository": "https://github.com/jquery/jquery",
-    "publisher": "JS Foundation and other contributors",
-    "url": "https://github.com/jquery/jquery/blob/3.5.1/AUTHORS.txt",
+    "publisher": "OpenJS Foundation and other contributors",
+    "url": "https://github.com/jquery/jquery/blob/3.7.1/AUTHORS.txt",
     "licenseFile": "node_modules/jquery/LICENSE.txt"
   },
   "lmt_unified_dashboard@1.0.0": {
