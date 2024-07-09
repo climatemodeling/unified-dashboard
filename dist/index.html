@@ -11,6 +11,8 @@
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
    <!-- fallback to local copies -->
    <script>
       if (typeof window.lmtUDLoaded === 'undefined') {
@@ -55,12 +57,13 @@
 
       <!-- X and Y dimension selection -->
       <section class="menu-section">
-          <h3 class="menu-section-title"> Dimensions </h3>
+          <h3 class="menu-section-title"> X&Y Dimensions </h3>
           <select class="js-choice-xdim" id="js-choice-mini-dim1" style="width:75%"> <option disabled=true>Select X/Column</option></select>
           <select class="js-choice-ydim" id="js-choice-mini-dim2" style="width:75%"> <option disabled=true>Select Y/Row</option></select>
       </section>
 
       <section class="menu-section" id="menu-section-fixdim">
+          <h3 class="menu-section-title"> Other Dimensions </h3>
           <select class="js-choice-0" id="js-choice-mini-0" style="width:75%; display:none"> <option></option></select>
           <select class="js-choice-1" id="js-choice-mini-1" style="width:75%; display:none"> <option></option></select>
           <select class="js-choice-2" id="js-choice-mini-2" style="width:75%; display:none"> <option></option></select>
@@ -78,20 +81,16 @@
       <section class="menu-section">
           <h3 class="menu-section-title">Scaling/Normalization</h3>
 
-             <span class="margin-r">Row</span>
-             <input type="checkbox" class="scarow" value='scarow' id="checkboxsca" checked>
-             <span class="el-checkbox-style  pull-right"></span>
-             <span class="margin-r">Column</span>
-             <input type="checkbox" class="scacol" value='scacol' id="checkboxsca">
-             <span class="el-checkbox-style  pull-right"></span>
-
-          <!--label class="el-checkbox el-checkbox-sm">
-             <span class="margin-r">Column</span>
-             <input type="checkbox" class="scacol" value='scacol' id="checkboxsca">
-             <span class="el-checkbox-style  pull-right"></span>
-          </label!-->
-
-          <br><br>
+             <div class="flex">
+                 <div class="flex items-center me-4 ms-4">
+                     <input id="cb-scarow" type="checkbox" value="scarow" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                     <label for="cb-scarow" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Row</label>
+                 </div>
+                 <div class="flex items-center me-4">
+                     <input id="cb-scacol" type="checkbox" value="scacol" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                     <label for="cb-scacol" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Column</label>
+                 </div>
+             </div>
 
           <select class="js-choice-norm" id="js-choice-mini-norm" style="width:75%"> 
              <option value="0" selected> Not normalized </option>
@@ -122,52 +121,107 @@
           <select class="js-choice-logo" id="js-choice-mini-logo" style="width:75%"> 
 	     <option disabled=true> Select a logo </option>
              <option value="rubisco_logo.png"> RUBISCO</option>
-             <option value="cmec_logo.png"> CMEC</option>
+             <option value="cmec_logo.png"> CMEC </option>
              <option value="pmp_logo.png"> PMP</option>
              <option value="lmt-logo.png"> LMT</option>
           </select>
       </section>
 
 
+
+          <!--div class="flex flex-wrap justify-center items-center w-11/12 mx-auto select-none gap-2 max-w-[500px]">
+          <select class="js-choice-swth" id="js-choice-mini-logo" style="width:75%"> 
+
+            <option> 
+            <label class="text-black text-sm">
+              <input type="checkbox" class="h-[1px] opacity-0 overflow-hidden absolute whitespace-nowrap w-[1px] peer" id="tooltips" onchange="toggleTooltips(true)" />
+              <span class="peer-checked:border-blue-500 shadow-blue-500/10 peer-checked:text-blue-500 peer-checked:before:border-blue-500 peer-checked:before:bg-blue-500 peer-checked:before:opacity-100 peer-checked:before:scale-100 peer-checked:before:content-['✔'] flex flex-col items-center justify-center w-28 min-h-[3.8rem] rounded-lg shadow-lg transition-all duration-200 cursor-pointer relative border-slate-300 border-2 bg-white before:absolute before:block before:w-3 before:h-3 before:border-2  before:rounded-full before:top-1 before:left-1 before:opacity-0 before:transition-transform before:scale-0 before:text-white before:text-xs before:flex before:items-center before:justify-center hover:border-blue-500 hover:before:scale-100 hover:before:opacity-100">
+                <span class="transition-all duration-100 text-center"> Tooltip</span>
+              </span>
+            </label>
+	    </option>
+
+            <option> 
+            <label class="text-black text-sm">
+              <input type="checkbox" class="h-[1px] opacity-0 overflow-hidden absolute whitespace-nowrap w-[1px] peer" id="bottomtitle" onchange="toggleBottomTitle(true)" />
+              <span class="peer-checked:border-blue-500 peer-checked:shadow-blue-500/10 peer-checked:text-blue-500 peer-checked:before:border-blue-500 peer-checked:before:bg-blue-500 peer-checked:before:opacity-100 peer-checked:before:scale-100 peer-checked:before:content-['✔'] flex flex-col items-center justify-center w-28 min-h-[3.8rem] rounded-lg shadow-lg transition-all duration-200 cursor-pointer relative border-slate-300 border-2 bg-white before:absolute before:block before:w-3 before:h-3 before:border-2  before:rounded-full before:top-1 before:left-1 before:opacity-0 before:transition-transform before:scale-0 before:text-white before:text-xs before:flex before:items-center before:justify-center hover:border-blue-500 hover:before:scale-100 hover:before:opacity-100">
+                <span class="transition-all duration-100 text-center"> Bottom Title</span>
+              </span>
+            </label>
+	    </option>
+
+            <option> 
+            <label class="text-black text-sm">
+              <input type="checkbox" class="h-[1px] opacity-0 overflow-hidden absolute whitespace-nowrap w-[1px] peer" id="cellvalue" onchange="toggleCellValue(true)" />
+              <span class="peer-checked:border-blue-500 peer-checked:shadow-blue-500/10 peer-checked:text-blue-500 peer-checked:before:border-blue-500 peer-checked:before:bg-blue-500 peer-checked:before:opacity-100 peer-checked:before:scale-100 peer-checked:before:content-['✔'] flex flex-col items-center justify-center w-28 min-h-[3.8rem] rounded-lg shadow-lg transition-all duration-200 cursor-pointer relative border-slate-300 border-2 bg-white before:absolute before:block before:w-3 before:h-3 before:border-2  before:rounded-full before:top-1 before:left-1 before:opacity-0 before:transition-transform before:scale-0 before:text-white before:text-xs before:flex before:items-center before:justify-center hover:border-blue-500 hover:before:scale-100 hover:before:opacity-100">
+                <span class="transition-all duration-100 text-center"> Cell Value</span>
+              </span>
+            </label>
+	    </option>
+
+            <option> 
+            <label class="text-black text-sm">
+              <input type="checkbox" class="h-[1px] opacity-0 overflow-hidden absolute whitespace-nowrap w-[1px] peer" id="toptitle" onchange="toggleTopTitle(true)" />
+              <span class="peer-checked:border-blue-500 peer-checked:shadow-blue-500/10 peer-checked:text-blue-500 peer-checked:before:border-blue-500 peer-checked:before:bg-blue-500 peer-checked:before:opacity-100 peer-checked:before:scale-100 peer-checked:before:content-['✔'] flex flex-col items-center justify-center w-28 min-h-[3.8rem] rounded-lg shadow-lg transition-all duration-200 cursor-pointer relative border-slate-300 border-2 bg-white before:absolute before:block before:w-3 before:h-3 before:border-2  before:rounded-full before:top-1 before:left-1 before:opacity-0 before:transition-transform before:scale-0 before:text-white before:text-xs before:flex before:items-center before:justify-center hover:border-blue-500 hover:before:scale-100 hover:before:opacity-100">
+                <span class="transition-all duration-100 text-center"> Top Title</span>
+              </span>
+            </label>
+	    </option>
+
+            <option> 
+            <label class="text-black text-sm">
+              <input type="checkbox" class="h-[1px] opacity-0 overflow-hidden absolute whitespace-nowrap w-[1px] peer" id="toptitle" onchange="toggleScreenHeight(true)" />
+              <span class="peer-checked:border-blue-500 peer-checked:shadow-blue-500/10 peer-checked:text-blue-500 peer-checked:before:border-blue-500 peer-checked:before:bg-blue-500 peer-checked:before:opacity-100 peer-checked:before:scale-100 peer-checked:before:content-['✔'] flex flex-col items-center justify-center w-28 min-h-[3.8rem] rounded-lg shadow-lg transition-all duration-200 cursor-pointer relative border-slate-300 border-2 bg-white before:absolute before:block before:w-3 before:h-3 before:border-2  before:rounded-full before:top-1 before:left-1 before:opacity-0 before:transition-transform before:scale-0 before:text-white before:text-xs before:flex before:items-center before:justify-center hover:border-blue-500 hover:before:scale-100 hover:before:opacity-100">
+                <span class="transition-all duration-100 text-center"> Screen Height</span>
+              </span>
+            </label>
+	    </option>
+
+            <option> 
+            <label class="text-black text-sm">
+              <input type="checkbox" class="h-[1px] opacity-0 overflow-hidden absolute whitespace-nowrap w-[1px] peer" id="toptitle" onchange="tableColor()" />
+              <span class="peer-checked:border-blue-500 peer-checked:shadow-blue-500/10 peer-checked:text-blue-500 peer-checked:before:border-blue-500 peer-checked:before:bg-blue-500 peer-checked:before:opacity-100 peer-checked:before:scale-100 peer-checked:before:content-['✔'] flex flex-col items-center justify-center w-28 min-h-[3.8rem] rounded-lg shadow-lg transition-all duration-200 cursor-pointer relative border-slate-300 border-2 bg-white before:absolute before:block before:w-3 before:h-3 before:border-2  before:rounded-full before:top-1 before:left-1 before:opacity-0 before:transition-transform before:scale-0 before:text-white before:text-xs before:flex before:items-center before:justify-center hover:border-blue-500 hover:before:scale-100 hover:before:opacity-100">
+                <span class="transition-all duration-100 text-center"> Colorblind</span>
+              </span>
+            </label>
+	    </option>
+	  </div-->
+
+
       <section class="menu-section">
           <h3 class="menu-section-title">Switch</h3>
-          <label class="el-switch el-switch-sm">
-              <input type="checkbox" name="switch" id="tooltips" onchange="toggleTooltips(true)" checked hidden>
-              <span class="el-switch-style"></span>
-              <span class="margin-r">Tooltips</span>
-          </label>
-
-          <label class="el-switch el-switch-sm">
-              <input type="checkbox" name="switch" id="cellvalue" onchange="toggleCellValue(true)" hidden>
-              <span class="el-switch-style"></span>
-              <span class="margin-r">Cell Value</span>
-          </label>
-
-          <label class="el-switch el-switch-sm">
-              <input type="checkbox" name="switch" id="bottomtitle" onchange="toggleBottomTitle(true)" hidden>
-              <span class="el-switch-style"></span>
-              <span class="margin-r">Bottom Title</span>
-          </label>
-
-          <label class="el-switch el-switch-sm">
-              <input type="checkbox" name="switch" id="toptitle" onchange="toggleTopTitle(true)" checked hidden>
-              <span class="el-switch-style"></span>
-              <span class="margin-r">Top Title</span>
-          </label>
-
-          <label class="el-switch el-switch-sm">
-              <input type="checkbox" name="switch" class="screenheight" id="screenheight" onchange="toggleScreenHeight(true)" checked hidden>
-              <span class="el-switch-style"></span>
-              <span class="margin-r">Screen Height</span>
-          </label>
+            <ul class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" style="width:100%; background:#f9f9f9">
+                <li class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                    <div class="flex items-center ps-3">
+                        <input id="cb-toptitle" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                        <label for="cb-toptitle" class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">TopTitle</label>
+                    </div>
+                </li>
+                <li class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                    <div class="flex items-center ps-3">
+                        <input id="cb-bottomtitle" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                        <label for="cb-bottomtitle" class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">BottomTitle</label>
+                    </div>
+                </li>
+                <li class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                    <div class="flex items-center ps-3">
+                        <input id="cb-tooltip" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                        <label for="cb-tooltip" class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Tooltip</label>
+                    </div>
+                </li>
+                <li class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                    <div class="flex items-center ps-3">
+                        <input id="cb-cellvalue" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                        <label for="cb-cellvalue" class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">CellValue</label>
+                    </div>
+                </li>
+            </ul>
       </section>
-
       <hr>
 
-      <section class="menu-section">
-          <!--input type="checkbox" name="colorblind" id="colorblind" class="mybtn" onchange="tableColor()" checked="true"><span>Colorblind colors</span-->
+      <!--section class="menu-section">
           <button type="button" onchange="tableColor()" class="togglebutton" class="tooglebutton">Colorbind colors</button>
-      </section>
+      </section-->
 
       <section class="menu-section">
           <button type="button" onclick="expandCollapse('expand');" class="togglebutton">Row Expand/Collapse</button>
@@ -217,5 +271,6 @@
       </section>
 
     </main>
+
 </body>
 </html>

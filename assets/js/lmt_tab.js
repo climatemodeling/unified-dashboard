@@ -1,19 +1,24 @@
 // require modules
+
+// external modules
 var Tabulator = require('tabulator-tables');
 var Choices = require('choices.js');
 var Slideout = require('slideout');
 
-
+// internal modules
 var lmt_tool = require('./lmt_tool.js');
 var tabOptions = require('./tabOptions.js');
+var globalVars = require('./globalVars.js');
 
 var tabOption = tabOptions.tabOption;
-
 tabOption.dataTreeStartExpanded = function (row, level) {
      return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
 };
 
+// add a controller
 
+
+const linkTemplate = "{metric.0}/{metric.1}/{metric.2}/{metric.2}.html?model={model}&region={region}";
 
 //globalize functions
 window.loadlocJson = loadlocJson;
@@ -21,6 +26,7 @@ window.toggleScreenHeight = toggleScreenHeight;
 window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
 window.savetoHtml = savetoHtml;
+
 
 window.lmtUDLoaded = 1;
 
@@ -41,6 +47,9 @@ const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // cors proxy to remov
 const bgColorGroup = ['#ECFFE6', '#E6F9FF', '#FFECE6', '#EDEDED', '#FFF2E5'];
 const bgColorGroupFirstRow = ['yellow', '#00FF00', 'white'];
 const fgColorGroupFirstRow = ['black', 'black', 'black'];
+
+const class4Color = "p-1 h-6 w-6 inline bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700";
+const labelCode = "<label for='favcolor'> Background Color: </label>";
 
 // colors used default directly from ILAMB
 const PuOr = [
@@ -77,7 +86,9 @@ var cmap = PuOr;
 
 var lmtSettings = {"normMethod":"-1", "cmapMethod":"-1", "normDir":"-1", 
                    "setTootip":false, "setTopTitle":false, "setBottomTitle":false, "setCellValue":false, 
-		   "timesExpl":1, "numClicks":1};
+		   "timesExpl":1, "numClicks":1, 
+		   "stopFire":false,
+		   "stopFireNorm":false};
 
 
 var tabTempJson = [];
@@ -117,9 +128,16 @@ var grpsTopMetric = [];
 var isJsonReady = false;
 var isTableBuilt = false;
 
+var newLabel = {};
 
 var _config = {};
 
+
+//export
+
+dictChoices = globalVars.dictChoices;
+
+dimSetEvent = globalVars.dimSetEvent;
 
 
 if (document.readyState !== 'loading') {
@@ -159,17 +177,9 @@ function initlmtUD() {
 
 
 
-    console.log('xxx in document ready');
-    updateColorMapping();
+  console.log('xxx in document ready');
+  updateColorMapping();
 
-
-  //-xum document.getElementById('select-choice-mini-map').onchange = function (){
-  //-xum     updateColorMapping();
-  //-xum     //table.clearData();
-  //-xum     tabOption.data = table.getData();
-  //-xum     table = new Tabulator("#dashboard-table", tabOption);
-  //-xum     //table.redraw(true);
-  //-xum };
 
   // is this a good place to insert lmtUDConfig?
   // try to find a config file
@@ -204,44 +214,6 @@ function setConfig(jsfURL) {
     .catch(err => alert(err));
 }
 
-//-function updateNormalizing() {
-//-  if (tabTempJson.length > 0) {
-//-    var tempData = deepCopyFunction(tabTempJson);
-//-  } else {
-//-    var tempData = table.getData('all');
-//-    tabTempJson = deepCopyFunction(tempData);
-//-  }
-//-
-//-  var newData = Object.assign([], tempData);
-//-
-//-  //if ($('.scarow').is(':checked')) {
-//-  //  scadir = 'row';
-//-  //}
-//-  //if ($('.scacol').is(':checked')) {
-//-  //  scadir = 'column';
-//-  //}
-//-
-//-  if (scadir == 'row') {
-//-    var j = 0;
-//-    for (data of tempData) {
-//-      newData[j] = normalizer($('#select-choice-mini-sca').val(), data);
-//-      j = j + 1;
-//-    }
-//-  } else {
-//-    var colData = {};
-//-    for (col_name of Object.keys(tempData[0])) {
-//-      if (col_name != 'row_name' && col_name != '_children') {
-//-        colData = extractCol(tempData, col_name, '');
-//-
-//-        var newcolData = normalizer($('#select-choice-mini-sca').val(), colData);
-//-
-//-        insertCol(newData, col_name, newcolData);
-//-      }
-//-    }
-//-  }
-//-
-//-  return newData;
-//-}
 
 function extractCol(dataArr, colName, parentName) {
   var colData = {};
@@ -303,37 +275,37 @@ function updateColorMapping() {
 }
 
 
-function toggleScreenHeight() {
-  if ($('#screenheight[type=checkbox]').is(':checked')) {
-    document.getElementById('dashboard-table').style['max-height'] = '100%';
-    //document.getElementById('dashboard-table').style.height = "82vh";
-    //document.getElementById('dashboard-table').style['height'] = "auto";
-    document.getElementById('dashboard-table').style.removeProperty('height');
-    document
-      .getElementById('dashboard-table')
-      .style.removeProperty('min-height');
-
-    var elmnt = document.getElementsByClassName('tabulator-header');
-    //var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
-    var totHeight = elmnt[0].offsetHeight + 30 * table.getRows().length + 20;
-
-    if (isTreeTable == 0) {
-      document.getElementById('dashboard-table').style['height'] =
-        totHeight.toString() + 'px';
-    } else {
-      document.getElementById('dashboard-table').style['height'] = '82vh';
-    }
-    table.setHeight(false);
-    draw_legend();
-  } else {
-    document
-      .getElementById('dashboard-table')
-      .style.removeProperty('max-height');
-    document.getElementById('dashboard-table').style.height = '100%';
-    table.setHeight(false);
-    draw_legend();
-  }
-}
+//function toggleScreenHeight() {
+//  if ($('#screenheight[type=checkbox]').is(':checked')) {
+//    document.getElementById('dashboard-table').style['max-height'] = '100%';
+//    //document.getElementById('dashboard-table').style.height = "82vh";
+//    //document.getElementById('dashboard-table').style['height'] = "auto";
+//    document.getElementById('dashboard-table').style.removeProperty('height');
+//    document
+//      .getElementById('dashboard-table')
+//      .style.removeProperty('min-height');
+//
+//    var elmnt = document.getElementsByClassName('tabulator-header');
+//    //var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
+//    var totHeight = elmnt[0].offsetHeight + 30 * table.getRows().length + 20;
+//
+//    if (isTreeTable == 0) {
+//      document.getElementById('dashboard-table').style['height'] =
+//        totHeight.toString() + 'px';
+//    } else {
+//      document.getElementById('dashboard-table').style['height'] = '82vh';
+//    }
+//    table.setHeight(false);
+//    draw_legend();
+//  } else {
+//    document
+//      .getElementById('dashboard-table')
+//      .style.removeProperty('max-height');
+//    document.getElementById('dashboard-table').style.height = '100%';
+//    table.setHeight(false);
+//    draw_legend();
+//  }
+//}
 
 
 function loadrmtJson(jsfURL, dimSet = {}) {
@@ -541,12 +513,17 @@ function initChoices() {
   // mx: initialize all choices objects
 
   // hide items along the x dimension
+
+  if (typeof dictChoices['hideChoices'] != "undefined") {
+    dictChoices['hideChoices'].destroy();
+  }
   dictChoices['hideChoices'] = new Choices(
     document.querySelector('.js-choice-hide'),
     {
       searchEnabled: false,
       shouldSort: false,
       removeItemButton: true,
+      allowHTML:false,
       placeholderValue: 'Select models to show'
     }
   );
@@ -558,6 +535,7 @@ function initChoices() {
       {
         searchEnabled: false,
         shouldSort: false,
+        allowHTML:false,
         removeItemButton: false
       }
     );
@@ -566,15 +544,16 @@ function initChoices() {
   // other dimensions
   for (let i = 1; i < 10; i++) {
     const dim = 'dim'.concat(i.toString());
-
     dictChoices[dim + 'Choices'] = new Choices(
       document.querySelector('.js-choice-'.concat(i.toString())),
       {
         searchEnabled: false,
         shouldSort: false,
+        allowHTML:false,
         removeItemButton: false
       }
     );
+
     // hide them first during initialization
     dictChoices[dim + 'Choices'].containerInner.element.style.display = 'none';
   }
@@ -586,17 +565,20 @@ function initChoices() {
       {
         searchEnabled: false,
         shouldSort: false,
+        allowHTML:false,
         removeItemButton: false
       }
     );
   }
 }
 
+
 function initChoicesEvent(cJson) {
 
-  for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
-    // i start from zero
 
+  // initialization
+
+  for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
     let k = parseInt(i) + 1;
     let tempChoices = dictChoices['dim' + k.toString() + 'Choices'];
 
@@ -649,30 +631,36 @@ function initChoicesEvent(cJson) {
     'label',
     false
   );
-  //initialization
+
+  // end of initialization
 
 
-  // x and y dimensions
+  // x and y dims events
   for (const dim of ['xdim', 'ydim']) {
     dictChoices[dim + 'Choices'].passedElement.element.addEventListener(
       'addItem', //select item
       function (event) {
+        if (lmtSettings["stopFire"]) {return;}
+
+	if (dim == 'xdim') {newLabel = {};}
+
         let preValue =
           dictChoices[dim == 'xdim' ? 'ydimChoices' : 'xdimChoices'].getValue(
             true
           );
         if (event.detail.value == preValue) {
-          alert(' x and y must be different ');
+          console.log( dim, preValue, event.detail.value);
+          alert(' x and y must be different ', dim, preValue, event.detail.value);
         } else {
           dimSetEvent[dim == 'xdim' ? 'x_dim' : 'y_dim'] = event.detail.value;
           dimSetEvent[dim == 'xdim' ? 'y_dim' : 'x_dim'] = preValue;
           dimSetEvent.fxdim = {};
-
+      
           // show other dimensions' choices boxes
           console.log('selevent', selectIdByDims);
-
+      
           console.log(dimSetEvent);
-
+      
           if (
             dimSetEvent.x_dim != undefined &&
             dimSetEvent.y_dim != undefined
@@ -694,7 +682,7 @@ function initChoicesEvent(cJson) {
                 preValue
               );
               dictChoices[selectIdByDims[dimn]].clearChoices();
-
+      
               if (
                 dimn == 'statistic' &&
                 cJson.DIMENSIONS.dimensions[dimn].hasOwnProperty('indices')
@@ -704,6 +692,7 @@ function initChoicesEvent(cJson) {
                     cJson.DIMENSIONS.dimensions[dimn].indices,
                     cJson.DIMENSIONS.dimensions[dimn].indices
                   ),
+      
                   'value',
                   'label',
                   false
@@ -720,7 +709,7 @@ function initChoicesEvent(cJson) {
                 );
               }
             }
-
+      
             dictChoices[
               selectIdByDims[dimSetEvent.x_dim]
             ].containerInner.element.parentElement.style.display = 'none';
@@ -736,11 +725,11 @@ function initChoicesEvent(cJson) {
           }
         }
       },
-      false
+      false, 
     );
   }
 
-  // other dimensions
+  // other dims events
   for (let [i, dimn] of Object.entries(cJson.DIMENSIONS.json_structure)) {
     // i start from zero
 
@@ -751,6 +740,7 @@ function initChoicesEvent(cJson) {
       'addItem', //select item
       function (event) {
         // do something creative here...
+        if (lmtSettings["stopFire"]) {return;}
         console.log('fire addItem event for other dimensions');
         console.log(cJson.DIMENSIONS.json_structure);
 
@@ -803,13 +793,20 @@ function initChoicesEvent(cJson) {
           });
           // Trigger the custom event on the document
           document.dispatchEvent(event);
+
+	  // reset norm and cmap
+	  console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+	  lmtSettings["stopFireNorm"] = true;
+	  tabTempJson = [];
+	  setChoicesDefault("0", "0");
+	  lmtSettings["stopFireNorm"] = false;
         }
       },
       false
     );
   }
 
-  // other selections
+  // other selections events
   for (const dim of ['norm', 'cmap', 'exam', 'logo']) {
     dictChoices[dim + 'Choices'].passedElement.element.addEventListener(
       'addItem', //select item
@@ -834,51 +831,57 @@ function initChoicesEvent(cJson) {
 
 	//normalization
 	if (dim == 'norm') {
-           console.log('UDEB: fire event for normalization');
+           console.log('UDEB: fire event for normalization', lmtSettings['stopFireNorm'], !lmtSettings['stopFireNorm']);
 	   lmtSettings["normMethod"] = event.detail.value;
 
-           if (tabTempJson.length > 0) {
-             var tempData = deepCopyFunction(tabTempJson);
-           } else {
-             var tempData = table.getData('all');
-             tabTempJson = deepCopyFunction(tempData);
-           }
-         
-           var newData = Object.assign([], tempData);
-           if (lmtSettings["normDir"] == 'row') {
-             let j = 0;
-             for (data of tempData) {
-               newData[j] = normalizer(
-                 event.detail.value,
-                 lmtSettings["normDir"],
-                 data
-               );
-               j = j + 1;
+	   if (lmtSettings['stopFireNorm']) {
+	     lmtSettings['stopFireNorm'] = false;
+	   } else {
+             // tabTempJson save the first initial unnormalized tab
+	     console.log("start normalzation");
+             if (tabTempJson.length > 0) {
+               var tempData = deepCopyFunction(tabTempJson);
+             } else {
+               var tempData = table.getData('all');
+               tabTempJson = deepCopyFunction(tempData);
              }
-           } else if (lmtSettings["normDir"] == 'column') {
-             let colData = {};
-             for (col_name of Object.keys(tempData[0])) {
-               if (col_name != 'row_name' && col_name != '_children') {
-                 colData = extractCol(tempData, col_name, '');
 
-                 var newcolData = normalizer(
+             var newData = Object.assign([], tempData);
+         
+             if (lmtSettings["normDir"] == 'row') {
+               let j = 0;
+               for (data of tempData) {
+                 newData[j] = normalizer(
                    event.detail.value,
                    lmtSettings["normDir"],
-                   colData
+                   data
                  );
-                 insertCol(newData, col_name, newcolData, '');
+                 j = j + 1;
                }
+             } else if (lmtSettings["normDir"] == 'column') {
+               let colData = {};
+               for (col_name of Object.keys(tempData[0])) {
+                 if (col_name != 'row_name' && col_name != '_children') {
+                   colData = extractCol(tempData, col_name, '');
+
+                   var newcolData = normalizer(
+                     event.detail.value,
+                     lmtSettings["normDir"],
+                     colData
+                   );
+                   insertCol(newData, col_name, newcolData, '');
+                 }
+               }
+             } else {
+                alert("please select the direction of the normalization");
              }
-           } else {
-              alert("please select the direction of the normalization");
-           }
 
-           if (lmtSettings["normDir"] == 'row' || lmtSettings["normDir"] == 'column') {
-               table.setData(newData);
-               table.redraw(true);
-               draw_legend(); 
-           }
-
+             if (lmtSettings["normDir"] == 'row' || lmtSettings["normDir"] == 'column') {
+                 table.setData(newData);
+                 table.redraw(true);
+                 draw_legend(); 
+             }
+	   }
 	}
 
 	if (dim == 'cmap') {
@@ -892,6 +895,26 @@ function initChoicesEvent(cJson) {
       false
     );
   }
+
+  // hide event
+  dictChoices['hideChoices'].passedElement.element.addEventListener(
+    'addItem', //select item
+    function (event) {
+      console.log("fire hide events");
+      table.hideColumn(event.detail.value);
+
+    },
+    false
+  );
+
+  dictChoices['hideChoices'].passedElement.element.addEventListener(
+    'removeItem', //select item
+    function (event) {
+      console.log("fire show events");
+      table.showColumn(event.detail.value);
+    },
+    false
+  );
 }
 
 
@@ -968,19 +991,32 @@ function prepareSel(cJson, ini_xdim, ini_ydim, ini_fxdm) {
 
   // set the options for normalization and color mapping
 
- if (lmtSettings["normMethod"] !== "-1"){
-    dictChoices["normChoices"].setChoiceByValue(lmtSettings["normMethod"]);
- }
+ //-if (lmtSettings["normMethod"] !== "-1"){
+ //-   dictChoices["normChoices"].setChoiceByValue(lmtSettings["normMethod"]);
+ //-}
 
- if (lmtSettings["cmapMethod"] !== "-1"){
-    dictChoices["cmapChoices"].setChoiceByValue(lmtSettings["cmapMethod"]);
- }
+ //-if (lmtSettings["cmapMethod"] !== "-1"){
+ //-   dictChoices["cmapChoices"].setChoiceByValue(lmtSettings["cmapMethod"]);
+ //-}
 } //prepareSel
 
 // load local json files
+
+
+//function pageReload () {
+
+      //if (isJsonReady) {
+      //  location.reload();
+      //  isJsonReady = false;
+      //}
+//      return;
+
+
+//}
 function loadlocJson() {
 
   const file = document.getElementById('file').files[0];
+
 
   if (!file) {
     alert('Please input file');
@@ -992,6 +1028,12 @@ function loadlocJson() {
     } else {
       console.log('UDEB: starting read the local CMEC json file');
 
+      if (isJsonReady) {
+        isJsonReady = false;
+        alert("Will reload page before loading a new file");
+        location.reload();
+      }
+
       readFile(file)
         .then(function(filePromise) {
           try {
@@ -1001,6 +1043,8 @@ function loadlocJson() {
           }
 
           //CMEC json schema validation will be added soon
+
+	  //init
 
           jsonType = 'CMEC';
 
@@ -1014,11 +1058,12 @@ function loadlocJson() {
 
           //default is from ILAMB style
 	  // always assume the data is unnormalized
+
 	  setChoicesDefault("0", "0");
-	  lmtSettings.normMethod = "1";
+	  lmtSettings.normMethod = "0";
 	  lmtSettings.cmapMethod = "0";
 
-	  setCheckBoxesDefault("row", true, true, false, false)
+	  setCheckBoxesDefault("row", true, true, false, true)
 	  lmtSettings.normDir = "row";
 	  lmtSettings.setTooltip = true;
 	  lmtSettings.setTopTitle = true;
@@ -1034,7 +1079,7 @@ function loadlocJson() {
 
           // select choices based on the initial dimension setting
           console.log('UDEB: start prepareSel');
-          prepareSel(cmecJson, ini_xdim, ini_ydim, ini_fxdm, (setNorm="1"), (setCmap="0"));
+          prepareSel(cmecJson, ini_xdim, ini_ydim, ini_fxdm);
 
           // set tab options
           preSetTab(ini_xdim, ini_ydim, cmecJson);
@@ -1164,6 +1209,8 @@ function initDim(cJson, dimSet) {
       }
     }
   }
+
+  console.log("fxdim", ini_fxdm, ini_xdim, ini_ydim, dimSet);
   tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
   console.log('UDEB: in initDim return');
 
@@ -1583,8 +1630,16 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
 
 var lmtTitleFormatter = function (cell, titleFormatterParams, onRendered) {
   onRendered(function () {
-    cell.getElement().parentElement.parentElement.parentElement.style.backgroundColor =
+    // respect users' background changes in the header context menu
+    let colField = cell.getValue().replace(/\s+/g, '');
+    if (newLabel.hasOwnProperty(colField)) {
+      console.log("UDEB: preserve the color setting");
+      cell.getElement().parentElement.parentElement.parentElement.style.backgroundColor =
+      newLabel[colField];
+    } else {
+      cell.getElement().parentElement.parentElement.parentElement.style.backgroundColor =
       titleFormatterParams.bgcol;
+    }
     cell.getElement().parentElement.parentElement.parentElement.style.fontStyle =
       titleFormatterParams.ftsty;
     cell.getElement().parentElement.parentElement.parentElement.style.fontWeight =
@@ -1614,7 +1669,7 @@ var setTabColumns = function (
     title: 'col_name',
     field: 'col-field',
     bottomCalc: bottomCalcFunc,
-    headerContextMenu: headerContextMenu, //headerMenu:headerMenu,
+    headerContextMenu: headerContextMenu,
     formatter: lmtCellColorFormatter,
     formatterParams: {},
     titleFormatter: lmtTitleFormatter,
@@ -1735,37 +1790,30 @@ var rowMenu = [
 ];
 
 //define row context menu
-var headerMenu = [
+var headerContextMenu = [
   {
     label: "<i class='fa fa-eye-slash'></i> Hide Column",
     action: function (e, column) {
-      column.hide();
+      dictChoices["hideChoices"].setChoiceByValue(column.getField());
     }
   },
   {
-    label: "<i class='fa fa-arrows-alt'></i> Move Column",
-    action: function (e, column) {
-      column.move('col');
-    }
-  }
-];
-
-//define row context menu
-var headerContextMenu = [
-  {
-    label: 'Hide Column',
-    action: function (e, column) {
-      column.hide();
-      var columnField = column.getField();
-      selData = $('#hlist').select2('data');
-      hideItems = [];
-      if (selData.length >= 1) {
-        for (se of selData) {
-          hideItems.push(se.id);
-        }
+    label: function(column) { 
+      let colName = column.getField().replace(/\s+/g, '');
+      if (newLabel.hasOwnProperty(colName)) {
+	return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + newLabel[colName] + "'/>";
+      } else {
+        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
       }
-      hideItems.push(columnField);
-      $('#hlist').val(hideItems).trigger('change');
+    },
+    action: function (e, column) {
+      let colName = column.getField().replace(/\s+/g, '');
+      var elColor = document.getElementById("favcolor");
+
+      document.getElementById("favcolor").addEventListener('input', function (evt) {
+	column.getElement().style.backgroundColor = this.value;
+	newLabel[colName] = this.value;
+      });
     }
   }
 ];
@@ -1795,9 +1843,14 @@ var firstColHeaderContextMenu = [
   },
 
   {
-    label: 'Hide Logo',
+    label: 'Hide/Show Logo',
     action: function (e, column) {
-      document.getElementsByClassName('infoImage')[0].style.display = 'none';
+
+      if (document.getElementsByClassName('infoImage')[0].style.display != 'none') {
+        document.getElementsByClassName('infoImage')[0].style.display = 'none';
+      } else {
+        document.getElementsByClassName('infoImage')[0].style.display = 'inline';
+      }
     }
   }
 ];
@@ -1831,304 +1884,6 @@ function getRowTreeStruct(rowClick) {
   return rowTreeStruct;
 }
 
-function newCellClickFunc(e, cell) {
-  //var template_test = "metric", "model", "region", "return metric.includes(Relationships)? :metric.replace(/::/g,'/') + metric.split('/')[-1]+'.html?model='+model";
-
-  var thisRow = cell.getRow();
-  var thiscol = cell.getColumn();
-  var isTree = new Boolean(true);
-
-  var colField = thiscol.getField().replace(/\s+/g, '');
-  var rowField = getRowTreeStruct(thisRow);
-
-  xDimName = $('#select-choice-mini-x').val();
-  yDimName = $('#select-choice-mini-y').val();
-
-  var input = {};
-
-  input[xDimName] = colField;
-  input[yDimName] = rowField;
-  for (dim of cmecJson.DIMENSIONS.json_structure) {
-    if (dim != xDimName && dim != yDimName) {
-      selectVal = $('#'.concat(selectIDbyDims[dim])).val();
-      input[dim] = selectVal.replace(/\s+/g, '');
-    }
-  }
-
-  input.metric = input.metric.replace('!!', '::');
-
-  var metricList = [];
-
-  for (met of Object.keys(cmecJson.DIMENSIONS.dimensions.metric)) {
-    if (!met.includes('Relationships')) {
-      metricList.push(
-        met.replace(/\s+/g, '').replace(/::/g, '/').replace(/!!/g, '/')
-      );
-    }
-  }
-
-  metricArr = input.metric.split('::');
-  metricLen = metricArr.length;
-
-  if (input.metric.includes('Relationships')) {
-    var myLink =
-      metricList.filter(s => s.includes(metricArr[1]))[0] +
-      '/' +
-      metricArr[1].split('/')[1] +
-      '.html#Relationships';
-  } else {
-    var myLink =
-      input.metric.replace(/::/g, '/') +
-      '/' +
-      input.metric.split('::')[metricLen - 1] +
-      '.html';
-  }
-
-  if (baseUrl.slice(-1) != '/') {
-    baseUrl = baseUrl + '/';
-  }
-  console.log(
-    'UDEB: mylink',
-    metricArr,
-    myLink,
-    input.metric.split('::'),
-    baseUrl + myLink.concat('?model=', input.model, '&region=', input.region)
-  );
-
-  if (metricLen < 3) {
-    if (colField == 'row_name') {
-      thisRow.treeToggle();
-    } else {
-      alert('Only the lowest level metric is clickable');
-    }
-  } else {
-    var newWin = window.open(
-      baseUrl + myLink.concat('?model=', input.model, '&region=', input.region)
-    );
-  }
-}
-
-//
-function cellClickFuncGenetic(e, cell) {
-  //e - the click event object
-  //cell - cell component
-  var thisrow = cell.getRow();
-  var thiscol = cell.getColumn();
-  var isTree = new Boolean(true);
-
-  // check parent row
-  //
-  //
-  if (thisrow.getTreeChildren().length == 0) {
-    var colField = thiscol.getField();
-    //var rowFirst = thisrow.getCell('row_name').getValue();
-    var rowFirst = thisrow.getCell(ydimField).getValue();
-
-    xDimName = $('#select-choice-mini-x').val();
-    yDimName = $('#select-choice-mini-y').val();
-
-    let linkmodel;
-    let linkmetric;
-    let dims;
-
-    if (jsonType == 'CMEC') {
-      dims = cmecJson.DIMENSIONS.json_structure;
-    } else {
-      dims = ['region', 'model', 'metric', 'statistic'];
-    }
-
-    for (dim of dims) {
-      selectVal = $('#'.concat(selectIDbyDims[dim])).val();
-      if (selectVal != undefined && selectVal != null && selectVal != '') {
-        if (dim == 'model') {
-          linkmodel = selectVal;
-        }
-        if (dim == 'region') {
-          linkregion = selectVal;
-        }
-        if (dim == 'metric') {
-          if (selectVal.includes('!!')) {
-            linkmetric = selectVal
-              .replace(/\s/g, '')
-              .replace('::', '/')
-              .replace('!!', '/');
-            var benmarkname = selectVal.split('!!').slice(-1)[0];
-            linkmetric = linkmetric.concat('/', benmarkname);
-          } else {
-            alert('111 clickable cell only for lowest level metric');
-          }
-        }
-      }
-    }
-
-    if (xDimName == 'model') {
-      linkmodel = colField;
-    }
-    if (yDimName == 'model') {
-      linkmodel = rowFirst;
-    }
-
-    if (xDimName == 'region') {
-      linkregion = colField;
-    }
-    if (yDimName == 'region') {
-      linkregion = rowFirst;
-    }
-
-    if (xDimName == 'metric') {
-      if (colField.includes('!!')) {
-        linkmetric = colField
-          .replace(/\s/g, '')
-          .replace('::', '/')
-          .replace('!!', '/');
-        var benmarkname = colField.split('!!').slice(-1)[0];
-        linkmetric = linkmetric.concat('/', benmarkname);
-      } else {
-        alert('222 clickable cell only for lowest level metric');
-      }
-    }
-
-    if (yDimName == 'metric') {
-      var topmet = thisrow
-        .getTreeParent()
-        .getTreeParent()
-        .getCell(ydimField)
-        .getValue()
-        .replace(/\s/g, '');
-      var sndmet = thisrow
-        .getTreeParent()
-        .getCell(ydimField)
-        .getValue()
-        .replace(/\s/g, '');
-
-      //mx: this part code only worked for IPCC figure as it combined ILAMB and IOMB results
-      var isLandBenchMark = 0;
-      if (
-        topmet.substring(0, 4) == 'Land' ||
-        topmet.substring(0, 5) == 'Ocean'
-      ) {
-        if (topmet.substring(0, 4) == 'Land') {
-          xtopmet = topmet.replace('Land', '');
-          isLandBenchMark = 1;
-        } else {
-          xtopmet = topmet.replace('Ocean', '');
-          isLandBenchMark = -1;
-        }
-
-        if (xtopmet == 'Relationships') {
-          let metVar = sndmet.split('/')[0];
-          let metSrc = sndmet.split('/')[1];
-          let metOrg = Object.keys(
-            cmecJson.DIMENSIONS.dimensions['metric']
-          ).find(a => a.replace(/\s/g, '').includes(metVar));
-
-          if (isLandBenchMark == 1) {
-            var metAct = metOrg
-              .split('::')[0]
-              .replace(/\s/g, '')
-              .replace('Land', '');
-          } else {
-            var metAct = metOrg
-              .split('::')[0]
-              .replace(/\s/g, '')
-              .replace('Ocean', '');
-          }
-          linkmetric = metAct.concat(
-            '/',
-            sndmet,
-            '/',
-            metSrc,
-            '.html#Relationships'
-          );
-          console.log('UDEB:', 're', linkmetric);
-        } else {
-          linkmetric = xtopmet.concat(
-            '/',
-            sndmet,
-            '/',
-            rowFirst,
-            '/',
-            rowFirst,
-            '.html'
-          );
-          console.log('UDEB:', 'other', linkmetric);
-        }
-      } else {
-        if (topmet == 'Relationships') {
-          let metVar = sndmet.split('/')[0];
-          let metSrc = sndmet.split('/')[1];
-          let metOrg = Object.keys(
-            cmecJson.DIMENSIONS.dimensions['metric']
-          ).find(a => a.replace(/\s/g, '').includes(metVar));
-          let metAct = metOrg.split('::')[0].replace(/\s/g, '');
-          linkmetric = metAct.concat(
-            '/',
-            sndmet,
-            '/',
-            metSrc,
-            '.html#Relationships'
-          );
-          console.log('UDEB:', 're', linkmetric);
-        } else {
-          linkmetric = topmet.concat(
-            '/',
-            sndmet,
-            '/',
-            rowFirst,
-            '/',
-            rowFirst,
-            '.html'
-          );
-          console.log('UDEB:', 'other', linkmetric);
-        }
-      }
-    }
-
-    if (baseUrl.slice(-1) != '/') {
-      baseUrl = baseUrl + '/';
-    }
-
-    if (linkmetric != undefined) {
-      if (isLandBenchMark == 0) {
-        var newWin = window.open(
-          baseUrl.concat(
-            linkmetric,
-            '?model=',
-            linkmodel,
-            '&region=',
-            linkregion
-          )
-        );
-      } else if (isLandBenchMark == 1) {
-        var newWin = window.open(
-          'https://www.ilamb.org/CMIP5v6/ILAMB_AR6/'.concat(
-            linkmetric,
-            '?model=',
-            linkmodel,
-            '&region=',
-            linkregion
-          )
-        );
-      } else if (isLandBenchMark == -1) {
-        var newWin = window.open(
-          'https://www.ilamb.org/CMIP5v6/IOMB_AR6/'.concat(
-            linkmetric,
-            '?model=',
-            linkmodel,
-            '&region=',
-            linkregion
-          )
-        );
-      }
-    }
-  } else {
-    if (cell.getRow().getCell(ydimField).getValue() == cell.getValue()) {
-      cell.getRow().treeToggle();
-    } else {
-      alert('Error: clickable cell only for lowest level metric');
-    }
-  }
-}
 
 //background color of first column
 function setFirstColBgColor(cell, formatterParams, onRendered) {
@@ -2184,68 +1939,6 @@ function setmetricbg(r, cell, value, bgcolor, fgcolor) {
   }
 }
 
-$(window).on('beforeunload', function () {
-  //const cb = document.querySelector('input[name="colorblind"]');
-  //
-
-  resetSwitch();
-  resetSelect();
-  resetInput();
-});
-
-function resetSwitch() {
-  $('#colorblind').prop('checked', true);
-
-  $('.scarow').prop('checked', true);
-  $('.scacol').prop('checked', false);
-
-  $('#cellvalue').prop('checked', true);
-  $('#bottomtitle').prop('checked', false);
-  $('#toptitle').prop('checked', true);
-  $('#tooltips').prop('checked', true);
-  if (_config.udcScreenHeight == 0) {
-    $('.screenheight').prop('checked', false);
-  } else {
-    $('.screenheight').prop('checked', true);
-  }
-}
-
-function resetSelect() {
-  $('.hide-list').val(null).trigger('change');
-
-  $('#select-choice-mini-sca').val('0').trigger('change');
-  $('#select-choice-mini-map').val('0').trigger('change');
-
-  //$('#select-choice-mini-x').val(null).trigger('change');
-  //$('#select-choice-mini-y').val(null).trigger('change');
-
-  $('#select-choice-mini-1').val(null).trigger('change');
-  $('#select-choice-mini-2').val(null).trigger('change');
-  $('#select-choice-mini-3').val(null).trigger('change');
-  $('#select-choice-mini-4').val(null).trigger('change');
-  $('#select-choice-mini-5').val(null).trigger('change');
-  $('#select-choice-mini-6').val(null).trigger('change');
-  $('#select-choice-mini-7').val(null).trigger('change');
-  $('#select-choice-mini-8').val(null).trigger('change');
-  $('#select-choice-mini-9').val(null).trigger('change');
-
-  $('#select-choice-mini-1').select2().next().hide();
-  $('#select-choice-mini-2').select2().next().hide();
-  $('#select-choice-mini-3').select2().next().hide();
-  $('#select-choice-mini-4').select2().next().hide();
-  $('#select-choice-mini-5').select2().next().hide();
-  $('#select-choice-mini-6').select2().next().hide();
-  $('#select-choice-mini-7').select2().next().hide();
-  $('#select-choice-mini-8').select2().next().hide();
-  $('#select-choice-mini-9').select2().next().hide();
-}
-
-function resetInput() {
-  $('.select-choice-ex').val(null).trigger('change');
-  $('#file').val('');
-  isJsonReady = false;
-}
-
 function extractVals(data, arr, kmp, followTree) {
   for (k of Object.keys(data)) {
     if (k != 'row_name' && k != '_children') {
@@ -2294,9 +1987,9 @@ function normalizer(normMethod, scaDir, data) {
   var normArray = [];
 
   switch (normMethod) {
-    //case "0":
-    //   normArray = arr;
-    //   break;
+    case "0":
+      normArray = arr;
+      break;
     case '1':
       let getMean = function (data) {
         datasum = data.reduce(function (a, b) {
@@ -2532,3 +2225,6 @@ function combineArraysToObject(keys, values) {
     return result;
   }, []);
 }
+
+
+// end of lmt_tab.js

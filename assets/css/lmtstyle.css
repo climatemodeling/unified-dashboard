@@ -14,7 +14,6 @@
  * with this code in the dist directory
  */
 
-@import url('../../node_modules/select2/dist/css/select2.min.css');
 
 /*! Slideout Copyright (c) Mango
  * @license MIT
@@ -32,7 +31,6 @@
  * with this code in the dist directory
  */
 
-@import url('../../node_modules/el-checkbox/dist/checkbox.min.css');
 
 /*! google Open Sans font Copyright (c) Google Corporation
  * @license Apache License, version 2.0
@@ -48,31 +46,13 @@
  *   @license BSD-3-Clause 
  */
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body, html{
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
-}
-
-/* multi-select style */
-.select2-results__options{
-   font-size:small;
-}
-
-.select2-selection--single .select2-selection__placeholder {
-   font-size:small;
-}
-
-.select2-selection__rendered {
-   font-size:small;
-   font-weight: bold;
-   text-transform: capitalize;
-}
-
-
-/* it does not work */
-.selectFont{
-   font-size:10px;
 }
 
 div.leftcol{
@@ -342,14 +322,6 @@ p {
     margin-left: 10px;
 }
 
-select[class^="select-choice-"]{
-    margin-left: 10px;
-}
-
-
-.select2-container .select2-selection--single {
-    margin-left: 10px;
-}
 
 .togglebutton {
     text-transform: none;
@@ -413,6 +385,5 @@ select[class^="select-choice-"]{
   padding: 0 20px;
   margin:0;
 }
-
 
 
