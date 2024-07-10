@@ -22,7 +22,6 @@ const linkTemplate = "{metric.0}/{metric.1}/{metric.2}/{metric.2}.html?model={mo
 
 //globalize functions
 window.loadlocJson = loadlocJson;
-window.toggleScreenHeight = toggleScreenHeight;
 window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
 window.savetoHtml = savetoHtml;
