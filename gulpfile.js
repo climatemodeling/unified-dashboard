@@ -42,10 +42,8 @@ gulp.task('clean-css', function () {
 
 //build js
 gulp.task('build-js', function () {
-
   // add the copyright notice manually
-  var apps = ["slideout", "emitter", "decouple"];
-  //var lics = JSON.parse(fs.readFileSync("./dist/LICENSE.checker"));
+  var lics = JSON.parse(fs.readFileSync("./dist/LICENSE.checker"));
 
   for (var key of Object.keys(lics)) {
       const ctext = "/*! \n " + key.replace("@", " v") + " Copyright (c) " + lics[key].publisher + "\n" + 
