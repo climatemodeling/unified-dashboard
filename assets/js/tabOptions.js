@@ -1,4 +1,4 @@
-//module.exports = {tabOption};
+//module.exports = {tabOption, cellClickFuncGenetic};
 
 
 var downloadFunc = require('./downloadFunctions.js');
@@ -80,7 +80,7 @@ var tabOption = {
   selectable: true,
   //-rowContextMenu: rowMenu,
 
-  cellClick:cellClickFuncGenetic,
+  //-cellClick:cellClickFuncGenetic,
   //-cellClick: newCellClickFunc,
 
   //rowClick: function(e, row){
@@ -120,6 +120,7 @@ var tabOption = {
 
 
 exports.tabOption = tabOption;
+exports.cellClickFuncGenetic = cellClickFuncGenetic;
 
 const linkTemplate = "{metric.0}/{metric.1}/{metric.2}/{metric.2}.html?model={model}&region={region}";
 

@@ -160,7 +160,7 @@ function initlmtUD() {
 
   // initialize the tabulator
 
-  table = new Tabulator('#dashboard-table', (option = {}));
+  // - table = new Tabulator('#dashboard-table', (option = {}));
 
   //var doc = window.document;
   var slideout = new Slideout({
@@ -1412,6 +1412,8 @@ function initCheckBoxesEvent() {
     }
     
     //table redraw needed?
+    //console.log("tooltip", tabOption.tooltips);
+    //table.destroy();
     table = new Tabulator('#dashboard-table', tabOption);
   });
 
@@ -1674,9 +1676,41 @@ var setTabColumns = function (
     titleFormatter: lmtTitleFormatter,
     titleFormatterParams: lmtTitleFormatterParams,
     width: 30,
+    minWidth:10,
     headerVertical: 'flip',
     resizable: false,
-    headerSort: true
+    headerSort: true,
+    cellClick: tabOptions.cellClickFuncGenetic,
+    cellMouseOver:function(e, cell) { 
+      var headerCols = cell.getTable().columnManager.getHeadersElement().childNodes;
+      headerCols.forEach(function (c) {
+         if (c.getAttribute("tabulator-field") == cell.getField()) {
+            c.querySelector('.tabulator-col-title').style.fontWeight="bold";
+            c.style.borderRight="2.5px solid";
+            c.style.borderLeft="2px solid";
+         }
+      });
+    },
+
+    cellMouseOut:function(e, cell) { 
+      var headerCols = cell.getTable().columnManager.getHeadersElement().childNodes;
+      headerCols.forEach(function (c) {
+         if (c.getAttribute("tabulator-field") == cell.getField()) {
+            c.querySelector('.tabulator-col-title').style.fontWeight="normal";
+            c.style.borderRight = "1px solid #000";
+            c.style.borderLeft = "0px solid #000";
+         }
+      });
+    }
+  };
+  //formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
+  //
+  // conflict with savehtml setfirstcolbgcolor fixed in tabulator 4.9
+  var firstCol = {
+    title: 'row_name',
+    field: 'row_field',
+    frozen: true,
+    titleFormatter: firstColIcon,
   };
   //formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
   //
@@ -2131,6 +2165,7 @@ const deepCopyFunction = inObject => {
 function findMaxLevels() {
   var maxLevels = 0;
   var rows = table.getRows();
+
   maxLevels = rowLevels(rows, 0);
   return maxLevels;
 }

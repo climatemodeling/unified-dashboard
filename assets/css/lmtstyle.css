@@ -50,6 +50,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* overide the default hide setting and make the left panel scrolling */
+.slideout-open {
+  overflow: auto;
+}
+
 body, html{
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
@@ -122,7 +127,12 @@ p {
    border-top: 1.5px solid black;
 }
 
-
+.tabulator .tabulator-cell:hover .tabulator-col-title {
+   font-weight:bold;
+   border-bottom: 1.5px solid black;
+   border-top: 1.5px solid black;
+   color: red;
+}
 
 .tabulator{
    font-size: 11px;
@@ -185,7 +195,7 @@ p {
 
 .tabulator .tabulator-header .tabulator-col {
    text-align:center;
-   border-right: 0.1px solid black;
+   border-right: 1px solid black;
    border-left: 0.0px solid black;
    border-bottom: 0.0px solid black;
    border-top: 0.25px solid black;
