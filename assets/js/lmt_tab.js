@@ -1429,9 +1429,12 @@ function initCheckBoxesEvent() {
     }
     //table redraw needed?
     // clear memory, otherwise will be very slow
+    
     var tempData = table.getData();
     table.clearData();
     table.setData(tempData);
+    // destroy table first
+    table.destroy();
     table = new Tabulator('#dashboard-table', tabOption);
   });
 
@@ -1446,6 +1449,8 @@ function initCheckBoxesEvent() {
 	  x['bottomCalc'] = bottomCalcFunc;
         }
       }
+      table.setColumns(tabOption.columns);
+      table.redraw();
     } else {
       lmtSettings.setBottomTitle = false;
       for (let x of tabOption.columns) {
@@ -1453,13 +1458,9 @@ function initCheckBoxesEvent() {
           delete x['bottomCalc'];
 	}
       }
+      table.destroy();
+      table = new Tabulator('#dashboard-table', tabOption);
     }
-    //table redraw needed?
-    var tempData = table.getData();
-    table.clearData();
-    table.setData(tempData);
-    table = new Tabulator('#dashboard-table', tabOption);
-
   });
 
 
