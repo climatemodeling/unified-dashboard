@@ -83,7 +83,7 @@ var logoFile = 'rubisco_logo.png';
 var cmap = PuOr;
 
 
-var lmtSettings = {"normMethod":"-1", "cmapMethod":"-1", "normDir":"-1", 
+var lmtSettings = {"normMethod":"-1", "cmapMethod":"-1", "logoMethod":"default", "normDir":"-1", 
                    "setTootip":false, "setTopTitle":false, "setBottomTitle":false, "setCellValue":false, 
 		   "timesExpl":1, "numClicks":1, 
 		   "stopFire":false,
@@ -797,7 +797,7 @@ function initChoicesEvent(cJson) {
 	  console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 	  lmtSettings["stopFireNorm"] = true;
 	  tabTempJson = [];
-	  setChoicesDefault("0", "0");
+	  setChoicesDefault("0", "0", lmtSettings.logoMethod);
 	  lmtSettings["stopFireNorm"] = false;
         }
       },
@@ -820,6 +820,8 @@ function initChoicesEvent(cJson) {
 
         if (dim == 'logo') {
           logoFile = event.detail.value;
+
+	  lmtSettings.logoMethod = logoFile;
 	  document.getElementById('logoUD').src = "image/" + logoFile;
         }
 
@@ -913,9 +915,10 @@ function initChoicesEvent(cJson) {
 }
 
 
-function setChoicesDefault(setNorm, setCmap) {
+function setChoicesDefault(setNorm, setCmap, setLogo) {
   dictChoices["normChoices"].setChoiceByValue(setNorm);
   dictChoices["cmapChoices"].setChoiceByValue(setCmap);
+  dictChoices["logoChoices"].setChoiceByValue(setLogo);
 }
 
 
@@ -1054,9 +1057,10 @@ function loadlocJson() {
           //default is from ILAMB style
 	  // always assume the data is unnormalized
 
-	  setChoicesDefault("0", "0");
+	  setChoicesDefault("0", "0", "rubisco_logo.png");
 	  lmtSettings.normMethod = "0";
 	  lmtSettings.cmapMethod = "0";
+	  lmtSettings.logoMethod = "rubisco_logo.png";
 
 	  setCheckBoxesDefault("row", true, true, false, true)
 	  lmtSettings.normDir = "row";
