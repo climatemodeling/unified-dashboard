@@ -1833,19 +1833,13 @@ var headerContextMenu = [
   {
     label: function(column) { 
       let colName = column.getField().replace(/\s+/g, '');
-
-      console.log("in label function", column.getElement().style.backgroundColor);
-
       //if (newLabel.hasOwnProperty(colName)) {
-      //if (column.getElement().style.hasOwnProperty("backgroundColor")) {
-
-        console.log("background", column.getElement().style.backgroundColor);
+      if (column.getElement().style.backgroundColor != undefined) {
 	//return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + newLabel[colName] + "'/>";
 	return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + rgbToHex(column.getElement().style.backgroundColor) + "'/>";
-	//return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + "#0063B2" + "'/>";
-      //} else {
-      //  return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
-      //}
+      } else {
+        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
+      }
     },
     action: function (e, column) {
       let colName = column.getField().replace(/\s+/g, '');
