@@ -177,7 +177,7 @@ function initlmtUD() {
 
 
   console.log('xxx in document ready');
-  updateColorMapping();
+  //updateColorMapping();
 
 
   // is this a good place to insert lmtUDConfig?
@@ -885,8 +885,8 @@ function initChoicesEvent(cJson) {
 	   console.log('fire event for cmap');
 	   lmtSettings["cmapMethod"] = event.detail.value;
            updateColorMapping();
-           tabOption.data = table.getData();
-           table = new Tabulator("#dashboard-table", tabOption);
+	   table.setColumns(tabOption.columns);
+	   table.redraw();
 	}
       },
       false
