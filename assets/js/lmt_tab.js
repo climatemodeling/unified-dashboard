@@ -44,8 +44,8 @@ jsonFileURL =
 const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // cors proxy to remove the cors limit
 
 const bgColorGroup = ['#ECFFE6', '#E6F9FF', '#FFECE6', '#EDEDED', '#FFF2E5'];
-const bgColorGroupFirstRow = ['yellow', '#00FF00', 'white'];
-const fgColorGroupFirstRow = ['black', 'black', 'black'];
+const bgColorGroupFirstRow = ['#FFFF00', '#00FF00', '#FFFFFF'];
+const fgColorGroupFirstRow = ['#000000', '#000000', '#000000'];
 
 const class4Color = "p-1 h-6 w-6 inline bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700";
 const labelCode = "<label for='favcolor'> Background Color: </label>";
@@ -388,7 +388,7 @@ function loadrmtJson(jsfURL, dimSet = {}) {
             ftwgt = 500;
             ftsty = 'normal';
             txdec = '';
-            txcol = 'black';
+            txcol = '#000000';
             let lmtTitleFormatterParams = {
               bgcol: bgcol,
               ftsty: ftsty,
@@ -483,7 +483,7 @@ function prepareTab(cJson, dimSet = {}) {
   ftwgt = 500;
   ftsty = 'normal';
   txdec = '';
-  txcol = 'white';
+  txcol = '#FFFFFF';
   let lmtTitleFormatterParams = {
     bgcol: bgcol,
     ftsty: ftsty,
@@ -1125,7 +1125,7 @@ function preSetTab(ini_xdim, ini_ydim, cJson) {
   ftwgt = 500;
   ftsty = 'normal';
   txdec = '';
-  txcol = 'black';
+  txcol = '#000000';
   let lmtTitleFormatterParams = {
     bgcol: bgcol,
     ftsty: ftsty,
@@ -1536,7 +1536,7 @@ function colorILAMB(cell, formatterParams, onRendered) {
   cell.getElement().style.backgroundColor = clr;
 
   if (formatterParams.showCellValue && origVal > -900) {
-    cell.getElement().style.color = 'black';
+    cell.getElement().style.color = '#000000';
     //return Math.round((origVal + Number.EPSILON) * 100) / 100;
     //return origVal.toFixed(2);
     return normVal.toFixed(2);
@@ -1581,7 +1581,7 @@ function colorLinear(cell, formatterParams, onRendered) {
   cell.getElement().style.backgroundColor = clr;
 
   if (formatterParams.showCellValue && origVal > -900) {
-    cell.getElement().style.color = 'black';
+    cell.getElement().style.color = '#000000';
     //return Math.round((origVal + Number.EPSILON) * 100) / 100;
     //return  origVal.toFixed(2);
     return normVal.toFixed(2);
@@ -1623,7 +1623,7 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
   cell.getElement().style.backgroundColor = clr;
 
   if (formatterParams.showCellValue && origVal > -900) {
-    cell.getElement().style.color = 'black';
+    cell.getElement().style.color = '#000000';
     //return Math.round((origVal + Number.EPSILON) * 100) / 100;
     return normVal.toFixed(2);
   }
@@ -1749,14 +1749,14 @@ var setTabColumns = function (
         var k = grpsModSrcIdx[x] % bgColorGroupFirstRow.length;
 
         if (col.title.includes('Mean') || col.title.includes('mean')) {
-          bgcol = 'white';
+          bgcol = '#FFFFFF';
         } else {
           bgcol = bgColorGroupFirstRow[k];
         }
         ftwgt = 100;
         ftsty = 'normal';
         txdec = '';
-        //txcol = "white";
+        //txcol = "#000000";
         txcol = fgColorGroupFirstRow[k];
       } else if (xdim == 'metric') {
         for (let [idxmet, topmet] of grpsTopMetric.entries()) {
@@ -1771,7 +1771,7 @@ var setTabColumns = function (
         ftwgt = 100;
         ftsty = 'normal';
         txdec = '';
-        txcol = 'white';
+        txcol = '#FFFFFF';
       }
       col.titleFormatterParams = {
         bgcol: bgcol,
@@ -1833,11 +1833,19 @@ var headerContextMenu = [
   {
     label: function(column) { 
       let colName = column.getField().replace(/\s+/g, '');
-      if (newLabel.hasOwnProperty(colName)) {
-	return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + newLabel[colName] + "'/>";
-      } else {
-        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
-      }
+
+      console.log("in label function", column.getElement().style.backgroundColor);
+
+      //if (newLabel.hasOwnProperty(colName)) {
+      //if (column.getElement().style.hasOwnProperty("backgroundColor")) {
+
+        console.log("background", column.getElement().style.backgroundColor);
+	//return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + newLabel[colName] + "'/>";
+	return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + rgbToHex(column.getElement().style.backgroundColor) + "'/>";
+	//return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + "#0063B2" + "'/>";
+      //} else {
+      //  return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
+      //}
     },
     action: function (e, column) {
       let colName = column.getField().replace(/\s+/g, '');
@@ -1850,6 +1858,22 @@ var headerContextMenu = [
     }
   }
 ];
+
+
+//from stakoverflow https://stackoverflow.com/questions/61653534/javascript-rgb-string-rgbr-g-b-to-hex-rrggbb-conversion
+function componentToHex(c) {
+  // This expects `c` to be a number:
+  const hex = c.toString(16);
+
+  return hex.length === 1 ? `0${ hex }` : hex;
+}
+
+function rgbToHex(rgb) {
+  // .map(Number) will convert each string to number:
+  const [r, g, b] = rgb.replace('rgb(', '').replace(')', '').split(',').map(Number);
+  
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
 
 var firstColHeaderContextMenu = [
   {
@@ -1926,9 +1950,9 @@ function setFirstColBgColor(cell, formatterParams, onRendered) {
       if (formatterParams.yDim == 'metric') {
         fgFontColor = '#0808ff';
       } else if (formatterParams.yDim == 'model') {
-        fgFontColor = 'black';
+        fgFontColor = '#000000';
       } else {
-        fgFontColor = 'black';
+        fgFontColor = '#000000';
       }
 
       if (formatterParams.yDim == 'metric') {
@@ -1942,7 +1966,7 @@ function setFirstColBgColor(cell, formatterParams, onRendered) {
           setmetricbg(r, cell, value, bgColorGroup[k], fgFontColor);
         });
       } else if (formatterParams.yDim == 'model') {
-        fgFontColor = 'white';
+        fgFontColor = '#FFFFFF';
         var k = grpsModSrcIdx[value] % bgColorGroupFirstRow.length;
         setmetricbg(
           cell.getRow(),
