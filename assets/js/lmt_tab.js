@@ -820,11 +820,7 @@ function initChoicesEvent(cJson) {
 
         if (dim == 'logo') {
           logoFile = event.detail.value;
-          var tempData = table.getData();
-          table = new Tabulator('#dashboard-table', tabOption); // only way to reformat col title
-          table.clearData();
-          table.setData(tempData);
-          table.redraw(true);
+	  document.getElementById('logoUD').src = "image/" + logoFile;
         }
 
 
@@ -1703,17 +1699,8 @@ var setTabColumns = function (
       });
     }
   };
+
   //formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
-  //
-  // conflict with savehtml setfirstcolbgcolor fixed in tabulator 4.9
-  var firstCol = {
-    title: 'row_name',
-    field: 'row_field',
-    frozen: true,
-    titleFormatter: firstColIcon,
-  };
-  //formatter:lmtCellColorFormatter, formatterParams:{}, titleFormatter:lmtTitleFormatter, titleFormatterParams:lmtTitleFormatterParams, width:28, headerVertical:"flip", resizable:false};
-  //
   // conflict with savehtml setfirstcolbgcolor fixed in tabulator 4.9
   var firstCol = {
     title: 'row_name',
@@ -1801,7 +1788,7 @@ var setTabColumns = function (
 
 var firstColIcon = function (cell, titleFormatterParams) {
   if (_config.logofile != 'None') {
-    return "<img class='infoImage' src='image/".concat(logoFile, "'>");
+    return "<img class='infoImage' id='logoUD' src='image/".concat(logoFile, "'>");
   }
 };
 
