@@ -83,7 +83,7 @@ var logoFile = 'rubisco_logo.png';
 var cmap = PuOr;
 
 
-var lmtSettings = {"normMethod":"-1", "cmapMethod":"-1", "logoMethod":"default", "normDir":"-1", 
+var lmtSettings = {"tableBuilt": false, "normMethod":"-1", "cmapMethod":"-1", "logoMethod":"default", "normDir":"-1", 
                    "setTootip":false, "setTopTitle":false, "setBottomTitle":false, "setCellValue":false, 
 		   "timesExpl":1, "numClicks":1, 
 		   "stopFire":false,
@@ -160,7 +160,7 @@ function initlmtUD() {
 
   // initialize the tabulator
 
-  // - table = new Tabulator('#dashboard-table', (option = {}));
+  table = new Tabulator('#dashboard-table', tabOption);
 
   //var doc = window.document;
   var slideout = new Slideout({
@@ -794,7 +794,6 @@ function initChoicesEvent(cJson) {
           document.dispatchEvent(event);
 
 	  // reset norm and cmap
-	  console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 	  lmtSettings["stopFireNorm"] = true;
 	  tabTempJson = [];
 	  setChoicesDefault("0", "0", lmtSettings.logoMethod);
@@ -1084,12 +1083,12 @@ function loadlocJson() {
           preSetTab(ini_xdim, ini_ydim, cmecJson);
 
           // add event for json ready
-          let event = new CustomEvent('jsonReady', {
-            bubbles: true, // Allow the event to bubble up the DOM tree
-            cancelable: true // Allow the event to be cancelable
-          });
-          // Trigger the custom event on the document
-          document.dispatchEvent(event);
+          //-let event = new CustomEvent('jsonReady', {
+          //-  bubbles: true, // Allow the event to bubble up the DOM tree
+          //-  cancelable: true // Allow the event to be cancelable
+          //-});
+          //-// Trigger the custom event on the document
+          //-document.dispatchEvent(event);
         })
         .catch(err => alert(err));
     }
@@ -1252,8 +1251,11 @@ document.addEventListener('jsonReady', function () {
     (400 + (tabOption.columns.length - 1) * 30).toString() + 'px';
 
 
+
   try {
-    table = new Tabulator('#dashboard-table', tabOption);
+    table.setColumns(tabOption.columns);
+    table.setData(tabTreeJson);
+    table.redraw();
     draw_legend();
 
   } catch (err) {
@@ -1413,7 +1415,7 @@ function initCheckBoxesEvent() {
     
     //table redraw needed?
     //console.log("tooltip", tabOption.tooltips);
-    //table.destroy();
+    table.destroy();
     table = new Tabulator('#dashboard-table', tabOption);
   });
 
