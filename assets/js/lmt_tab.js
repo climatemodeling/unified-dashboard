@@ -1483,10 +1483,8 @@ function initCheckBoxesEvent() {
         }
       }
     }
-    var tempData = table.getData();
-    table.clearData();
-    table.setData(tempData);
-    table = new Tabulator('#dashboard-table', tabOption);
+    table.setColumns(tabOption.columns);
+    table.redraw();
   });
 
 }
