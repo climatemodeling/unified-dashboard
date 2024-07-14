@@ -149,9 +149,8 @@ if (document.readyState !== 'loading') {
 
 function initlmtUD() {
   // reset the file input
-  document.querySelector('#file').value = '';
-
   // initialize the select and multiselect boxes
+  document.querySelector('#file').value = '';
   initChoices();
 
 
@@ -1025,10 +1024,12 @@ function loadlocJson() {
     } else {
       console.log('UDEB: starting read the local CMEC json file');
 
+      // have to reload page to clear all event listens
       if (isJsonReady) {
         isJsonReady = false;
-        alert("Will reload page before loading a new file");
+        alert("Will reload page before loading a new file. Please reselect after loading");
         location.reload();
+
       }
 
       readFile(file)

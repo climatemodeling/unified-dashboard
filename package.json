@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/climatemodeling/unified-dashboard#readme",
   "dependencies": {
+    "ajv": "^8.17.1",
     "choices.js": "^10.2.0",
     "slideout": "^1.0.1",
     "tabulator-tables": "^6.2.1",
@@ -50,6 +51,5 @@
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
-  "resolutions": {
-  }
+  "resolutions": {}
 }
