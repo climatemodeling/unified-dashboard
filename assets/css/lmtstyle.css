@@ -4,16 +4,7 @@
  * please read LICENSE.dependencies and LICENSE that was distributed
  * with this code in the dist directory
  */
-
 @import url('../../node_modules/tabulator-tables/dist/css/tabulator.min.css');
-
-/*! Select2 Copyright (c) Kevin Brown, Igor Vaynberg, and Select2 contributors 
- * @license MIT 
- * For the full copyright and license information,
- * please read LICENSE.dependencies and LICENSE that was distributed
- * with this code in the dist directory
- */
-
 
 /*! Slideout Copyright (c) Mango
  * @license MIT
@@ -21,23 +12,21 @@
  * please read LICENSE.dependencies and LICENSE that was distributed
  * with this code in the dist directory
  */
-
 @import url('../../node_modules/slideout/index.css');
 
-/*! el-checkbox Copyright (c) EvanLiu
+/*! choices.js Copyright (c)  2016 Josh Johnson
  * @license MIT
  * For the full copyright and license information,
  * please read LICENSE.dependencies and LICENSE that was distributed
  * with this code in the dist directory
  */
-
+@import url('../../node_modules/choices.js/public/assets/styles/choices.min.css');
 
 /*! google Open Sans font Copyright (c) Google Corporation
  * @license Apache License, version 2.0
  * For the full copyright and license information,
  * please read it http://www.apache.org/licenses/LICENSE-2.0.html
  */
-
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 
 
