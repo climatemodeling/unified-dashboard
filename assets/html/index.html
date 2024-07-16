@@ -158,23 +158,47 @@
       </section-->
 
       <section class="menu-section">
-          <button type="button" onclick="expandCollapse('expand');" class="togglebutton">Row Expand/Collapse</button>
+          <!--button type="button" onclick="expandCollapse('expand');" class="togglebutton">Row Expand/Collapse</button-->
+	  <button type="button" class="w-48 ml-2.5 border border-gray-300 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 
+	  me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Row Expand/Collapse</button>
       </section>
       <hr>
-      <section class="menu-section">
+      <!--section class="menu-section">
           <button type="button" onclick="savetoHtml();" class="togglebutton">Save to Html</button>
+          <button type="button" onclick="saveToImage();" class="togglebutton">Save to Image</button>
+      </section-->
+      <section class="menu-section">
+        <form class="max-w-sm ml-2.5">
+          <!--label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Save to Image</label-->
+          <select id="saveimage" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 
+	  block w-48 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option selected>Save to Image</option>
+            <option value="PNG">png</option>
+            <option value="JPEG">jpeg</option>
+            <option value="SVG">svg</option>
+            <option value="HTML">html</option>
+          </select>
+        </form>
       </section>
     </nav>
 
     <main id="panel" class="panel">
       <header class="panel-header">
         <span id="sidemenuicon" class="js-slideout-toggle">&#9776&nbsp;Menu</span>
-        <h1 class="title">LMT Unified Dashboard</h1>
+        <h1 class="mb-4 py-3 pr-20 text-base text-center font-extrabold text-black dark:text-black">LMT Unified Dashboard</h1>
       </header>
 
-      <section style="text-align:center">
-        <input name="file" id="file" type="file" onchange="loadlocJson()"/> 
-	<label for="file" class="selFile">Select a file</label>
+      <!--section style="text-align:center"-->
+      <section>
+	<!-- have to use text-align-last to work in chrome-->
+        <input type="file" id="file" style="text-align-last:center" class="flex w-full text-sm text-slate-500 text-center justify-center
+	  file:text-center
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-full file:border-0
+          file:text-sm file:font-semibold
+          file:bg-violet-50 file:text-violet-700
+          hover:file:bg-violet-100 
+        " onchange="loadlocJson()"/>
       </section>
 
       <section>
