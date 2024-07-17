@@ -8,6 +8,11 @@
    <!-- css-->
    <!--link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/climatemodeling/unified-dashboard@1.0.0/dist/css/lmtud_bundle.min.css"-->
 
+
+   <!-- have to add jsPDF here, require(jspdf) will cause import error-->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
    <!-- fallback to local copies -->
    <script>
       if (typeof window.lmtUDLoaded === 'undefined') {
@@ -176,6 +181,7 @@
             <option value="PNG">png</option>
             <option value="JPEG">jpeg</option>
             <option value="SVG">svg</option>
+            <option value="PDF">pdf</option>
             <option value="HTML">html</option>
           </select>
         </form>
@@ -199,6 +205,7 @@
           file:bg-violet-50 file:text-violet-700
           hover:file:bg-violet-100 
         " onchange="loadlocJson()"/>
+	<p class="mt-1 text-sm text-center text-gray-500 dark:text-gray-300" id="file_input_help">CMEC schema JSON file</p>
       </section>
 
       <section>

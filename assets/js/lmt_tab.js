@@ -4,6 +4,10 @@
 var Tabulator = require('tabulator-tables');
 var Choices = require('choices.js');
 var Slideout = require('slideout');
+//var domtoimage = require('dom-to-image-more');
+var domtoimage = require('dom-to-image');
+//const { jsPDF } = require("../../node_modules/jspdf/dist/jspdf.node.min.js");
+const { jsPDF } = window.jspdf;
 
 // internal modules
 var lmt_tool = require('./lmt_tool.js');
@@ -25,6 +29,7 @@ window.loadlocJson = loadlocJson;
 window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
 window.savetoHtml = savetoHtml;
+window.saveToImage = saveToImage;
 
 
 window.lmtUDLoaded = 1;
@@ -186,6 +191,118 @@ function initlmtUD() {
   console.log('UDEB: UD config file ', udcUrl);
 
   //setConfig(udcUrl);
+
+
+
+  // Save image functions
+
+  document.getElementById("saveimage").selectedIndex = 0;
+
+  document.getElementById("saveimage").addEventListener("change", function (){
+     const node = document.getElementById('dashboard-table');
+     const imgScale = 3.;
+     const tempvalue = this.value;
+     console.log(tempvalue.toLowerCase());
+     switch(this.value) {
+       case "PNG":
+         domtoimage 
+           .toPng(node, {
+              height: node.clientHeight * imgScale, 
+              width: node.clientWidth * imgScale,
+              style: {
+                transform: "scale(" + imgScale + ")",
+                transformOrigin: "top left"
+              }})
+           .then(function (dataUrl) {
+              const dataFn = "output.png";
+              downloadImage(dataUrl, dataFn);
+           });
+
+         break;
+       case "SVG":
+         domtoimage.toSvg(node)
+           .then(function (dataUrl) {
+              //var img = new Image();
+              //img.src = dataUrl;
+              //document.body.appendChild(img);
+              const dataFn = "output.svg";
+              downloadImage(dataUrl, dataFn);
+           });
+         break
+
+       case "HTML":
+         // using the tabulor function
+         break
+
+       case "JPEG":
+         domtoimage 
+           .toJpeg(node, {
+              quality: 1.0,
+              height: node.clientHeight * imgScale, 
+              width: node.clientWidth * imgScale,
+              style: {
+                transform: "scale(" + imgScale + ")",
+                transformOrigin: "top left"
+              }})
+           .then(function (dataUrl) {
+              const dataFn = "output.jpeg";
+              downloadImage(dataUrl, dataFn);
+           });
+         break;
+
+       case "PDF":
+         const dataFn = "output.pdf";
+         domtoimage 
+           .toPng(node, {
+              height: node.clientHeight * imgScale, 
+              width: node.clientWidth * imgScale,
+              style: {
+                transform: "scale(" + imgScale + ")",
+                transformOrigin: "top left"
+              }})
+           .then(function (dataUrl) {
+	      // jspdf will change the width and height automatically to fit the landscape or portait
+	      const nodeWidth = node.clientWidth * imgScale;
+	      const nodeHeight = node.clientHeight * imgScale;
+
+	      if (nodeWidth >= nodeHeight) {
+                var pdf = new jsPDF("l", "pt", [
+                   nodeWidth,
+                   nodeHeight
+                 ]);
+                 pdf.addImage(
+                   dataUrl,"PNG",0,0,
+                   node.clientWidth * imgScale,
+                   node.clientHeight * imgScale
+                 );
+                 pdf.save(dataFn);
+	       } else {
+                var pdf = new jsPDF("p", "pt", [
+                   nodeHeight,
+                   nodeWidth
+                ]);
+                pdf.addImage(
+                  dataUrl,"PNG",0,0,
+                  node.clientWidth * imgScale,
+                  node.clientHeight * imgScale
+                );
+                pdf.save(dataFn);
+	      }
+           });
+
+         break;
+       default:
+         console.log("fallback to default");
+     }
+  });
+}
+
+
+function downloadImage (imgUrl, imgFileName) {
+  var downloadLink = document.createElement('a');
+  downloadLink.download = imgFileName;
+  downloadLink.href = imgUrl;
+  downloadLink.click();
 }
 
 function setConfig(jsfURL) {
@@ -1263,6 +1380,8 @@ document.addEventListener('jsonReady', function () {
     alert('Error when rending the table:', err.message);
   }
 
+
+
   //try{
   if (
     Object.keys(_config).includes('udcDimSets') &&
@@ -2258,6 +2377,49 @@ function savetoHtml() {
   //-    //    //carry out an action on the doc object
   //-    //}
   //-});
+}
+
+function saveToImage() {
+  // minxu test dom
+  const node = document.getElementById('dashboard-table');
+  //domtoimage.toSvg(node)
+  //  //.then(function (blob) {
+  //    //window.saveAs(blob, 'my-node.png');
+  //  .then(function (dataUrl) {
+  //    console.log("save to file ====================");
+  //    var img = new Image();
+  //    img.src = dataUrl;
+  //    document.body.appendChild(img);
+  //  });
+
+
+  var imgScale = 3.;
+
+  domtoimage
+    .toJpeg(node, { 
+       quality: 1.0, 
+       height: node.clientHeight * imgScale, 
+       width: node.clientWidth * imgScale, 
+       style: {
+         transform: "scale(" + imgScale + ")",
+	 transformOrigin: "top left"
+       }})
+    .then(function (dataUrl) {
+        var link = document.createElement('a');
+        link.download = 'my-image-name.jpeg';
+        link.href = dataUrl;
+        link.click();
+    });
+  //-domtoimage  // it works in chrome, but fails in firefox
+  //-  .toCanvas(node, {scale:3})
+  //-  .then(function (canvas) {
+  //-     console.log('canvas', canvas.width, canvas.height);
+  //-     //canvas.toDataURL("image/png");
+  //-     var link = document.createElement('a');
+  //-     link.download = 'my-image-name.png';
+  //-     link.href = canvas.toDataURL("image/png");
+  //-     link.click();
+  //-  });
 }
 
 function combineArraysToObject(keys, values) {
