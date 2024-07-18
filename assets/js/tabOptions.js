@@ -94,8 +94,8 @@ var tabOption = {
   },
   columns: [],
 
-  //maxHeight: '100%',
-  height: 'auto',
+  maxHeight: '82vh',
+  height: '100%',
 
   //-tableBuilt: function () {
   //-  if (_config.udcScreenHeight != 0) {

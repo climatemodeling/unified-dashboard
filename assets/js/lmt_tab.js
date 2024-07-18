@@ -89,7 +89,7 @@ var cmap = PuOr;
 
 
 var lmtSettings = {"tableBuilt": false, "normMethod":"-1", "cmapMethod":"-1", "logoMethod":"default", "normDir":"-1", 
-                   "setTootip":false, "setTopTitle":false, "setBottomTitle":false, "setCellValue":false, 
+                   "setTootip":false, "setTopTitle":false, "setBottomTitle":false, "setCellValue":false, "setFitScreen":true, 
 		   "timesExpl":1, "numClicks":1, 
 		   "stopFire":false,
 		   "stopFireNorm":false};
@@ -1037,7 +1037,7 @@ function setChoicesDefault(setNorm, setCmap, setLogo) {
 }
 
 
-function setCheckBoxesDefault(normDir, setTooltip, setTopTitle, setBottomTitle, setCellValue){
+function setCheckBoxesDefault(normDir, setTooltip, setTopTitle, setBottomTitle, setCellValue, setFitScreen){
 
   if (normDir == "row") { 
     document.getElementById("cb-scarow").checked = true;
@@ -1068,6 +1068,12 @@ function setCheckBoxesDefault(normDir, setTooltip, setTopTitle, setBottomTitle, 
     document.getElementById("cb-cellvalue").checked = true;
   } else {
     document.getElementById("cb-cellvalue").checked = false;
+  }
+
+  if (setFitScreen) {
+    document.getElementById("cb-fitscreen").checked = true;
+  } else {
+    document.getElementById("cb-fitscreen").checked = false;
   }
 
 }
@@ -1179,12 +1185,13 @@ function loadlocJson() {
 	  lmtSettings.cmapMethod = "0";
 	  lmtSettings.logoMethod = "rubisco_logo.png";
 
-	  setCheckBoxesDefault("row", true, true, false, true)
+	  setCheckBoxesDefault("row", true, true, false, true, true)
 	  lmtSettings.normDir = "row";
 	  lmtSettings.setTooltip = true;
 	  lmtSettings.setTopTitle = true;
 	  lmtSettings.setBottomTitle = false;
 	  lmtSettings.setCellValue = true;
+	  lmtSettings.setFitScreen = true;
 
 
           // initialize choices events
@@ -1478,6 +1485,7 @@ function initCheckBoxes() {
   document.getElementById("cb-bottomtitle").checked = false;
   document.getElementById("cb-tooltip").checked = false;
   document.getElementById("cb-cellvalue").checked = false;
+  document.getElementById("cb-fitscreen").checked = true;
 }
 
 
@@ -1609,6 +1617,39 @@ function initCheckBoxesEvent() {
     table.redraw();
   });
 
+  document.getElementById("cb-fitscreen").addEventListener("change", () => {
+    fitScreen();
+  });
+
+}
+
+
+function fitScreen() {
+
+  if (document.getElementById("cb-fitscreen").checked) {
+    lmtSettings.setFitScreen = true;
+    document.getElementById('dashboard-table').style['max-height'] = "82vh";
+
+
+    // remove height
+    document.getElementById('dashboard-table').style.removeProperty('height');
+
+    //calculation vh
+    var viewH = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+    if (document.getElementById("dashboard-table").clientHeight < 0.82 * viewH) {
+      console.log("set docu height");
+      table.setHeight(document.getElementById("dashboard-table").clientHeight);
+    } else {
+      table.setHeight('82vh');
+    }
+  } else {
+    lmtSettings.setFitScreen = false;
+    document.getElementById('dashboard-table')
+      .style.removeProperty('max-height');
+    table.setHeight("100%");
+
+  }
 }
 
 var draw_legend = function () {
@@ -2335,6 +2376,9 @@ function expandCollapse(action) {
     table.clearData();
     table.setData(tempData);
     table.redraw(true);
+
+    // reset screen height
+    fitScreen();
     console.log('UDEB:', 'tabredraw');
     if (lmtSettings.timesExpl == 0) {
       lmtSettings.numClicks = 0;
