@@ -390,38 +390,6 @@ function updateColorMapping() {
 }
 
 
-//function toggleScreenHeight() {
-//  if ($('#screenheight[type=checkbox]').is(':checked')) {
-//    document.getElementById('dashboard-table').style['max-height'] = '100%';
-//    //document.getElementById('dashboard-table').style.height = "82vh";
-//    //document.getElementById('dashboard-table').style['height'] = "auto";
-//    document.getElementById('dashboard-table').style.removeProperty('height');
-//    document
-//      .getElementById('dashboard-table')
-//      .style.removeProperty('min-height');
-//
-//    var elmnt = document.getElementsByClassName('tabulator-header');
-//    //var totHeight = elmnt[0].offsetHeight + 28 * table.getRows().length + 17;
-//    var totHeight = elmnt[0].offsetHeight + 30 * table.getRows().length + 20;
-//
-//    if (isTreeTable == 0) {
-//      document.getElementById('dashboard-table').style['height'] =
-//        totHeight.toString() + 'px';
-//    } else {
-//      document.getElementById('dashboard-table').style['height'] = '82vh';
-//    }
-//    table.setHeight(false);
-//    draw_legend();
-//  } else {
-//    document
-//      .getElementById('dashboard-table')
-//      .style.removeProperty('max-height');
-//    document.getElementById('dashboard-table').style.height = '100%';
-//    table.setHeight(false);
-//    draw_legend();
-//  }
-//}
-
 
 function loadrmtJson(jsfURL, dimSet = {}) {
   if (jsfURL !== '') {
