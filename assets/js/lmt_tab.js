@@ -29,7 +29,6 @@ window.loadlocJson = loadlocJson;
 window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
 window.savetoHtml = savetoHtml;
-window.saveToImage = saveToImage;
 
 
 window.lmtUDLoaded = 1;
@@ -2391,48 +2390,6 @@ function savetoHtml() {
   //-});
 }
 
-function saveToImage() {
-  // minxu test dom
-  const node = document.getElementById('dashboard-table');
-  //domtoimage.toSvg(node)
-  //  //.then(function (blob) {
-  //    //window.saveAs(blob, 'my-node.png');
-  //  .then(function (dataUrl) {
-  //    console.log("save to file ====================");
-  //    var img = new Image();
-  //    img.src = dataUrl;
-  //    document.body.appendChild(img);
-  //  });
-
-
-  var imgScale = 3.;
-
-  domtoimage
-    .toJpeg(node, { 
-       quality: 1.0, 
-       height: node.clientHeight * imgScale, 
-       width: node.clientWidth * imgScale, 
-       style: {
-         transform: "scale(" + imgScale + ")",
-	 transformOrigin: "top left"
-       }})
-    .then(function (dataUrl) {
-        var link = document.createElement('a');
-        link.download = 'my-image-name.jpeg';
-        link.href = dataUrl;
-        link.click();
-    });
-  //-domtoimage  // it works in chrome, but fails in firefox
-  //-  .toCanvas(node, {scale:3})
-  //-  .then(function (canvas) {
-  //-     console.log('canvas', canvas.width, canvas.height);
-  //-     //canvas.toDataURL("image/png");
-  //-     var link = document.createElement('a');
-  //-     link.download = 'my-image-name.png';
-  //-     link.href = canvas.toDataURL("image/png");
-  //-     link.click();
-  //-  });
-}
 
 function combineArraysToObject(keys, values) {
   if (keys.length !== values.length) {
