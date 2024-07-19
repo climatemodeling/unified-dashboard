@@ -1074,31 +1074,9 @@ function prepareSel(cJson, ini_xdim, ini_ydim, ini_fxdm) {
     dictChoices[selectIdByDims[fxdim]].containerInner.element.style.display = 'block';
     dictChoices[selectIdByDims[fxdim]].setChoiceByValue(ini_fxdm[fxdim]);
   }
-
-  // set the options for normalization and color mapping
-
- //-if (lmtSettings["normMethod"] !== "-1"){
- //-   dictChoices["normChoices"].setChoiceByValue(lmtSettings["normMethod"]);
- //-}
-
- //-if (lmtSettings["cmapMethod"] !== "-1"){
- //-   dictChoices["cmapChoices"].setChoiceByValue(lmtSettings["cmapMethod"]);
- //-}
 } //prepareSel
 
 // load local json files
-
-
-//function pageReload () {
-
-      //if (isJsonReady) {
-      //  location.reload();
-      //  isJsonReady = false;
-      //}
-//      return;
-
-
-//}
 function loadlocJson() {
 
   const file = document.getElementById('file').files[0];
@@ -1173,14 +1151,6 @@ function loadlocJson() {
 
           // set tab options
           preSetTab(ini_xdim, ini_ydim, cmecJson);
-
-          // add event for json ready
-          //-let event = new CustomEvent('jsonReady', {
-          //-  bubbles: true, // Allow the event to bubble up the DOM tree
-          //-  cancelable: true // Allow the event to be cancelable
-          //-});
-          //-// Trigger the custom event on the document
-          //-document.dispatchEvent(event);
         })
         .catch(err => alert(err));
     }
@@ -1203,11 +1173,6 @@ function preSetTab(ini_xdim, ini_ydim, cJson) {
   console.log('starting read the local CMEC json file 3');
 
   ydimField = 'row_name';
-
-  //-xum lmt_tool.add_options(Object.keys(tabTreeJson[0]).filter(item => item !== 'row_name' && item !== '_children' && item !== 'metric'), 'hlist');
-  // only columns can be hided, so based on the ini_xdim, initialize hideChoices
-  //-xum hideChoices.setChoices(combineArraysToObject(Object.keys(cmecJson.DIMENSIONS.dimensions[ini_xdim]), Object.keys(cmecJson.DIMENSIONS.dimensions[ini_xdim])),
-  //-xum     'value', 'label', false);
 
   // set tab column
   //
