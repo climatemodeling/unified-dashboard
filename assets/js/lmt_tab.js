@@ -1,11 +1,11 @@
 // require modules
 
 // external modules
-var Tabulator = require('tabulator-tables');
-var Choices = require('choices.js');
-var Slideout = require('slideout');
-//var domtoimage = require('dom-to-image-more');
-var domtoimage = require('dom-to-image');
+const Tabulator = require('tabulator-tables');
+const Choices = require('choices.js');
+const Slideout = require('slideout');
+//const domtoimage = require('dom-to-image-more');
+const domtoimage = require('dom-to-image');
 //const { jsPDF } = require("../../node_modules/jspdf/dist/jspdf.node.min.js");
 const { jsPDF } = window.jspdf;
 
