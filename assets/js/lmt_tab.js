@@ -198,16 +198,19 @@ function initlmtUD() {
   document.getElementById("saveimage").selectedIndex = 0;
 
   document.getElementById("saveimage").addEventListener("change", function (){
+
+     const tmpScale = Number(document.getElementById("download-image-dpi").value);
+     //const imgScale = 3.;
+     const imgScale = Math.floor(tmpScale/72.);
      const node = document.getElementById('dashboard-table');
-     const imgScale = 3.;
      const tempvalue = this.value;
-     console.log(tempvalue.toLowerCase());
+     console.log('UDEB: ', tempvalue.toLowerCase());
      switch(this.value) {
        case "PNG":
          domtoimage 
            .toPng(node, {
-              height: node.clientHeight * imgScale, 
-              width: node.clientWidth * imgScale,
+              height: node.clientHeight * imgScale + 5, 
+              width: node.clientWidth * imgScale + 5,
               style: {
                 transform: "scale(" + imgScale + ")",
                 transformOrigin: "top left"
@@ -237,8 +240,8 @@ function initlmtUD() {
          domtoimage 
            .toJpeg(node, {
               quality: 1.0,
-              height: node.clientHeight * imgScale, 
-              width: node.clientWidth * imgScale,
+              height: node.clientHeight * imgScale + 5, 
+              width: node.clientWidth * imgScale + 5,
               style: {
                 transform: "scale(" + imgScale + ")",
                 transformOrigin: "top left"
