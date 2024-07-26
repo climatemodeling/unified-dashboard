@@ -579,9 +579,9 @@ function flatten(data, treekw){
 function transpose(dataFlatten, scoreboard){
     var dataTranspose = [];
     var xnames={};
-    for (data of dataFlatten) {
+    for (const data of dataFlatten) {
         if (data.scoreboard == scoreboard){
-            for (key of Object.keys(data)){
+            for (const key of Object.keys(data)){
                 if (key != "metric" && key != "scoreboard"){
                    if (typeof xnames[key] === 'undefined'){
                       xnames[key]={};
@@ -592,7 +592,7 @@ function transpose(dataFlatten, scoreboard){
         }
     }
 
-    for (key of Object.keys(xnames)){
+    for (const key of Object.keys(xnames)){
        var newrow = Object.assign({}, xnames[key], {"scoreboard": scoreboard, "metric": key});
        dataTranspose.push(newrow);
     }

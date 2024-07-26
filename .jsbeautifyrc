@@ -1,0 +1,17 @@
+{
+    "indent_size": 4,
+    "indent_char": " ",
+    "other": " ",
+    "indent_level": 0,
+    "indent_with_tabs": false,
+    "preserve_newlines": true,
+    "break_chained_methods": true,
+    "space_before_conditional": true,
+    "space_after_anon_function": true,
+    "keep_function_indentation": true,
+    "keep_array_indentation": true,
+    "brace_style": "none",
+    "max_preserve_newlines": 3,
+    "space_in_paren": true,
+    "end_with_comma": true
+}
