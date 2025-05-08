@@ -1208,6 +1208,7 @@ function preSetTab(ini_xdim, ini_ydim, cJson) {
     ydimField
   );
   sortState = 0;
+  updateButtonText();
   console.log('starting read the local CMEC json file 5', table);
 
   // baseUrl
@@ -2393,18 +2394,17 @@ function cycleColumnSort() {
     sortState = 2;
   } else {
     // Reset to original order
-
-    console.log(originalColumns, 'xxxx');
     table.setColumns(originalColumns);
     sortState = 0;
-    return; // Exit early to avoid unnecessary setColumns()
   }
+
+  updateButtonText();
   
   table.setColumns([fixedColumn, ...currentColumns]);
 }
 
 function updateButtonText() {
-  const texts = ["Original Order", "A-Z Sort", "Z-A Sort"];
+  const texts = ["Toggle Sort Title", "A-Z Sort", "Z-A Sort"];
   document.getElementById("sort-state-text").textContent = texts[sortState];
 }
 
