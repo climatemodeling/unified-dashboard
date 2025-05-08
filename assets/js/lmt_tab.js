@@ -29,6 +29,7 @@ window.loadlocJson = loadlocJson;
 window.tableColor = tableColor;
 window.expandCollapse = expandCollapse;
 window.savetoHtml = savetoHtml;
+window.cycleColumnSort = cycleColumnSort;
 
 
 window.lmtUDLoaded = 1;
@@ -134,6 +135,9 @@ var isTableBuilt = false;
 var newLabel = {};
 
 var _config = {};
+
+var sortState = 0;
+var originalColumns = [];
 
 
 //export
@@ -644,7 +648,7 @@ function initChoices() {
   }
 
   // other single select boxes
-  for (const dim of ['norm', 'cmap', 'exam', 'logo']) {
+  for (const dim of ['norm', 'cmap', 'logo']) {
     dictChoices[dim + 'Choices'] = new Choices(
       document.querySelector('.js-choice-' + dim),
       {
@@ -891,17 +895,17 @@ function initChoicesEvent(cJson) {
   }
 
   // other selections events
-  for (const dim of ['norm', 'cmap', 'exam', 'logo']) {
+  for (const dim of ['norm', 'cmap', 'logo']) {
     dictChoices[dim + 'Choices'].passedElement.element.addEventListener(
       'addItem', //select item
       function (event) {
 
-        if (dim == 'exam') {
-          console.log('fire event for exam');
-          let jsfURL = event.detail.value;
-          jsfURL = jsonFileURL + jsfURL;
-          loadrmtJson(jsfURL);
-        }
+        //if (dim == 'exam') {
+        //  console.log('fire event for exam');
+        //  let jsfURL = event.detail.value;
+        //  jsfURL = jsonFileURL + jsfURL;
+        //  loadrmtJson(jsfURL);
+        //}
 
         if (dim == 'logo') {
           logoFile = event.detail.value;
@@ -1203,6 +1207,8 @@ function preSetTab(ini_xdim, ini_ydim, cJson) {
     ini_ydim,
     ydimField
   );
+  sortState = 0;
+  updateButtonText();
   console.log('starting read the local CMEC json file 5', table);
 
   // baseUrl
@@ -2370,5 +2376,36 @@ function combineArraysToObject(keys, values) {
   }, []);
 }
 
+
+
+function cycleColumnSort() {
+  const currentColumns = table.getColumnDefinitions();
+  
+  const fixedColumn = currentColumns.shift(); 
+
+  if (sortState === 0) {
+    originalColumns = table.getColumnDefinitions();
+    // Sort A-Z (ascending)
+    currentColumns.sort((a, b) => a.title.localeCompare(b.title));
+    sortState = 1;
+  } else if (sortState === 1) {
+    // Sort Z-A (descending)
+    currentColumns.sort((a, b) => b.title.localeCompare(a.title));
+    sortState = 2;
+  } else {
+    // Reset to original order
+    table.setColumns(originalColumns);
+    sortState = 0;
+  }
+
+  updateButtonText();
+  
+  table.setColumns([fixedColumn, ...currentColumns]);
+}
+
+function updateButtonText() {
+  const texts = ["Toggle Sort Title", "A-Z Sort", "Z-A Sort"];
+  document.getElementById("sort-state-text").textContent = texts[sortState];
+}
 
 // end of lmt_tab.js
