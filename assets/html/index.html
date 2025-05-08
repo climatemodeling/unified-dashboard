@@ -110,13 +110,6 @@
 
       <hr>
       <section class="menu-section">
-          <h3 class="menu-section-title">Examples</h3>
-          <select class="js-choice-exam" id="js-choice-mini-exam" style="width:75%"> 
-	     <option disabled=true> Select an example </option>
-             <option value="cmec_ilamb_example_addsource.json"> CMEC ILAMB</option>
-             <option value="pmp_enso_tel.json"> CMEC PMP</option>
-          </select>
-
           <h3 class="menu-section-title">Logo</h3>
           <select class="js-choice-logo" id="js-choice-mini-logo" style="width:75%"> 
 	     <option value="default" disabled=true> Select a logo </option>
@@ -174,6 +167,14 @@
 	  hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 
 	  me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Row Expand/Collapse</button>
       </section>
+
+
+      <section class="menu-section">
+          <button type="button" onclick="cycleColumnSort();" class="w-48 ml-2.5 border border-gray-300 text-white bg-blue-700 
+          hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 
+          me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Toggle Sort Title</button>
+      </section>
+
       <hr>
       <!--section class="menu-section">
           <button type="button" onclick="savetoHtml();" class="togglebutton">Save to Html</button>
