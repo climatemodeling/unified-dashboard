@@ -139,6 +139,9 @@ var _config = {};
 var sortState = 0;
 var originalColumns = [];
 
+var preXdim, preYdim;
+var groupSavedValues = null;
+
 
 //export
 
@@ -198,6 +201,8 @@ function initlmtUD() {
 
 
   // Save image functions
+
+  initSubMenu();
 
   document.getElementById("saveimage").selectedIndex = 0;
 
@@ -860,13 +865,24 @@ function initChoicesEvent(cJson) {
             'now we can generate the tab json and prepare redraw table'
           );
 
+
           let ini_xdim,
             ini_ydim,
-            ini_fxdm = {}
-            ;[ini_xdim, ini_ydim, ini_fxdm] = initDim(
+            ini_fxdm = {} ;
+
+          [ini_xdim, ini_ydim, ini_fxdm] = initDim(
               cmecJson,
               (dimSet = dimSetEvent)
-            );
+          );
+
+          if (preXdim != ini_xdim) {
+              console.log('xxx');
+              resetGroupBtn();
+          }
+
+          preXdim = ini_xdim;
+          preYdim = ini_ydim;
+          
 
           // select choices based on the initial dimension setting
           console.log('start prepareSel', ini_xdim, ini_ydim, ini_fxdm);
@@ -1322,6 +1338,7 @@ document.addEventListener('jsonReady', function () {
     table.setColumns(tabOption.columns);
     table.setData(tabTreeJson);
     table.redraw();
+    setGroupColumns(groupSavedValues);
     draw_legend();
 
   } catch (err) {
@@ -2386,26 +2403,167 @@ function cycleColumnSort() {
   if (sortState === 0) {
     originalColumns = table.getColumnDefinitions();
     // Sort A-Z (ascending)
-    currentColumns.sort((a, b) => a.title.localeCompare(b.title));
+
+    console.log(currentColumns, 'xxx');
+    console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+    const gcb2023Columns = currentColumns.filter(col => col.title.includes("GCB2023"));
+    const gcb2024Columns = currentColumns.filter(col => col.title.includes("GCB2024"));
+    console.log(gcb2023Columns);
+    console.log(gcb2024Columns);
+    //currentColumns.sort((a, b) => a.title.localeCompare(b.title));
+    gcb2023Columns.sort((a, b) => a.title.localeCompare(b.title));
+    gcb2024Columns.sort((a, b) => a.title.localeCompare(b.title));
+
+    groupColumns = [{title: "GCB2023", columns: gcb2023Columns}, {title: "GCB2024", columns: gcb2024Columns}];
     sortState = 1;
   } else if (sortState === 1) {
     // Sort Z-A (descending)
     currentColumns.sort((a, b) => b.title.localeCompare(a.title));
+
+    groupColumns = currentColumns;
     sortState = 2;
   } else {
     // Reset to original order
     table.setColumns(originalColumns);
     sortState = 0;
+    updateButtonText();
+    return;
   }
 
   updateButtonText();
   
-  table.setColumns([fixedColumn, ...currentColumns]);
+  table.setColumns([fixedColumn, ...groupColumns]);
+}
+
+
+function flattenColumns(data) {
+  // Check if any object has a 'columns' array
+  const hasColumns = data.some(obj => Array.isArray(obj.columns) && obj.columns.length > 0);
+
+  if (!hasColumns) {
+    return data; // Return original if no columns found
+  }
+
+  // Otherwise, flatten columns
+  return [...new Set(
+    data.reduce((acc, obj) => 
+      Array.isArray(obj.columns) 
+        ? [...acc, ...obj.columns] 
+        : acc, 
+    [])
+  )];
+}
+
+function setGroupColumns(groupValues) {
+
+  if (groupValues == null) {
+    return;
+  }
+
+  const currentColumns = table.getColumnDefinitions();
+
+
+
+  const fixedColumn = currentColumns.shift(); 
+
+  const flattenedColumns = flattenColumns(currentColumns);
+
+  console.log('xxxxxx', currentColumns);
+  console.log('yyyyyy', flattenedColumns);
+
+  groupColumns = [];
+  for (const value of groupValues) {
+
+    const filterColumns = flattenedColumns.filter(col => col.title.includes(value));
+
+
+    if (filterColumns.length > 0) {
+      groupColumns.push({title: value, columns: filterColumns});
+    }
+  }
+
+  if (groupColumns.length > 0) {
+     table.setColumns([fixedColumn, ...groupColumns]);
+  } else {
+
+    alert (`values:\n${groupValues.join('\n')} not found in the table titles`);
+  }
+  
 }
 
 function updateButtonText() {
   const texts = ["Toggle Sort Title", "A-Z Sort", "Z-A Sort"];
   document.getElementById("sort-state-text").textContent = texts[sortState];
 }
+
+
+function initSubMenu() {
+    const groupHeaderBtn = document.getElementById('groupHeaderBtn');
+    const inputContainer = document.getElementById('inputContainer');
+    
+    // Add new input field
+    inputContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-input-btn') || 
+            e.target.closest('.add-input-btn')) {
+            const newInputGroup = document.createElement('div');
+            newInputGroup.className = 'input-group flex items-center space-x-2 w-48';
+            newInputGroup.innerHTML = `
+                <input type="text" class="w-32 ml-2.5 flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter text...">
+                <button class="add-input-btn bg-green-500 hover:bg-green-600 text-white p-2 rounded-full transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            `;
+            // Insert after the clicked button's parent
+            const parentGroup = e.target.closest('.input-group');
+            parentGroup.parentNode.insertBefore(newInputGroup, parentGroup.nextSibling);
+        }
+    });
+    
+    // Group column header functionality
+    groupHeaderBtn.addEventListener('click', function() {
+        const inputs = inputContainer.querySelectorAll('input[type="text"]');
+        const values = Array.from(inputs).map(input => input.value.trim()).filter(val => val);
+        
+        if (values.length === 0) {
+            alert('No text inputs found or all are empty!');
+            return;
+        }
+        
+        // Here you can do operations with the collected values
+        console.log('Collected values:', values);
+        alert(`Collected ${values.length} values:\n${values.join('\n')}`);
+
+        groupSavedValues = values;
+
+        setGroupColumns(values); 
+        
+        // Example operation: concatenate with commas
+        const concatenated = values.join(', ');
+        console.log('Concatenated:', concatenated);
+    });
+}
+
+function resetGroupBtn() {
+    // Clear all inputs except the first one
+    const inputGroups = inputContainer.querySelectorAll('.input-group');
+    
+    // Remove all input groups except the first one
+    inputGroups.forEach((group, index) => {
+        if (index > 0) {
+            group.remove();
+        }
+    });
+    
+    // Clear the first input's value
+    const firstInput = inputContainer.querySelector('input[type="text"]');
+    if (firstInput) {
+        firstInput.value = '';
+    }
+
+    groupSavedValues = null;
+}
+
 
 // end of lmt_tab.js
