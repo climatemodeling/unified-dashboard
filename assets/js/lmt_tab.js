@@ -214,15 +214,21 @@ function initlmtUD() {
      const node = document.getElementById('dashboard-table');
      const tempvalue = this.value;
      console.log('UDEB: ', tempvalue.toLowerCase());
+
+     width = (node.clientWidth+2);
+     height = (node.clientHeight+2); 
      switch(this.value) {
        case "PNG":
          domtoimage 
            .toPng(node, {
-              height: node.clientHeight * imgScale + 5, 
-              width: node.clientWidth * imgScale + 5,
+              height: (node.clientHeight+2) * imgScale + 0, 
+              width: (node.clientWidth+2) * imgScale + 0,
               style: {
                 transform: "scale(" + imgScale + ")",
-                transformOrigin: "top left"
+                transformOrigin: "top left",
+                overflow: "visible",
+                width: `${width}px`,
+                height: `${height}px`,
               }})
            .then(function (dataUrl) {
               const dataFn = "output.png";
@@ -253,7 +259,10 @@ function initlmtUD() {
               width: node.clientWidth * imgScale + 5,
               style: {
                 transform: "scale(" + imgScale + ")",
-                transformOrigin: "top left"
+                transformOrigin: "top left",
+                overflow: "visible",
+                width: `${width}px`,
+                height: `${height}px`
               }})
            .then(function (dataUrl) {
               const dataFn = "output.jpeg";
@@ -269,7 +278,10 @@ function initlmtUD() {
               width: node.clientWidth * imgScale,
               style: {
                 transform: "scale(" + imgScale + ")",
-                transformOrigin: "top left"
+                transformOrigin: "top left",
+                overflow: "visible",
+                width: `${width}px`,
+                height: `${height}px`
               }})
            .then(function (dataUrl) {
 	      // jspdf will change the width and height automatically to fit the landscape or portait
@@ -1964,6 +1976,39 @@ var headerContextMenu = [
   }
 ];
 
+var groupHeaderContextMenu = [
+  {
+    label: function(column) {
+      //let colName = column.getField().replace(/\s+/g, '');
+      //if (newLabel.hasOwnProperty(colName)) {
+      console.log(column.getElement(), 'xxxx', column.getElement().style.backgroundColor != undefined);
+      if (column.getElement().style.backgroundColor != undefined) {
+        //return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + newLabel[colName] + "'/>";
+        //return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + rgbToHex(column.getElement().style.backgroundColor) + "'/>";
+        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='#ffffff'/>";
+      } else {
+        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
+      }
+    },
+    action: function (e, column) {
+      //let colName = column.getField().replace(/\s+/g, '');
+      var elColor = document.getElementById("favcolor");
+
+      document.getElementById("favcolor").addEventListener('input', function (evt) {
+        column.getElement().style.backgroundColor = this.value;
+        //newLabel[colName] = this.value;
+
+        var subColumns = column.getSubColumns();
+        for (subColumn of subColumns) {
+          subColumn.getElement().style.backgroundColor = this.value;
+        }
+      });
+    }
+  }
+
+
+];
+
 
 //from stakoverflow https://stackoverflow.com/questions/61653534/javascript-rgb-string-rgbr-g-b-to-hex-rrggbb-conversion
 function componentToHex(c) {
@@ -2460,11 +2505,13 @@ function setGroupColumns(groupValues) {
     return;
   }
 
-  const currentColumns = table.getColumnDefinitions();
+  //const currentColumns = table.getColumnDefinitions();
+  //const currentColumns = tabOption.columns;
+  //const fixedColumn = currentColumns.shift(); 
 
 
-
-  const fixedColumn = currentColumns.shift(); 
+  const fixedColumn = tabOption.columns[0];
+  const currentColumns = tabOption.columns.slice(1); 
 
   const flattenedColumns = flattenColumns(currentColumns);
 
@@ -2478,7 +2525,11 @@ function setGroupColumns(groupValues) {
 
 
     if (filterColumns.length > 0) {
-      groupColumns.push({title: value, columns: filterColumns});
+      groupColumns.push({
+                          title: value, 
+                          columns: filterColumns,
+                          headerContextMenu: groupHeaderContextMenu
+                        });
     }
   }
 
@@ -2523,8 +2574,21 @@ function initSubMenu() {
     
     // Group column header functionality
     groupHeaderBtn.addEventListener('click', function() {
-        const inputs = inputContainer.querySelectorAll('input[type="text"]');
-        const values = Array.from(inputs).map(input => input.value.trim()).filter(val => val);
+        //const inputs = inputContainer.querySelectorAll('input[type="text"]');
+        //const values = Array.from(inputs).map(input => input.value.trim()).filter(val => val);
+        const inputs = inputContainer.querySelectorAll('.input-group');
+        const values = [];
+
+        inputs.forEach(group => {
+            const input = group.querySelector('input[type="text"]');
+            const val = input.value.trim();
+            if (!val && inputs.length > 1) {  // Keep at least one input
+                group.remove();
+            } else if (val) {
+                values.push(val);
+            }
+        });
+
         
         if (values.length === 0) {
             alert('No text inputs found or all are empty!');
