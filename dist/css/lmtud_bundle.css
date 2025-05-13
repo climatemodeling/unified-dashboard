@@ -185,6 +185,10 @@ p {
    text-shadow: none;
 }
 
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title .tabulator-title-editor {
+   border: none;
+   text-align: center;
+}
 
 /* main row */
 .tabulator-row{

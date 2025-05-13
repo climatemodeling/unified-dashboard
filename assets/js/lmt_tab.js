@@ -139,6 +139,10 @@ var _config = {};
 var sortState = 0;
 var originalColumns = [];
 
+var preXdim, preYdim;
+var groupSavedValues = null;
+var headerStyles;
+
 
 //export
 
@@ -183,7 +187,6 @@ function initlmtUD() {
 
 
 
-  console.log('xxx in document ready');
   //updateColorMapping();
 
 
@@ -199,6 +202,8 @@ function initlmtUD() {
 
   // Save image functions
 
+  initSubMenu();
+
   document.getElementById("saveimage").selectedIndex = 0;
 
   document.getElementById("saveimage").addEventListener("change", function (){
@@ -209,15 +214,21 @@ function initlmtUD() {
      const node = document.getElementById('dashboard-table');
      const tempvalue = this.value;
      console.log('UDEB: ', tempvalue.toLowerCase());
+
+     width = (node.clientWidth+2);
+     height = (node.clientHeight+2); 
      switch(this.value) {
        case "PNG":
          domtoimage 
            .toPng(node, {
-              height: node.clientHeight * imgScale + 5, 
-              width: node.clientWidth * imgScale + 5,
+              height: (node.clientHeight+2) * imgScale + 0, 
+              width: (node.clientWidth+2) * imgScale + 0,
               style: {
                 transform: "scale(" + imgScale + ")",
-                transformOrigin: "top left"
+                transformOrigin: "top left",
+                overflow: "visible",
+                width: `${width}px`,
+                height: `${height}px`,
               }})
            .then(function (dataUrl) {
               const dataFn = "output.png";
@@ -248,7 +259,10 @@ function initlmtUD() {
               width: node.clientWidth * imgScale + 5,
               style: {
                 transform: "scale(" + imgScale + ")",
-                transformOrigin: "top left"
+                transformOrigin: "top left",
+                overflow: "visible",
+                width: `${width}px`,
+                height: `${height}px`
               }})
            .then(function (dataUrl) {
               const dataFn = "output.jpeg";
@@ -264,7 +278,10 @@ function initlmtUD() {
               width: node.clientWidth * imgScale,
               style: {
                 transform: "scale(" + imgScale + ")",
-                transformOrigin: "top left"
+                transformOrigin: "top left",
+                overflow: "visible",
+                width: `${width}px`,
+                height: `${height}px`
               }})
            .then(function (dataUrl) {
 	      // jspdf will change the width and height automatically to fit the landscape or portait
@@ -758,7 +775,6 @@ function initChoicesEvent(cJson) {
               cJson.DIMENSIONS.json_structure
             )) {
               // i start from zero
-              console.log('xxx', selectIdByDims[dimn], dimn);
               dictChoices[
                 selectIdByDims[dimn]
               ].containerInner.element.parentElement.style.display = 'block';
@@ -860,13 +876,24 @@ function initChoicesEvent(cJson) {
             'now we can generate the tab json and prepare redraw table'
           );
 
+
           let ini_xdim,
             ini_ydim,
-            ini_fxdm = {}
-            ;[ini_xdim, ini_ydim, ini_fxdm] = initDim(
+            ini_fxdm = {} ;
+
+          [ini_xdim, ini_ydim, ini_fxdm] = initDim(
               cmecJson,
               (dimSet = dimSetEvent)
-            );
+          );
+
+          if (preXdim != ini_xdim) {
+              console.log('xxx');
+              resetGroupBtn();
+          }
+
+          preXdim = ini_xdim;
+          preYdim = ini_ydim;
+          
 
           // select choices based on the initial dimension setting
           console.log('start prepareSel', ini_xdim, ini_ydim, ini_fxdm);
@@ -1322,6 +1349,7 @@ document.addEventListener('jsonReady', function () {
     table.setColumns(tabOption.columns);
     table.setData(tabTreeJson);
     table.redraw();
+    setGroupColumns(groupSavedValues);
     draw_legend();
 
   } catch (err) {
@@ -1491,6 +1519,7 @@ function initCheckBoxesEvent() {
 
   document.getElementById("cb-toptitle").addEventListener("change", () => {
     console.log("fire event for toptitle");
+    const currentColumns = table.getColumnDefinitions();
     if (document.getElementById("cb-toptitle").checked) {
 
       lmtSettings.setTopTitle = true;
@@ -1499,61 +1528,84 @@ function initCheckBoxesEvent() {
       lmtSettings.setTopTitle = false;
       tabOption['headerVisible'] = false;
     }
-    //table redraw needed?
-    // clear memory, otherwise will be very slow
-    
-    tabOption['data'] = table.getData();
-    table.destroy();
+    if (table) {
+       table.off("tableBuilt");
+       table.clearData(); // need to clear memory
+       table.destroy(); // clear memory
+    }
     table = new Tabulator('#dashboard-table', tabOption);
+
+    table.on("tableBuilt", function(){table.setColumns(currentColumns)});
+     
   });
 
 
   document.getElementById("cb-bottomtitle").addEventListener("change", () => {
     console.log("fire event for bottomtitle");
-    if (document.getElementById("cb-bottomtitle").checked) {
 
-      lmtSettings.setBottomTitle = true;
-      for (let x of tabOption.columns) {
-        if (x.field != 'row_name') {
-	  x['bottomCalc'] = bottomCalcFunc;
+    const checkbox = document.getElementById("cb-bottomtitle");
+    const currentColumns = table.getColumnDefinitions();
+    const setBottomTitle = checkbox.checked;
+
+    lmtSettings.setBottomTitle = setBottomTitle;
+
+    currentColumns.forEach(column => {
+      if (Array.isArray(column.columns)) {
+        // Handle nested columns (e.g., grouped headers)
+        column.columns.forEach(nestedColumn => {
+          if (nestedColumn.field !== 'row_name') {
+            if (setBottomTitle) {
+              nestedColumn.bottomCalc = bottomCalcFunc;
+            } else {
+              delete nestedColumn.bottomCalc;
+            }
+          }
+        });
+
+      } else {
+        // Handle regular columns
+        if (column.field !== 'row_name') {
+          if (setBottomTitle) {
+            column.bottomCalc = bottomCalcFunc;
+          } else {
+            delete column.bottomCalc; 
+          }
         }
       }
-      table.setColumns(tabOption.columns);
-      table.redraw();
-    } else {
-      lmtSettings.setBottomTitle = false;
-      for (let x of tabOption.columns) {
-        if (x.field != 'row_name') {
-          delete x['bottomCalc'];
-	}
-      }
-      table.destroy();
-      table = new Tabulator('#dashboard-table', tabOption);
-    }
+    });
+    table.destroy();
+    table = new Tabulator('#dashboard-table', tabOption);
+    table.on("tableBuilt", function(){table.setColumns(currentColumns)});
   });
 
 
 
   document.getElementById("cb-cellvalue").addEventListener("change", () => {
-    console.log("fire event for cellvalue");
-    if (document.getElementById("cb-cellvalue").checked) {
-
-      lmtSettings.setCellValue = true;
-      for (x of tabOption.columns) {
-        if (x.field != 'row_name') {
-          x['formatterParams'] = { showCellValue: true };
+    console.log("Toggle cell value display");
+  
+    const checkbox = document.getElementById("cb-cellvalue");
+    const currentColumns = table.getColumnDefinitions();
+    const showCellValue = checkbox.checked;
+  
+    lmtSettings.setCellValue = showCellValue;
+  
+    currentColumns.forEach(column => {
+      if (Array.isArray(column.columns)) {
+        // Handle nested columns (e.g., grouped headers)
+        column.columns.forEach(nestedColumn => {
+          if (nestedColumn.field !== 'row_name') {
+            nestedColumn.formatterParams = { showCellValue };
+          }
+        });
+      } else {
+        // Handle regular columns
+        if (column.field !== 'row_name') {
+          column.formatterParams = { showCellValue };
         }
       }
-    } else {
-      lmtSettings.setCellValue = false;
-      for (x of tabOption.columns) {
-        if (x.field != 'row_name') {
-          x['formatterParams'] = { showCellValue: false };
-        }
-      }
-    }
-    table.setColumns(tabOption.columns);
-    table.redraw();
+    });
+  
+    table.setColumns(currentColumns);
   });
 
   document.getElementById("cb-fitscreen").addEventListener("change", () => {
@@ -1945,6 +1997,90 @@ var headerContextMenu = [
   }
 ];
 
+
+
+function getHeaderMenu(idDom) {
+  return [
+      {
+        label: `Background Color <input type='color' class='${class4Color}' id='${idDom}BgColor' name='favcolor' value='#ffffff'/>`,
+        action: function(e, column) {
+
+            document.getElementById(`${idDom}BgColor`).addEventListener('input', function (evt) {
+
+               const headerEl = column.getElement();
+               headerEl.style.backgroundColor = this.value;
+
+               const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title .tabulator-title-editor');
+               textEl.style.backgroundColor = this.value;
+
+            });
+        }
+      },
+      {
+        label: `Font Color <input type='color' class='${class4Color}' id='${idDom}FontColor' name='favcolor' value='#ffffff'/>`,
+        action: function(e, column) {
+            document.getElementById(`${idDom}FontColor`).addEventListener('input', function (evt) {
+                setHeaderStyle(column, "color", this.value);
+            });
+        }
+      },
+      {
+        label: "Font Size",
+        menu: [
+            {label: "Small", action: function(e, column) { setHeaderStyle(column, "font-size", "12px"); }},
+            {label: "Medium", action: function(e, column) { setHeaderStyle(column, "font-size", "14px"); }},
+            {label: "Large", action: function(e, column) { setHeaderStyle(column, "font-size", "18px"); }},
+            {label: "Custom...", action: function(e, column) {
+                var size = prompt("Enter font size (e.g., 16px):");
+                if(size) setHeaderStyle(column, "font-size", size);
+            }},
+        ]
+      },
+      {
+        label: "Font Weight",
+        menu: [
+            {label: "Normal", action: function(e, column) { setHeaderStyle(column, "font-weight", "normal"); }},
+            {label: "Bold", action: function(e, column) { setHeaderStyle(column, "font-weight", "bold"); }},
+            {label: "Bolder", action: function(e, column) { setHeaderStyle(column, "font-weight", "bolder"); }},
+        ]
+      }
+  ];
+}
+
+
+var groupHeaderContextMenu = [
+  {
+    label: "Subgroup Title",
+    menu: getHeaderMenu('subGroup')
+  },
+  {
+    label: "Group Title",
+    menu: getHeaderMenu('fav')
+  }
+];
+
+
+function setHeaderStyle(column, property, value) {
+    //column.getElements().forEach(function(element) {
+    //    element.style[property] = value;
+    //});
+
+    console.log(column.getElement());
+    const headerEl = column.getElement();
+    const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title');
+    textEl.style[property] = value;
+
+    table.redraw(true);
+    
+    // Store the style if you're using persistence
+    if (typeof headerStyles !== 'undefined') {
+
+        var field = column.getField();
+        console.log('zzzzzzzzzzzzzzzzzzzz', filed);
+        if (!headerStyles[field]) headerStyles[field] = {};
+        headerStyles[field][property] = value;
+    }
+}
 
 //from stakoverflow https://stackoverflow.com/questions/61653534/javascript-rgb-string-rgbr-g-b-to-hex-rrggbb-conversion
 function componentToHex(c) {
@@ -2381,19 +2517,53 @@ function cycleColumnSort() {
   
   const fixedColumn = currentColumns.shift(); 
 
-  if (sortState === 0) {
-    originalColumns = table.getColumnDefinitions();
-    // Sort A-Z (ascending)
-    currentColumns.sort((a, b) => a.title.localeCompare(b.title));
-    sortState = 1;
-  } else if (sortState === 1) {
-    // Sort Z-A (descending)
-    currentColumns.sort((a, b) => b.title.localeCompare(a.title));
-    sortState = 2;
+  var isGrouped = false;
+  if (currentColumns.some(obj => 'columns' in obj)) {
+    isGrouped = true;
+
   } else {
-    // Reset to original order
-    table.setColumns(originalColumns);
-    sortState = 0;
+    isGrouped = false;
+  }
+
+  if (isGrouped) {
+    if (sortState === 0) {
+      currentColumns.forEach(item => {
+        if (Array.isArray(item.columns)) {
+          item.columns.sort((a, b) => a.title.localeCompare(b.title));
+        }
+      });
+      sortState = 1;
+    } else if (sortState === 1) {
+      currentColumns.forEach(item => {
+        if (Array.isArray(item.columns)) {
+          item.columns.sort((a, b) => b.title.localeCompare(a.title));
+        }
+      });
+      sortState = 2;
+
+    } else {
+      setGroupColumns(groupSavedValues);
+      sortState = 0;
+      updateButtonText();
+      return;
+    }
+  } else {
+    if (sortState === 0) {
+      originalColumns = table.getColumnDefinitions();
+      // Sort A-Z (ascending)
+      currentColumns.sort((a, b) => a.title.localeCompare(b.title));
+      sortState = 1;
+    } else if (sortState === 1) {
+      // Sort Z-A (descending)
+      currentColumns.sort((a, b) => b.title.localeCompare(a.title));
+      sortState = 2;
+    } else {
+      // Reset to original order
+      table.setColumns(tabOption.columns);
+      sortState = 0;
+      updateButtonText();
+      return;
+    }
   }
 
   updateButtonText();
@@ -2401,9 +2571,147 @@ function cycleColumnSort() {
   table.setColumns([fixedColumn, ...currentColumns]);
 }
 
+
+function flattenColumns(data) {
+  // Check if any object has a 'columns' array
+  const hasColumns = data.some(obj => Array.isArray(obj.columns) && obj.columns.length > 0);
+
+  if (!hasColumns) {
+    return data; // Return original if no columns found
+  }
+
+  // Otherwise, flatten columns
+  return [...new Set(
+    data.reduce((acc, obj) => 
+      Array.isArray(obj.columns) 
+        ? [...acc, ...obj.columns] 
+        : acc, 
+    [])
+  )];
+}
+
+function setGroupColumns(groupValues) {
+
+  if (groupValues == null) {
+    return;
+  }
+
+  //const currentColumns = table.getColumnDefinitions();
+  //const currentColumns = tabOption.columns;
+  //const fixedColumn = currentColumns.shift(); 
+
+
+  const fixedColumn = tabOption.columns[0];
+  const currentColumns = tabOption.columns.slice(1); 
+
+  const flattenedColumns = flattenColumns(currentColumns);
+
+  groupColumns = [];
+  for (const value of groupValues) {
+    const filterColumns = flattenedColumns.filter(col => col.title.includes(value));
+    if (filterColumns.length > 0) {
+      groupColumns.push({
+                          title: value, 
+                          columns: filterColumns,
+                          headerContextMenu: groupHeaderContextMenu,
+                          editableTitle:true
+                        });
+    }
+  }
+
+  if (groupColumns.length > 0) {
+     table.setColumns([fixedColumn, ...groupColumns]);
+  } else {
+
+    alert (`values:\n${groupValues.join('\n')} not found in the table titles`);
+  }
+  
+}
+
 function updateButtonText() {
   const texts = ["Toggle Sort Title", "A-Z Sort", "Z-A Sort"];
   document.getElementById("sort-state-text").textContent = texts[sortState];
 }
+
+
+function initSubMenu() {
+    const groupHeaderBtn = document.getElementById('groupHeaderBtn');
+    const inputContainer = document.getElementById('inputContainer');
+    
+    // Add new input field
+    inputContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-input-btn') || 
+            e.target.closest('.add-input-btn')) {
+            const newInputGroup = document.createElement('div');
+            newInputGroup.className = 'input-group flex items-center space-x-2 w-48';
+            newInputGroup.innerHTML = `
+                <input type="text" class="w-32 ml-2.5 flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter text...">
+                <button class="add-input-btn bg-green-500 hover:bg-green-600 text-white p-2 rounded-full transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            `;
+            // Insert after the clicked button's parent
+            const parentGroup = e.target.closest('.input-group');
+            parentGroup.parentNode.insertBefore(newInputGroup, parentGroup.nextSibling);
+        }
+    });
+    
+    // Group column header functionality
+    groupHeaderBtn.addEventListener('click', function() {
+        const inputs = inputContainer.querySelectorAll('.input-group');
+        const values = [];
+
+        inputs.forEach(group => {
+            const input = group.querySelector('input[type="text"]');
+            const val = input.value.trim();
+            if (!val && inputs.length > 1) {  // Keep at least one input
+                group.remove();
+            } else if (val) {
+                values.push(val);
+            }
+        });
+
+        
+        if (values.length === 0) {
+            alert('No text inputs found or all are empty!');
+            return;
+        }
+        
+        // Here you can do operations with the collected values
+        console.log('Collected values:', values);
+        console.log(`Collected ${values.length} values:\n${values.join('\n')}`);
+
+        groupSavedValues = values;
+
+        setGroupColumns(values); 
+        
+        // Example operation: concatenate with commas
+        const concatenated = values.join(', ');
+        console.log('Concatenated:', concatenated);
+    });
+}
+
+function resetGroupBtn() {
+    // Clear all inputs except the first one
+    const inputGroups = inputContainer.querySelectorAll('.input-group');
+    
+    // Remove all input groups except the first one
+    inputGroups.forEach((group, index) => {
+        if (index > 0) {
+            group.remove();
+        }
+    });
+    
+    // Clear the first input's value
+    const firstInput = inputContainer.querySelector('input[type="text"]');
+    if (firstInput) {
+        firstInput.value = '';
+    }
+
+    groupSavedValues = null;
+}
+
 
 // end of lmt_tab.js
