@@ -141,6 +141,7 @@ var originalColumns = [];
 
 var preXdim, preYdim;
 var groupSavedValues = null;
+var headerStyles;
 
 
 //export
@@ -186,7 +187,6 @@ function initlmtUD() {
 
 
 
-  console.log('xxx in document ready');
   //updateColorMapping();
 
 
@@ -775,7 +775,6 @@ function initChoicesEvent(cJson) {
               cJson.DIMENSIONS.json_structure
             )) {
               // i start from zero
-              console.log('xxx', selectIdByDims[dimn], dimn);
               dictChoices[
                 selectIdByDims[dimn]
               ].containerInner.element.parentElement.style.display = 'block';
@@ -1519,6 +1518,7 @@ function initCheckBoxesEvent() {
 
   document.getElementById("cb-toptitle").addEventListener("change", () => {
     console.log("fire event for toptitle");
+    const currentColumns = table.getColumnDefinitions();
     if (document.getElementById("cb-toptitle").checked) {
 
       lmtSettings.setTopTitle = true;
@@ -1527,64 +1527,85 @@ function initCheckBoxesEvent() {
       lmtSettings.setTopTitle = false;
       tabOption['headerVisible'] = false;
     }
-    //table redraw needed?
-    // clear memory, otherwise will be very slow
-    
-    var tempData = table.getData();
-    table.clearData();
-    table.setData(tempData);
-    // destroy table first
-    table.destroy();
+ 
+    if (table) {
+       table.off("tableBuilt");
+       table.clearData(); // need to clear memory
+       table.destroy(); // clear memory
+    }
     table = new Tabulator('#dashboard-table', tabOption);
+
+    table.on("tableBuilt", function(){table.setColumns(currentColumns)});
+     
   });
 
 
   document.getElementById("cb-bottomtitle").addEventListener("change", () => {
     console.log("fire event for bottomtitle");
-    if (document.getElementById("cb-bottomtitle").checked) {
 
-      lmtSettings.setBottomTitle = true;
-      for (let x of tabOption.columns) {
-        if (x.field != 'row_name') {
-	  x['bottomCalc'] = bottomCalcFunc;
+    const checkbox = document.getElementById("cb-bottomtitle");
+    const currentColumns = table.getColumnDefinitions();
+    const setBottomTitle = checkbox.checked;
+
+    lmtSettings.setBottomTitle = setBottomTitle;
+
+    currentColumns.forEach(column => {
+      if (Array.isArray(column.columns)) {
+        // Handle nested columns (e.g., grouped headers)
+        column.columns.forEach(nestedColumn => {
+          if (nestedColumn.field !== 'row_name') {
+            if (setBottomTitle) {
+              nestedColumn.bottomCalc = bottomCalcFunc;
+            } else {
+              delete nestedColumn.bottomCalc;
+            }
+          }
+        });
+
+      } else {
+        // Handle regular columns
+        if (column.field !== 'row_name') {
+          if (setBottomTitle) {
+            column.bottomCalc = bottomCalcFunc;
+          } else {
+            delete column.bottomCalc; 
+          }
         }
       }
-      table.setColumns(tabOption.columns);
-      table.redraw();
-    } else {
-      lmtSettings.setBottomTitle = false;
-      for (let x of tabOption.columns) {
-        if (x.field != 'row_name') {
-          delete x['bottomCalc'];
-	}
-      }
-      table.destroy();
-      table = new Tabulator('#dashboard-table', tabOption);
-    }
+    });
+    table.destroy();
+    table = new Tabulator('#dashboard-table', tabOption);
+    table.on("tableBuilt", function(){table.setColumns(currentColumns)});
   });
 
 
 
   document.getElementById("cb-cellvalue").addEventListener("change", () => {
-    console.log("fire event for cellvalue");
-    if (document.getElementById("cb-cellvalue").checked) {
-
-      lmtSettings.setCellValue = true;
-      for (x of tabOption.columns) {
-        if (x.field != 'row_name') {
-          x['formatterParams'] = { showCellValue: true };
+    console.log("Toggle cell value display");
+  
+    const checkbox = document.getElementById("cb-cellvalue");
+    const currentColumns = table.getColumnDefinitions();
+    const showCellValue = checkbox.checked;
+  
+    lmtSettings.setCellValue = showCellValue;
+  
+    currentColumns.forEach(column => {
+      if (Array.isArray(column.columns)) {
+        // Handle nested columns (e.g., grouped headers)
+        column.columns.forEach(nestedColumn => {
+          if (nestedColumn.field !== 'row_name') {
+            nestedColumn.formatterParams = { showCellValue };
+          }
+        });
+      } else {
+        // Handle regular columns
+        if (column.field !== 'row_name') {
+          column.formatterParams = { showCellValue };
         }
       }
-    } else {
-      lmtSettings.setCellValue = false;
-      for (x of tabOption.columns) {
-        if (x.field != 'row_name') {
-          x['formatterParams'] = { showCellValue: false };
-        }
-      }
-    }
-    table.setColumns(tabOption.columns);
-    table.redraw();
+    });
+  
+    table.setColumns(currentColumns);
   });
 
   document.getElementById("cb-fitscreen").addEventListener("change", () => {
@@ -1976,39 +1997,90 @@ var headerContextMenu = [
   }
 ];
 
+
+
+function getHeaderMenu(idDom) {
+  return [
+      {
+        label: `Background Color <input type='color' class='${class4Color}' id='${idDom}BgColor' name='favcolor' value='#ffffff'/>`,
+        action: function(e, column) {
+
+            document.getElementById(`${idDom}BgColor`).addEventListener('input', function (evt) {
+
+               const headerEl = column.getElement();
+               headerEl.style.backgroundColor = this.value;
+
+               const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title .tabulator-title-editor');
+               textEl.style.backgroundColor = this.value;
+
+            });
+        }
+      },
+      {
+        label: `Font Color <input type='color' class='${class4Color}' id='${idDom}FontColor' name='favcolor' value='#ffffff'/>`,
+        action: function(e, column) {
+            document.getElementById(`${idDom}FontColor`).addEventListener('input', function (evt) {
+                setHeaderStyle(column, "color", this.value);
+            });
+        }
+      },
+      {
+        label: "Font Size",
+        menu: [
+            {label: "Small", action: function(e, column) { setHeaderStyle(column, "font-size", "12px"); }},
+            {label: "Medium", action: function(e, column) { setHeaderStyle(column, "font-size", "14px"); }},
+            {label: "Large", action: function(e, column) { setHeaderStyle(column, "font-size", "18px"); }},
+            {label: "Custom...", action: function(e, column) {
+                var size = prompt("Enter font size (e.g., 16px):");
+                if(size) setHeaderStyle(column, "font-size", size);
+            }},
+        ]
+      },
+      {
+        label: "Font Weight",
+        menu: [
+            {label: "Normal", action: function(e, column) { setHeaderStyle(column, "font-weight", "normal"); }},
+            {label: "Bold", action: function(e, column) { setHeaderStyle(column, "font-weight", "bold"); }},
+            {label: "Bolder", action: function(e, column) { setHeaderStyle(column, "font-weight", "bolder"); }},
+        ]
+      }
+  ];
+}
+
+
 var groupHeaderContextMenu = [
   {
-    label: function(column) {
-      //let colName = column.getField().replace(/\s+/g, '');
-      //if (newLabel.hasOwnProperty(colName)) {
-      console.log(column.getElement(), 'xxxx', column.getElement().style.backgroundColor != undefined);
-      if (column.getElement().style.backgroundColor != undefined) {
-        //return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + newLabel[colName] + "'/>";
-        //return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + rgbToHex(column.getElement().style.backgroundColor) + "'/>";
-        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='#ffffff'/>";
-      } else {
-        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
-      }
-    },
-    action: function (e, column) {
-      //let colName = column.getField().replace(/\s+/g, '');
-      var elColor = document.getElementById("favcolor");
-
-      document.getElementById("favcolor").addEventListener('input', function (evt) {
-        column.getElement().style.backgroundColor = this.value;
-        //newLabel[colName] = this.value;
-
-        var subColumns = column.getSubColumns();
-        for (subColumn of subColumns) {
-          subColumn.getElement().style.backgroundColor = this.value;
-        }
-      });
-    }
+    label: "Subgroup Title",
+    menu: getHeaderMenu('subGroup')
+  },
+  {
+    label: "Group Title",
+    menu: getHeaderMenu('fav')
   }
-
-
 ];
 
+
+function setHeaderStyle(column, property, value) {
+    //column.getElements().forEach(function(element) {
+    //    element.style[property] = value;
+    //});
+
+    console.log(column.getElement());
+    const headerEl = column.getElement();
+    const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title');
+    textEl.style[property] = value;
+
+    table.redraw(true);
+    
+    // Store the style if you're using persistence
+    if (typeof headerStyles !== 'undefined') {
+
+        var field = column.getField();
+        console.log('zzzzzzzzzzzzzzzzzzzz', filed);
+        if (!headerStyles[field]) headerStyles[field] = {};
+        headerStyles[field][property] = value;
+    }
+}
 
 //from stakoverflow https://stackoverflow.com/questions/61653534/javascript-rgb-string-rgbr-g-b-to-hex-rrggbb-conversion
 function componentToHex(c) {
@@ -2445,39 +2517,58 @@ function cycleColumnSort() {
   
   const fixedColumn = currentColumns.shift(); 
 
-  if (sortState === 0) {
-    originalColumns = table.getColumnDefinitions();
-    // Sort A-Z (ascending)
+  var isGrouped = false;
+  if (currentColumns.some(obj => 'columns' in obj)) {
+    isGrouped = true;
 
-    console.log(currentColumns, 'xxx');
-    console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
-    const gcb2023Columns = currentColumns.filter(col => col.title.includes("GCB2023"));
-    const gcb2024Columns = currentColumns.filter(col => col.title.includes("GCB2024"));
-    console.log(gcb2023Columns);
-    console.log(gcb2024Columns);
-    //currentColumns.sort((a, b) => a.title.localeCompare(b.title));
-    gcb2023Columns.sort((a, b) => a.title.localeCompare(b.title));
-    gcb2024Columns.sort((a, b) => a.title.localeCompare(b.title));
-
-    groupColumns = [{title: "GCB2023", columns: gcb2023Columns}, {title: "GCB2024", columns: gcb2024Columns}];
-    sortState = 1;
-  } else if (sortState === 1) {
-    // Sort Z-A (descending)
-    currentColumns.sort((a, b) => b.title.localeCompare(a.title));
-
-    groupColumns = currentColumns;
-    sortState = 2;
   } else {
-    // Reset to original order
-    table.setColumns(originalColumns);
-    sortState = 0;
-    updateButtonText();
-    return;
+    isGrouped = false;
+  }
+
+  if (isGrouped) {
+    if (sortState === 0) {
+      currentColumns.forEach(item => {
+        if (Array.isArray(item.columns)) {
+          item.columns.sort((a, b) => a.title.localeCompare(b.title));
+        }
+      });
+      sortState = 1;
+    } else if (sortState === 1) {
+      currentColumns.forEach(item => {
+        if (Array.isArray(item.columns)) {
+          item.columns.sort((a, b) => b.title.localeCompare(a.title));
+        }
+      });
+      sortState = 2;
+
+    } else {
+      setGroupColumns(groupSavedValues);
+      sortState = 0;
+      updateButtonText();
+      return;
+    }
+  } else {
+    if (sortState === 0) {
+      originalColumns = table.getColumnDefinitions();
+      // Sort A-Z (ascending)
+      currentColumns.sort((a, b) => a.title.localeCompare(b.title));
+      sortState = 1;
+    } else if (sortState === 1) {
+      // Sort Z-A (descending)
+      currentColumns.sort((a, b) => b.title.localeCompare(a.title));
+      sortState = 2;
+    } else {
+      // Reset to original order
+      table.setColumns(tabOption.columns);
+      sortState = 0;
+      updateButtonText();
+      return;
+    }
   }
 
   updateButtonText();
   
-  table.setColumns([fixedColumn, ...groupColumns]);
+  table.setColumns([fixedColumn, ...currentColumns]);
 }
 
 
@@ -2515,20 +2606,15 @@ function setGroupColumns(groupValues) {
 
   const flattenedColumns = flattenColumns(currentColumns);
 
-  console.log('xxxxxx', currentColumns);
-  console.log('yyyyyy', flattenedColumns);
-
   groupColumns = [];
   for (const value of groupValues) {
-
     const filterColumns = flattenedColumns.filter(col => col.title.includes(value));
-
-
     if (filterColumns.length > 0) {
       groupColumns.push({
                           title: value, 
                           columns: filterColumns,
-                          headerContextMenu: groupHeaderContextMenu
+                          headerContextMenu: groupHeaderContextMenu,
+                          editableTitle:true
                         });
     }
   }
@@ -2574,8 +2660,6 @@ function initSubMenu() {
     
     // Group column header functionality
     groupHeaderBtn.addEventListener('click', function() {
-        //const inputs = inputContainer.querySelectorAll('input[type="text"]');
-        //const values = Array.from(inputs).map(input => input.value.trim()).filter(val => val);
         const inputs = inputContainer.querySelectorAll('.input-group');
         const values = [];
 
@@ -2597,7 +2681,7 @@ function initSubMenu() {
         
         // Here you can do operations with the collected values
         console.log('Collected values:', values);
-        alert(`Collected ${values.length} values:\n${values.join('\n')}`);
+        console.log(`Collected ${values.length} values:\n${values.join('\n')}`);
 
         groupSavedValues = values;
 
