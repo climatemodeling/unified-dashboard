@@ -1059,11 +1059,11 @@ function setCheckBoxesDefault(normDir, setTooltip, setTopTitle, setBottomTitle, 
     document.getElementById("cb-bottomtitle").checked = false;
   }
 
-  if (setTooltip){
-    document.getElementById("cb-tooltip").checked = true;
-  } else {
-    document.getElementById("cb-tooltip").checked = false;
-  }
+  //-if (setTooltip){
+  //-  document.getElementById("cb-tooltip").checked = true;
+  //-} else {
+  //-  document.getElementById("cb-tooltip").checked = false;
+  //-}
 
   if (setCellValue) {
     document.getElementById("cb-cellvalue").checked = true;
@@ -1452,7 +1452,7 @@ function initCheckBoxes() {
   document.getElementById("cb-scacol").checked = false;
   document.getElementById("cb-toptitle").checked = false;
   document.getElementById("cb-bottomtitle").checked = false;
-  document.getElementById("cb-tooltip").checked = false;
+  //document.getElementById("cb-tooltip").checked = false;
   document.getElementById("cb-cellvalue").checked = false;
   document.getElementById("cb-fitscreen").checked = true;
 }
@@ -1490,31 +1490,32 @@ function initCheckBoxesEvent() {
   });
 
 
-  document.getElementById("cb-tooltip").addEventListener("change", () => {
-    console.log("fire event for tooltip");
-    if (document.getElementById("cb-tooltip").checked) {
+  //-document.getElementById("cb-tooltip").addEventListener("change", () => {
+  //-  console.log("fire event for tooltip");
+  //-  if (document.getElementById("cb-tooltip").checked) {
 
-      lmtSettings.setTooltip = true;
-      tabOption.tooltips = function (cell) {
-         if (cell.getField() == 'row_name') {
-	   return false;
-	 } else {
-	   return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
-	 }
-      }					        
+  //-    lmtSettings.setTooltip = true;
+  //-    tabOption.tooltips = function (cell) {
+  //-       if (cell.getField() == 'row_name') {
+  //-         return false;
+  //-       } else {
+  //-         return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
+  //-       }
+  //-    }					        
 
-    } else {
-      lmtSettings.setTooltip = false;
-      tabOption.tooltips = false;
+  //-  } else {
+  //-    lmtSettings.setTooltip = false;
+  //-    tabOption.tooltips = false;
 
-      console.log("tooltip is false");
-    }
-    
-    //table redraw needed?
-    //console.log("tooltip", tabOption.tooltips);
-    table.destroy();
-    table = new Tabulator('#dashboard-table', tabOption);
-  });
+  //-    console.log("tooltip is false");
+  //-  }
+  //-  
+  //-  //table redraw needed?
+  //-  //console.log("tooltip", tabOption.tooltips);
+  //-  table.destroy();
+  //-  tabOption['data'] = table.getData();
+  //-  table = new Tabulator('#dashboard-table', tabOption);
+  //-});
 
   document.getElementById("cb-toptitle").addEventListener("change", () => {
     console.log("fire event for toptitle");
@@ -1527,7 +1528,6 @@ function initCheckBoxesEvent() {
       lmtSettings.setTopTitle = false;
       tabOption['headerVisible'] = false;
     }
- 
     if (table) {
        table.off("tableBuilt");
        table.clearData(); // need to clear memory
