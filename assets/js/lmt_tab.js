@@ -1996,11 +1996,19 @@ function getHeaderMenu(idDom) {
 
             document.getElementById(`${idDom}BgColor`).addEventListener('input', function (evt) {
 
-               const headerEl = column.getElement();
-               headerEl.style.backgroundColor = this.value;
+               if (idDom == 'fav') {
+                 const headerEl = column.getElement();
+                 headerEl.style.backgroundColor = this.value;
 
-               const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title .tabulator-title-editor');
-               textEl.style.backgroundColor = this.value;
+                 const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title .tabulator-title-editor');
+                 textEl.style.backgroundColor = this.value;
+               } else {
+
+                 column.getSubColumns().forEach(col => {
+                   col.getElement().style.backgroundColor = this.value;
+                 });
+
+               }
 
             });
         }
@@ -2009,28 +2017,28 @@ function getHeaderMenu(idDom) {
         label: `Font Color <input type='color' class='${class4Color}' id='${idDom}FontColor' name='favcolor' value='#ffffff'/>`,
         action: function(e, column) {
             document.getElementById(`${idDom}FontColor`).addEventListener('input', function (evt) {
-                setHeaderStyle(column, "color", this.value);
+                setHeaderStyle(idDom, column, "color", this.value);
             });
         }
       },
       {
         label: "Font Size",
         menu: [
-            {label: "Small", action: function(e, column) { setHeaderStyle(column, "font-size", "12px"); }},
-            {label: "Medium", action: function(e, column) { setHeaderStyle(column, "font-size", "14px"); }},
-            {label: "Large", action: function(e, column) { setHeaderStyle(column, "font-size", "18px"); }},
+            {label: "Small", action: function(e, column) { setHeaderStyle(idDom, column, "font-size", "12px"); }},
+            {label: "Medium", action: function(e, column) { setHeaderStyle(idDom, column, "font-size", "14px"); }},
+            {label: "Large", action: function(e, column) { setHeaderStyle(idDom, column, "font-size", "18px"); }},
             {label: "Custom...", action: function(e, column) {
                 var size = prompt("Enter font size (e.g., 16px):");
-                if(size) setHeaderStyle(column, "font-size", size);
+                if(size) setHeaderStyle(idDom, column, "font-size", size);
             }},
         ]
       },
       {
         label: "Font Weight",
         menu: [
-            {label: "Normal", action: function(e, column) { setHeaderStyle(column, "font-weight", "normal"); }},
-            {label: "Bold", action: function(e, column) { setHeaderStyle(column, "font-weight", "bold"); }},
-            {label: "Bolder", action: function(e, column) { setHeaderStyle(column, "font-weight", "bolder"); }},
+            {label: "Normal", action: function(e, column) { setHeaderStyle(idDom, column, "font-weight", "normal"); }},
+            {label: "Bold", action: function(e, column) { setHeaderStyle(idDom, column, "font-weight", "bold"); }},
+            {label: "Bolder", action: function(e, column) { setHeaderStyle(idDom, column, "font-weight", "bolder"); }},
         ]
       }
   ];
@@ -2049,15 +2057,17 @@ var groupHeaderContextMenu = [
 ];
 
 
-function setHeaderStyle(column, property, value) {
-    //column.getElements().forEach(function(element) {
-    //    element.style[property] = value;
-    //});
+function setHeaderStyle(idDom, column, property, value) {
 
-    console.log(column.getElement());
-    const headerEl = column.getElement();
-    const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title');
-    textEl.style[property] = value;
+    if (idDom == 'fav') {
+      const headerEl = column.getElement();
+      const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title');
+      textEl.style[property] = value;
+    } else {
+      column.getSubColumns().forEach(col => {
+        col.getElement().querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title').style[property] = value;
+      });
+    }
 
     table.redraw(true);
     
