@@ -43,7 +43,7 @@ function resolve_tree(tabJson){
           newline["_children"]=[];
           parentName = rowline.row_name;
 
-          var findc  = flattenJson.filter(obj => obj.row_name.includes(parentName.concat('::')) && !obj.row_name.includes('!!'));
+          var findc  = flattenJson.filter(obj => obj.row_name.startsWith(parentName.concat('::')) && !obj.row_name.includes('!!'));
 
           var findchild = JSON.parse(JSON.stringify(findc));
 
