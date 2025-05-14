@@ -963,6 +963,12 @@ function initChoicesEvent(cJson) {
          
              if (lmtSettings["normDir"] == 'row') {
                let j = 0;
+
+               const count = Object.keys(tempData[0]).filter(key => key !== "row_name").length;
+               if (event.detail.value == 1 && count == 1) {
+                  alert("cannot normalized data");
+                  dictChoices[dim + 'Choices'].setChoiceByValue("0");
+               }
                for (data of tempData) {
                  newData[j] = normalizer(
                    event.detail.value,
@@ -1303,6 +1309,7 @@ function initDim(cJson, dimSet) {
 
   console.log("fxdim", ini_fxdm, ini_xdim, ini_ydim, dimSet);
   tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
+
   console.log('UDEB: in initDim return');
 
   return [ini_xdim, ini_ydim, ini_fxdm];
@@ -1489,34 +1496,6 @@ function initCheckBoxesEvent() {
     }
   });
 
-
-  //-document.getElementById("cb-tooltip").addEventListener("change", () => {
-  //-  console.log("fire event for tooltip");
-  //-  if (document.getElementById("cb-tooltip").checked) {
-
-  //-    lmtSettings.setTooltip = true;
-  //-    tabOption.tooltips = function (cell) {
-  //-       if (cell.getField() == 'row_name') {
-  //-         return false;
-  //-       } else {
-  //-         return Math.round((cell.getValue() + Number.EPSILON) * 100) / 100;
-  //-       }
-  //-    }					        
-
-  //-  } else {
-  //-    lmtSettings.setTooltip = false;
-  //-    tabOption.tooltips = false;
-
-  //-    console.log("tooltip is false");
-  //-  }
-  //-  
-  //-  //table redraw needed?
-  //-  //console.log("tooltip", tabOption.tooltips);
-  //-  table.destroy();
-  //-  tabOption['data'] = table.getData();
-  //-  table = new Tabulator('#dashboard-table', tabOption);
-  //-});
-
   document.getElementById("cb-toptitle").addEventListener("change", () => {
     console.log("fire event for toptitle");
     const currentColumns = table.getColumnDefinitions();
@@ -1528,14 +1507,18 @@ function initCheckBoxesEvent() {
       lmtSettings.setTopTitle = false;
       tabOption['headerVisible'] = false;
     }
+
     if (table) {
        table.off("tableBuilt");
+       var tempData = table.getData();
        table.clearData(); // need to clear memory
        table.destroy(); // clear memory
     }
     table = new Tabulator('#dashboard-table', tabOption);
-
-    table.on("tableBuilt", function(){table.setColumns(currentColumns)});
+    table.on("tableBuilt", function(){
+      table.setData(tempData);
+      table.setColumns(currentColumns)
+    });
      
   });
 
@@ -1573,12 +1556,18 @@ function initCheckBoxesEvent() {
         }
       }
     });
-    table.destroy();
+    if (table) {
+       table.off("tableBuilt");
+       var tempData = table.getData();
+       table.clearData(); // need to clear memory
+       table.destroy(); // clear memory
+    }
     table = new Tabulator('#dashboard-table', tabOption);
-    table.on("tableBuilt", function(){table.setColumns(currentColumns)});
+    table.on("tableBuilt", function(){
+      table.setData(tempData);
+      table.setColumns(currentColumns)
+    });
   });
-
-
 
   document.getElementById("cb-cellvalue").addEventListener("change", () => {
     console.log("Toggle cell value display");
@@ -2307,13 +2296,17 @@ function normalizer(normMethod, scaDir, data) {
         }
       };
 
-      for (val of arr) {
-        if (val > -999.0) {
-          newval = (val - getMean(arr)) / getStd(arr);
-        } else {
-          newval = -999.0;
+      if (arr.length == 1) {
+        normArray = arr;
+      } else {
+        for (val of arr) {
+          if (val > -999.0) {
+            newval = (val - getMean(arr)) / getStd(arr);
+          } else {
+            newval = -999.0;
+          }
+          normArray.push(newval);
         }
-        normArray.push(newval);
       }
       break;
     case '2':
