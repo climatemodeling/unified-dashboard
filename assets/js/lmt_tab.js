@@ -1308,11 +1308,63 @@ function initDim(cJson, dimSet) {
   }
 
   console.log("fxdim", ini_fxdm, ini_xdim, ini_ydim, dimSet);
-  tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
+  //tabTreeJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
+  let tempJson = lmt_tool.cmec2tab_json(cJson, ini_xdim, ini_ydim, ini_fxdm, 1);
 
-  console.log('UDEB: in initDim return');
+  console.log('UDEB: in initDim return', ini_xdim, ini_ydim);
+
+  metricOrder = [
+    "Temperature",
+    "Salinity",
+    "MixedLayerDepth",
+    "Alkalinity",
+    "DissolvedInorganicCarbon",
+    "Revellefactor",
+    "AMOC-timeseries",
+    "Stratification-timeseries",
+    "Southern_Ocean_Salinity"
+  ]; 
+  if (ini_ydim == "metric") {
+    tabTreeJson = sortLargeArrayByReference(tempJson, metricOrder, "row_name");
+  } else {
+    tabTreeJson = tempJson;
+  }
+ 
+  console.log(tabTreeJson);
 
   return [ini_xdim, ini_ydim, ini_fxdm];
+}
+
+function sortLargeArrayByReference(objectsArray, referenceArray, propertyName) {
+  // Create a map from object value to all objects with that value
+  const valueToObjectsMap = new Map();
+  const unmatchedObjects = [];
+  
+  // First pass: group objects by their property value
+  objectsArray.forEach(obj => {
+    const value = obj[propertyName];
+    if (referenceArray.includes(value)) {
+      if (!valueToObjectsMap.has(value)) {
+        valueToObjectsMap.set(value, []);
+      }
+      valueToObjectsMap.get(value).push(obj);
+    } else {
+      unmatchedObjects.push(obj);
+    }
+  });
+  
+  // Second pass: build the result array in reference order
+  const result = [];
+  referenceArray.forEach(value => {
+    if (valueToObjectsMap.has(value)) {
+      result.push(...valueToObjectsMap.get(value));
+    }
+  });
+  
+  // Add unmatched objects at the end
+  result.push(...unmatchedObjects);
+  
+  return result;
 }
 
 
