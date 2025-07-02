@@ -137,7 +137,7 @@ p {
    white-space: nowrap;
    text-overflow: clip;
    justify-content: center;
-   font-size:18px;
+   font-size:16px;
    font-weight:300;
    color:black;
    text-shadow: none;
@@ -174,7 +174,7 @@ p {
 .tabulator-row .tabulator-frozen.tabulator-frozen-left{
    border-right: 0.1px solid black;
    border-left: 0.0px solid black;
-   font-size: 18px;
+   font-size: 16px;
    text-align: left;
 }
 
