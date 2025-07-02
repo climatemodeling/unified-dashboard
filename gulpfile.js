@@ -14,7 +14,7 @@ var buffer = require('vinyl-buffer');
 var del = require('del');
 
 
-var fs = require('fs');
+//var fs = require('fs');
 
 var cssimport = require("gulp-cssimport");
 

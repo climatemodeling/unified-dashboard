@@ -4,9 +4,7 @@
 const Tabulator = require('tabulator-tables');
 const Choices = require('choices.js');
 const Slideout = require('slideout');
-//const domtoimage = require('dom-to-image-more');
 const domtoimage = require('dom-to-image');
-//const { jsPDF } = require("../../node_modules/jspdf/dist/jspdf.node.min.js");
 const { jsPDF } = window.jspdf;
 
 // internal modules
@@ -16,11 +14,10 @@ var globalVars = require('./globalVars.js');
 
 var tabOption = tabOptions.tabOption;
 tabOption.dataTreeStartExpanded = function (row, level) {
-     return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
+  return setLevelExpand(row, level); //expand rows where the "driver" data field is true;
 };
 
 // add a controller
-
 
 const linkTemplate = "{metric.0}/{metric.1}/{metric.2}/{metric.2}.html?model={model}&region={region}";
 
@@ -43,7 +40,6 @@ console.log = function () {
 };
 
 // Control the tabulator for LMT Unified Dashboard
-
 jsonFileURL =
   'https://raw.githubusercontent.com/minxu74/benchmark_results/master/';
 const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // cors proxy to remove the cors limit
@@ -92,7 +88,7 @@ var lmtSettings = {"tableBuilt": false, "normMethod":"-1", "cmapMethod":"-1", "l
                    "setTootip":false, "setTopTitle":false, "setBottomTitle":false, "setCellValue":false, "setFitScreen":true, 
 		   "timesExpl":1, "numClicks":1, 
 		   "stopFire":false,
-		   "stopFireNorm":false};
+		   "stopFireNorm":false, "firstLoad":true, "xyChange":0};
 
 
 var tabTempJson = [];
@@ -132,7 +128,6 @@ var grpsTopMetric = [];
 var isJsonReady = false;
 var isTableBuilt = false;
 
-var newLabel = {};
 
 var _config = {};
 
@@ -141,14 +136,36 @@ var originalColumns = [];
 
 var preXdim, preYdim;
 var groupSavedValues = null;
-var headerStyles;
 
+const columnColors = new Map();
+const columnStyles = new Map();
 
 //export
 
 dictChoices = globalVars.dictChoices;
 
 dimSetEvent = globalVars.dimSetEvent;
+
+const deepCopyFunction = inObject => {
+  let outObject, value, key;
+
+  if (typeof inObject !== 'object' || inObject === null) {
+    return inObject; // Return the value if inObject is not an object
+  }
+
+  // Create an array or object to hold the values
+  outObject = Array.isArray(inObject) ? [] : {};
+
+  for (key in inObject) {
+    value = inObject[key];
+
+    // Recursively (deep) copy for nested objects, including arrays
+    outObject[key] = deepCopyFunction(value);
+  }
+
+  return outObject;
+};
+
 
 
 if (document.readyState !== 'loading') {
@@ -173,7 +190,6 @@ function initlmtUD() {
 
   table = new Tabulator('#dashboard-table', tabOption);
 
-  //var doc = window.document;
   var slideout = new Slideout({
     panel: document.getElementById('panel'),
     menu: document.getElementById('menu')
@@ -196,7 +212,7 @@ function initlmtUD() {
   const udcUrl = './_lmtUDConfig.json'; // in same origin
   console.log('UDEB: UD config file ', udcUrl);
 
-  //setConfig(udcUrl);
+  setConfig(udcUrl);
 
 
 
@@ -328,28 +344,33 @@ function downloadImage (imgUrl, imgFileName) {
   downloadLink.click();
 }
 
-function setConfig(jsfURL) {
-  const udcUrl = './_lmtUDConfig.json'; // in same origin
+async function setConfig() {
+  const udcUrl = './_lmtUDConfig.json';
   console.log('UDEB: UD config file ', udcUrl);
-  readFile(udcUrl)
-    .then(function(filePromise) {
-      try {
-        _config = JSON.parse(filePromise.content);
-        if (_config.udcJsonLoc) {
-          //let jsfUrl = window.location.href + data.udcJsonLoc;
-          let jsfURL = './' + data.udcJsonLoc;
+  
+  try {
+    const response = await fetch(udcUrl);
+    _config = await response.json(); // Directly parse JSON
+    
+    if (_config.udcJsonLoc) {
+      const jsonUrl = './' + _config.udcJsonLoc;
+      console.log('UDEB: JSON URL', jsonUrl);
+      loadtmpJson(jsonUrl);
 
-          console.log('UDEB: ', jsfURL, data.udcJsonLoc);
-          loadrmtJson(jsfURL, data.udcDimSets);
-        } else {
-          console.log('UDEB: no JSON data file in the config file');
-        }
-      } 
-      catch (err) {
-        alert('JSON parsing config file', err.message);
+      lmtSettings["timesExpl"] = _config.timesExpl;
+
+      const fileSection = document.querySelector('section input[type="file"]').closest('section');
+      fileSection.hidden = true;
+
+      if (_config.banner) {
+        document.getElementById('dashboardTitle').textContent = _config.banner;
       }
-    })
-    .catch(err => alert(err));
+    } else {
+      console.log('UDEB: No JSON data file in config');
+    }
+  } catch (err) {
+    alert('Error loading config: ' + err.message);
+  }
 }
 
 
@@ -392,6 +413,7 @@ function insertCol(dataArr, colName, colData, parentName) {
 }
 
 function updateColorMapping() {
+
     switch (dictChoices['cmapChoices'].getValue(true)) {
     case '0':
       lmtCellColorFormatter = colorILAMB;
@@ -406,12 +428,132 @@ function updateColorMapping() {
   //update table options
   for (x of tabOption.columns) {
     if (x.field != 'row_name') {
-      x['formatter'] = lmtCellColorFormatter;
-      x['formatterParams']['scaopt'] = dictChoices['normChoices'].getValue(true);
+
+      if (x.hasOwnProperty('columns')){
+         for (y of x.columns) {
+           y['formatter'] = lmtCellColorFormatter;
+         }
+      } else {
+        x['formatter'] = lmtCellColorFormatter;
+      }
     }
   }
 }
 
+//server side files
+
+async function parseJsonFromFile(fileObj) {
+  return new Promise((resolve, reject) => {
+    // 1. Create a FileReader
+    const reader = new FileReader();
+
+    // 2. Define what happens on successful read
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        resolve(jsonData); // Return parsed JSON
+      } catch (err) {
+        reject(new Error("Invalid JSON: " + err.message));
+      }
+    };
+
+    // 3. Define error handling
+    reader.onerror = () => {
+      reject(new Error("Failed to read file"));
+    };
+
+    // 4. Start reading the file as text
+    reader.readAsText(fileObj);
+  });
+}
+
+async function loadtmpJson(jsfURL) {
+  try {
+    const response = await fetch(jsfURL);
+    if (!response.ok) throw new Error(`Failed to fetch ${file}`);
+    const blob = await response.blob();
+    fileObj = new File([blob], jsfURL.split('/').pop(), { type: 'application/json' });
+  } catch (err) {
+    console.error('UDEB: Failed to fetch file:', err);
+    alert(`Error loading file from path: ${jsfURL}\n${err.message}`);
+    return;
+  }
+
+  // Validate file type (for both paths and File objects)
+  if (!fileObj.name.endsWith('.json') && !fileObj.type.includes('json')) {
+    alert('Only JSON files (*.json) are supported');
+    return;
+  }
+
+  console.log('UDEB: Loading file:', fileObj.name);
+
+  try {
+    cmecJson = await parseJsonFromFile(fileObj);
+    console.log("Parsed JSON:", cmecJson);
+
+    jsonType = 'CMEC';
+
+    // initialize dimensions
+    let ini_xdim,
+      ini_ydim,
+      ini_fxdm = {}
+      //;[ini_xdim, ini_ydim, ini_fxdm] = initDim(cmecJson, (dimSet = {}));
+      ;[ini_xdim, ini_ydim, ini_fxdm] = initDim(cmecJson, (dimSet = _config.udcDimSets));
+
+
+    if (_config.hasOwnProperty('udcNormType')) {
+      switch (_config.udcNormType.toLowerCase()) {
+        case 'standarized':
+          setNorm = "1";
+          break;
+        case 'normalized[-1:1]':
+          setNorm = "2";
+          break;
+        case 'normalized[0:1]':
+          setNorm = "3";
+          break;
+        default:
+          setNorm = "0";
+          break;
+      }
+    }
+    if (_config.hasOwnProperty('udcNormType')) {
+      setAxis = _config.udcNormAxis;
+    }
+
+    setChoicesDefault(setNorm, "0", "rubisco_logo.png");
+    lmtSettings.normMethod = setNorm;
+    lmtSettings.cmapMethod = "0";
+    lmtSettings.logoMethod = "rubisco_logo.png";
+
+    setCheckBoxesDefault(setAxis, true, true, false, true, false)
+    lmtSettings.normDir = setAxis;
+    lmtSettings.setTooltip = true;
+    lmtSettings.setTopTitle = true;
+    lmtSettings.setBottomTitle = false;
+    lmtSettings.setCellValue = true;
+    lmtSettings.setFitScreen = true;
+
+    // initialize choices events
+    initChoicesEvent(cmecJson);
+
+    // initialize checkbox events
+    initCheckBoxesEvent();
+
+    // select choices based on the initial dimension setting
+    console.log('UDEB: start prepareSel');
+    prepareSel(cmecJson, ini_xdim, ini_ydim, ini_fxdm);
+
+    // set tab options
+    preSetTab(ini_xdim, ini_ydim, cmecJson);
+
+  } catch (err) {
+    console.error("Error:", err.message);
+    alert(err.message);
+  }
+
+
+}
 
 
 function loadrmtJson(jsfURL, dimSet = {}) {
@@ -523,9 +665,6 @@ function loadrmtJson(jsfURL, dimSet = {}) {
             baseUrl = cmecJson.SETTINGS.baseUrl;
           }
         }
-
-        // trigger an event to indicate that the json is ready
-        // -$(document).trigger('jsonReady');
 
         // Create a custom event
         var event = new CustomEvent('jsonReady', {
@@ -748,7 +887,14 @@ function initChoicesEvent(cJson) {
       function (event) {
         if (lmtSettings["stopFire"]) {return;}
 
-	if (dim == 'xdim') {newLabel = {};}
+        // clear columnStyles
+        columnStyles.clear(); 
+        groupSavedValues = null;
+
+        if (lmtSettings.xyChange > 1) {
+          lmtSettings.firstLoad = false
+        }
+        lmtSettings.xyChange = lmtSettings.xyChange + 1;
 
         let preValue =
           dictChoices[dim == 'xdim' ? 'ydimChoices' : 'xdimChoices'].getValue(
@@ -876,7 +1022,6 @@ function initChoicesEvent(cJson) {
             'now we can generate the tab json and prepare redraw table'
           );
 
-
           let ini_xdim,
             ini_ydim,
             ini_fxdm = {} ;
@@ -887,7 +1032,6 @@ function initChoicesEvent(cJson) {
           );
 
           if (preXdim != ini_xdim) {
-              console.log('xxx');
               resetGroupBtn();
           }
 
@@ -911,109 +1055,62 @@ function initChoicesEvent(cJson) {
           document.dispatchEvent(event);
 
 	  // reset norm and cmap
-	  lmtSettings["stopFireNorm"] = true;
-	  tabTempJson = [];
-	  setChoicesDefault("0", "0", lmtSettings.logoMethod);
+	  //lmtSettings["stopFireNorm"] = true;
 	  lmtSettings["stopFireNorm"] = false;
+	  tabTempJson = [];
+	  //setChoicesDefault("0", "0", lmtSettings.logoMethod);
+          setChoicesDefault(lmtSettings.normMethod, lmtSettings.cmapMethod, lmtSettings.logoMethod);
+	  //lmtSettings["stopFireNorm"] = false;
+          reapplyColumnStyles();
         }
       },
       false
     );
   }
 
-  // other selections events
-  for (const dim of ['norm', 'cmap', 'logo']) {
-    dictChoices[dim + 'Choices'].passedElement.element.addEventListener(
-      'addItem', //select item
-      function (event) {
+  // Define event handlers separately for better organization
+  const eventHandlers = {
+    logo: (event) => {
+      logoFile = event.detail.value;
+      lmtSettings.logoMethod = logoFile;
+      document.getElementById('logoUD').src = `image/${logoFile}`;
+    },
+  
+    norm: (event) => {
+      console.log('UDEB: fire event for normalization', lmtSettings.stopFireNorm, !lmtSettings.stopFireNorm);
+      lmtSettings.normMethod = event.detail.value;
+  
+      if (lmtSettings.stopFireNorm) {
+        lmtSettings.stopFireNorm = false;
+        return;
+      }
 
-        //if (dim == 'exam') {
-        //  console.log('fire event for exam');
-        //  let jsfURL = event.detail.value;
-        //  jsfURL = jsonFileURL + jsfURL;
-        //  loadrmtJson(jsfURL);
-        //}
+      newData = computeNormalization()
+  
+      table.setData(newData);
+      table.redraw(true);
+      draw_legend();
+    },
 
-        if (dim == 'logo') {
-          logoFile = event.detail.value;
+    cmap: (event) => {
+      console.log('UDEB: fire event for cmap');
+      lmtSettings.cmapMethod = event.detail.value;
+      //get current column
+      tabOption.columns = table.getColumnDefinitions();
+      updateColorMapping();
+      table.setColumns(tabOption.columns);
+      table.redraw();
+    }
+  };
 
-	  lmtSettings.logoMethod = logoFile;
-	  document.getElementById('logoUD').src = "image/" + logoFile;
-        }
-
-
-	//normalization
-	if (dim == 'norm') {
-           console.log('UDEB: fire event for normalization', lmtSettings['stopFireNorm'], !lmtSettings['stopFireNorm']);
-	   lmtSettings["normMethod"] = event.detail.value;
-
-	   if (lmtSettings['stopFireNorm']) {
-	     lmtSettings['stopFireNorm'] = false;
-	   } else {
-             // tabTempJson save the first initial unnormalized tab
-	     console.log("start normalzation");
-             if (tabTempJson.length > 0) {
-               var tempData = deepCopyFunction(tabTempJson);
-             } else {
-               var tempData = table.getData('all');
-               tabTempJson = deepCopyFunction(tempData);
-             }
-
-             var newData = Object.assign([], tempData);
-         
-             if (lmtSettings["normDir"] == 'row') {
-               let j = 0;
-
-               const count = Object.keys(tempData[0]).filter(key => key !== "row_name").length;
-               if (event.detail.value == 1 && count == 1) {
-                  alert("cannot normalized data");
-                  dictChoices[dim + 'Choices'].setChoiceByValue("0");
-               }
-               for (data of tempData) {
-                 newData[j] = normalizer(
-                   event.detail.value,
-                   lmtSettings["normDir"],
-                   data
-                 );
-                 j = j + 1;
-               }
-             } else if (lmtSettings["normDir"] == 'column') {
-               let colData = {};
-               for (col_name of Object.keys(tempData[0])) {
-                 if (col_name != 'row_name' && col_name != '_children') {
-                   colData = extractCol(tempData, col_name, '');
-
-                   var newcolData = normalizer(
-                     event.detail.value,
-                     lmtSettings["normDir"],
-                     colData
-                   );
-                   insertCol(newData, col_name, newcolData, '');
-                 }
-               }
-             } else {
-                alert("please select the direction of the normalization");
-             }
-
-             if (lmtSettings["normDir"] == 'row' || lmtSettings["normDir"] == 'column') {
-                 table.setData(newData);
-                 table.redraw(true);
-                 draw_legend(); 
-             }
-	   }
-	}
-
-	if (dim == 'cmap') {
-	   console.log('fire event for cmap');
-	   lmtSettings["cmapMethod"] = event.detail.value;
-           updateColorMapping();
-	   table.setColumns(tabOption.columns);
-	   table.redraw();
-	}
-      },
-      false
-    );
-  }
+  ['norm', 'cmap', 'logo'].forEach(dim => {
+    const element = dictChoices[`${dim}Choices`].passedElement.element;
+    element.addEventListener('addItem', (event) => {
+      if (eventHandlers[dim]) {
+        eventHandlers[dim](event);
+      }
+    }, false);
+  });
 
   // hide event
   dictChoices['hideChoices'].passedElement.element.addEventListener(
@@ -1037,8 +1134,80 @@ function initChoicesEvent(cJson) {
 }
 
 
+function computeNormalization(
+  normMethodValue = lmtSettings.normMethod,
+  normDirection = lmtSettings.normDir) {
+
+  console.log("start normalization");
+  
+  // Prepare the data for normalization
+  const tempData = tabTempJson.length > 0
+    ? deepCopyFunction(tabTempJson)
+    : deepCopyFunction(table.getData('all'));
+
+  // Store initial data if not already stored
+  if (tabTempJson.length === 0) {
+    tabTempJson = deepCopyFunction(tempData);
+  }
+
+  const newData = Object.assign([], tempData);
+
+  // Validate normalization direction
+  if (!normDirection) {
+    alert("please select the direction of the normalization");
+    return false; // Return status to indicate failure
+  }
+
+  // Handle row normalization
+  if (normDirection === 'row') {
+    const columnCount = Object.keys(tempData[0])
+      .filter(key => key !== "row_name").length;
+    
+    if (normMethodValue == 1 && columnCount == 1) {
+      alert("cannot normalize data with only one column");
+      if (dictChoices.normChoices) {
+        dictChoices.normChoices.setChoiceByValue("0");
+      }
+      return false;
+    }
+
+    tempData.forEach((data, j) => {
+      newData[j] = normalizer(
+        normMethodValue,
+        normDirection,
+        data
+      );
+    });
+  }
+  // Handle column normalization
+  else if (normDirection === 'column') {
+    Object.keys(tempData[0]).forEach(col_name => {
+      if (col_name !== 'row_name' && col_name !== '_children') {
+        const colData = extractCol(tempData, col_name, '');
+        const newcolData = normalizer(
+          normMethodValue,
+          normDirection,
+          colData
+        );
+        insertCol(newData, col_name, newcolData, '');
+      }
+    });
+  }
+
+  return newData; // Return status to indicate success
+
+}
+
+
 function setChoicesDefault(setNorm, setCmap, setLogo) {
+
   dictChoices["normChoices"].setChoiceByValue(setNorm);
+
+  const choiceData = dictChoices["normChoices"].config.choices.find(c => c.value === setNorm);
+  dictChoices["normChoices"]._addItem({
+    value: choiceData.value,
+    label: choiceData.label
+  }, true, true); 
   dictChoices["cmapChoices"].setChoiceByValue(setCmap);
   dictChoices["logoChoices"].setChoiceByValue(setLogo);
 }
@@ -1064,12 +1233,6 @@ function setCheckBoxesDefault(normDir, setTooltip, setTopTitle, setBottomTitle, 
   } else {
     document.getElementById("cb-bottomtitle").checked = false;
   }
-
-  //-if (setTooltip){
-  //-  document.getElementById("cb-tooltip").checked = true;
-  //-} else {
-  //-  document.getElementById("cb-tooltip").checked = false;
-  //-}
 
   if (setCellValue) {
     document.getElementById("cb-cellvalue").checked = true;
@@ -1119,82 +1282,74 @@ function prepareSel(cJson, ini_xdim, ini_ydim, ini_fxdm) {
 // load local json files
 function loadlocJson() {
 
-  const file = document.getElementById('file').files[0];
-
-
-  if (!file) {
-    alert('Please input file');
+  const fileInput = document.getElementById('file');
+  if (!fileInput?.files?.[0]) {
+    console.error("No file provided and no file input found!");
+    alert('Please select a file');
     table.setColumns([]);
     table.clearData();
-  } else {
-    if (!file.type.includes('json')) {
-      alert('Please input json file like *.json');
-    } else {
-      console.log('UDEB: starting read the local CMEC json file');
-
-      // have to reload page to clear all event listens
-      if (isJsonReady) {
-        isJsonReady = false;
-        alert("Will reload page before loading a new file. Please reselect after loading");
-        location.reload();
-
-      }
-
-      readFile(file)
-        .then(function(filePromise) {
-          try {
-            cmecJson = JSON.parse(filePromise.content);
-          } catch (err) {
-            alert('JSON parsing', err.message);
-          }
-
-          //CMEC json schema validation will be added soon
-
-	  //init
-
-          jsonType = 'CMEC';
-
-          // initialize dimensions
-          let ini_xdim,
-            ini_ydim,
-            ini_fxdm = {}
-            ;[ini_xdim, ini_ydim, ini_fxdm] = initDim(cmecJson, (dimSet = {}));
-
-
-
-          //default is from ILAMB style
-	  // always assume the data is unnormalized
-
-	  setChoicesDefault("0", "0", "rubisco_logo.png");
-	  lmtSettings.normMethod = "0";
-	  lmtSettings.cmapMethod = "0";
-	  lmtSettings.logoMethod = "rubisco_logo.png";
-
-	  setCheckBoxesDefault("row", true, true, false, true, true)
-	  lmtSettings.normDir = "row";
-	  lmtSettings.setTooltip = true;
-	  lmtSettings.setTopTitle = true;
-	  lmtSettings.setBottomTitle = false;
-	  lmtSettings.setCellValue = true;
-	  lmtSettings.setFitScreen = true;
-
-
-          // initialize choices events
-          initChoicesEvent(cmecJson);
-
-	  // initialize checkbox events
-	  initCheckBoxesEvent();
-
-          // select choices based on the initial dimension setting
-          console.log('UDEB: start prepareSel');
-          prepareSel(cmecJson, ini_xdim, ini_ydim, ini_fxdm);
-
-          // set tab options
-          preSetTab(ini_xdim, ini_ydim, cmecJson);
-        })
-        .catch(err => alert(err));
-    }
+    return;
   }
+  file = fileInput.files[0]; // Fallback to the input's file
+
+  // Validate file type
+  if (!file.name.endsWith('.json') && !file.type.includes('json')) {
+    alert('Please upload a JSON file (e.g., *.json)');
+    return;
+  }
+
+  console.log('UDEB: Reading local JSON file:', file.name);
+
+  // have to reload page to clear all event listens
+  if (isJsonReady) {
+    isJsonReady = false;
+    alert("Will reload page before loading a new file. Please reselect after loading");
+    location.reload();
+
+  }
+
+  readFile(file)
+    .then(function(filePromise) {
+      try {
+        cmecJson = JSON.parse(filePromise.content);
+      } catch (err) {
+        alert('JSON parsing', err.message);
+      }
+      jsonType = 'CMEC';
+
+      // initialize dimensions
+      let ini_xdim,
+        ini_ydim,
+        ini_fxdm = {}
+        ;[ini_xdim, ini_ydim, ini_fxdm] = initDim(cmecJson, (dimSet = {}));
+
+      setChoicesDefault("0", "0", "rubisco_logo.png");
+      lmtSettings.normMethod = "0";
+      lmtSettings.cmapMethod = "0";
+      lmtSettings.logoMethod = "rubisco_logo.png";
+
+      setCheckBoxesDefault("row", true, true, false, true, false)
+      lmtSettings.normDir = "row";
+      lmtSettings.setTooltip = true;
+      lmtSettings.setTopTitle = true;
+      lmtSettings.setBottomTitle = false;
+      lmtSettings.setCellValue = true;
+      lmtSettings.setFitScreen = true;
+
+      // initialize choices events
+      initChoicesEvent(cmecJson);
+
+      // initialize checkbox events
+      initCheckBoxesEvent();
+
+      // select choices based on the initial dimension setting
+      console.log('UDEB: start prepareSel');
+      prepareSel(cmecJson, ini_xdim, ini_ydim, ini_fxdm);
+
+      // set tab options
+      preSetTab(ini_xdim, ini_ydim, cmecJson);
+    })
+    .catch(err => alert(err));
 } //loadlocJson
 
 function preSetTab(ini_xdim, ini_ydim, cJson) {
@@ -1256,7 +1411,6 @@ function preSetTab(ini_xdim, ini_ydim, cJson) {
 
 function initDim(cJson, dimSet) {
   console.log('UDEB: in initDim');
-
 
   //Get model groups
   if (cJson.DIMENSIONS.json_structure.includes('model')) {
@@ -1407,17 +1561,30 @@ document.addEventListener('jsonReady', function () {
   try {
     table.setColumns(tabOption.columns);
     table.setData(tabTreeJson);
+
+
+    if (_config.hasOwnProperty("sortYdim")) {
+       if (_config.sortYdim.hasOwnProperty(tabOption.columns[0].formatterParams.yDim)) {
+         table.setSort("row_name", _config.sortYdim[tabOption.columns[0].formatterParams.yDim]);
+       }
+    }
+    fitScreen();
     table.redraw();
-    setGroupColumns(groupSavedValues);
+
+    if (groupSavedValues) {
+      setGroupColumns(groupSavedValues);
+    }
+
+    if (_config.hasOwnProperty("columnGroupValues") && lmtSettings.firstLoad) {
+      setGroupColumns(Object.keys(_config.columnGroupValues));
+    }
+
     draw_legend();
 
   } catch (err) {
     alert('Error when rending the table:', err.message);
   }
 
-
-
-  //try{
   if (
     Object.keys(_config).includes('udcDimSets') &&
     Object.keys(_config.udcDimSets).includes('x_dim') &&
@@ -1429,65 +1596,6 @@ document.addEventListener('jsonReady', function () {
     var xDimName = cmecJson.DIMENSIONS.json_structure[0];
     var yDimName = cmecJson.DIMENSIONS.json_structure[1];
   }
-
-
-  //if (_config.udcScreenHeight == 0) {
-  //  toggleScreenHeight(false);
-  //}
-
-  //if (_config.hasOwnProperty('udcNormAxis')) {
-  //  switch (_config.udcNormAxis.toLowerCase()) {
-  //    case 'x':
-  //    case 'col':
-  //      $('.scarow').prop('checked', false);
-  //      $('.scacol').prop('checked', true);
-  //      break;
-  //    case 'y':
-  //    case 'row':
-  //      $('.scarow').prop('checked', true);
-  //      $('.scacol').prop('checked', false);
-  //      break;
-  //    default:
-  //      console.log('UDEB: error setting in udcNormAxis');
-  //      break;
-  //  }
-  //}
-
-  //if (_config.hasOwnProperty('udcNormType')) {
-  //  switch (_config.udcNormType.toLowerCase()) {
-  //    case 'standarized':
-  //      $('#select-choice-mini-sca').val('1').trigger('change');
-  //      break;
-  //    case 'normalized[-1:1]':
-  //      $('#select-choice-mini-sca').val('2').trigger('change');
-  //      break;
-  //    case 'normalized[0:1]':
-  //      $('#select-choice-mini-sca').val('3').trigger('change');
-  //      break;
-  //    default:
-  //      console.log('UDEB: error setting in udcNormType');
-  //      break;
-  //  }
-  //}
-
-  //if (_config.hasOwnProperty('udcColorMapping')) {
-  //  switch (_config.udcColorMapping.toLowerCase()) {
-  //    case 'ilamb':
-  //      $('#select-choice-mini-map').val('0').trigger('change');
-  //      //$('#select-choice-mini-map').val("0");
-  //      //$('#select-choice-mini-map').trigger('change.select2');
-  //      break;
-  //    case 'linear':
-  //      $('#select-choice-mini-map').val('1').trigger('change');
-  //      break;
-  //    case 'linear reverse':
-  //      $('#select-choice-mini-map').val('2').trigger('change');
-  //      break;
-  //    default:
-  //      console.log('UDEB: error setting in udcColorMapping');
-  //      break;
-  //  }
-  //}
 
   if (_config.hasOwnProperty('udcBaseUrl')) {
     //check url is valid and available
@@ -1513,7 +1621,7 @@ function initCheckBoxes() {
   document.getElementById("cb-bottomtitle").checked = false;
   //document.getElementById("cb-tooltip").checked = false;
   document.getElementById("cb-cellvalue").checked = false;
-  document.getElementById("cb-fitscreen").checked = true;
+  document.getElementById("cb-fitscreen").checked = false;
 }
 
 
@@ -1824,26 +1932,6 @@ function colorLinearReverse(cell, formatterParams, onRendered) {
 }
 
 var lmtTitleFormatter = function (cell, titleFormatterParams, onRendered) {
-  onRendered(function () {
-    // respect users' background changes in the header context menu
-    let colField = cell.getValue().replace(/\s+/g, '');
-    if (newLabel.hasOwnProperty(colField)) {
-      console.log("UDEB: preserve the color setting");
-      cell.getElement().parentElement.parentElement.parentElement.style.backgroundColor =
-      newLabel[colField];
-    } else {
-      cell.getElement().parentElement.parentElement.parentElement.style.backgroundColor =
-      titleFormatterParams.bgcol;
-    }
-    cell.getElement().parentElement.parentElement.parentElement.style.fontStyle =
-      titleFormatterParams.ftsty;
-    cell.getElement().parentElement.parentElement.parentElement.style.fontWeight =
-      titleFormatterParams.ftwgt;
-    cell.getElement().parentElement.parentElement.parentElement.style.textDecoration =
-      titleFormatterParams.txdec;
-    cell.getElement().parentElement.parentElement.parentElement.style.color =
-      titleFormatterParams.color;
-  });
   return cell.getValue();
 };
 
@@ -1904,8 +1992,10 @@ var setTabColumns = function (
     title: 'row_name',
     field: 'row_field',
     frozen: true,
+    sorter: "string",
+    resizable: true,
     titleFormatter: firstColIcon,
-    minWidth: 380,
+    minWidth: 280,
     formatter: setFirstColBgColor,
     formatterParams: { xDim: xdim, yDim: ydim },
     headerSort: true,
@@ -2018,9 +2108,8 @@ var headerContextMenu = [
   {
     label: function(column) { 
       let colName = column.getField().replace(/\s+/g, '');
-      //if (newLabel.hasOwnProperty(colName)) {
-      if (column.getElement().style.backgroundColor != undefined) {
-	//return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + newLabel[colName] + "'/>";
+      if (column.getElement().style.backgroundColor != undefined &&
+          column.getElement().style.backgroundColor.trim() !== '') {
 	return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + rgbToHex(column.getElement().style.backgroundColor) + "'/>";
       } else {
         return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
@@ -2032,70 +2121,100 @@ var headerContextMenu = [
 
       document.getElementById("favcolor").addEventListener('input', function (evt) {
 	column.getElement().style.backgroundColor = this.value;
-	newLabel[colName] = this.value;
+        updateColumnStyle(column, { backgroundColor: this.value });
       });
     }
   }
 ];
 
-
+function updateColumnStyle(column, newStyles) {
+  const currentStyles = columnStyles.get(column.getDefinition().title) || {};
+  columnStyles.set(column.getDefinition().title, {
+    ...currentStyles,  // Keep existing styles
+    ...newStyles       // Apply new/updated styles
+  });
+}
 
 function getHeaderMenu(idDom) {
   return [
       {
-        label: `Background Color <input type='color' class='${class4Color}' id='${idDom}BgColor' name='favcolor' value='#ffffff'/>`,
+        label: function(column) {
+          let bgColor;
+
+          if (idDom == 'fav') {
+            bgColor = column.getElement().style.backgroundColor;
+          } else {
+            bgColor = column.getSubColumns()?.[0].getElement().style.backgroundColor;
+          }
+          const defaultColor = '#FFFFFF';
+          const presentColor = bgColor && bgColor.trim() !== '' ? rgbToHex(bgColor) : defaultColor;
+          return `Background Color <input type="color" class="${class4Color}" id="${idDom}BgColor" name="favcolor" value="${presentColor}">`;
+        },
+
         action: function(e, column) {
-
-            document.getElementById(`${idDom}BgColor`).addEventListener('input', function (evt) {
-
-               if (idDom == 'fav') {
-                 const headerEl = column.getElement();
-                 headerEl.style.backgroundColor = this.value;
-
-                 const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title .tabulator-title-editor');
-                 textEl.style.backgroundColor = this.value;
-               } else {
-
-                 column.getSubColumns().forEach(col => {
-                   col.getElement().style.backgroundColor = this.value;
-                 });
-
-               }
-
-            });
+          const colorInput = document.getElementById(`${idDom}BgColor`);
+          const savedStyles = columnStyles.get(column.getDefinition().title);
+          const savedColor = savedStyles?.backgroundColor; // Optional chaining prevents crashes
+          if (savedColor) {
+            colorInput.value = savedColor;
+          }
+          colorInput.addEventListener('input', function (evt) {
+            const newColor = this.value;
+            setHeaderStyle(idDom, column, "backgroundColor", newColor);
+          });
         }
       },
       {
-        label: `Font Color <input type='color' class='${class4Color}' id='${idDom}FontColor' name='favcolor' value='#ffffff'/>`,
+        label: function(column) {
+          let fontColor;
+          if (idDom == 'fav') {
+            const columnElement = getColumnElements(column);
+            fontColor = columnElement.title.style.color;
+          } else {
+            const firstSubColumn = column.getSubColumns()?.[0];
+            const columnElement = getColumnElements(firstSubColumn);
+            fontColor = columnElement.title.style.color;
+          }
+          const defaultColor = '#FFFFFF';
+          const presentColor = fontColor && fontColor.trim() !== '' ? rgbToHex(fontColor) : defaultColor;
+          return `Font Color <input type="color" class="${class4Color}" id="${idDom}FontColor" name="favcolor" value="${presentColor}">`;
+        },
+
         action: function(e, column) {
-            document.getElementById(`${idDom}FontColor`).addEventListener('input', function (evt) {
-                setHeaderStyle(idDom, column, "color", this.value);
-            });
+          const colorInput = document.getElementById(`${idDom}FontColor`);
+          const savedStyles = columnStyles.get(column.getDefinition().title);
+          const savedColor = savedStyles?.fontColor; // Optional chaining prevents crashes
+          if (savedColor) {
+            colorInput.value = savedColor;
+          }
+          colorInput.addEventListener('input', function (evt) {
+            const newColor = this.value;
+            setHeaderStyle(idDom, column, "fontColor", newColor);
+          });
         }
       },
       {
         label: "Font Size",
         menu: [
-            {label: "Small", action: function(e, column) { setHeaderStyle(idDom, column, "font-size", "12px"); }},
-            {label: "Medium", action: function(e, column) { setHeaderStyle(idDom, column, "font-size", "14px"); }},
-            {label: "Large", action: function(e, column) { setHeaderStyle(idDom, column, "font-size", "18px"); }},
-            {label: "Custom...", action: function(e, column) {
-                var size = prompt("Enter font size (e.g., 16px):");
-                if(size) setHeaderStyle(idDom, column, "font-size", size);
-            }},
+          {label: "Small", action: function(e, column) { setHeaderStyle(idDom, column, "fontSize", "12px"); }},
+          {label: "Medium", action: function(e, column) { setHeaderStyle(idDom, column, "fontSize", "14px"); }},
+          {label: "Large", action: function(e, column) { setHeaderStyle(idDom, column, "fontSize", "18px"); }},
+          {label: "Custom...", action: function(e, column) {
+            var size = prompt("Enter font size (e.g., 16px):");
+            if(size) setHeaderStyle(idDom, column, "fontSize", size);
+          }},
         ]
       },
       {
         label: "Font Weight",
         menu: [
-            {label: "Normal", action: function(e, column) { setHeaderStyle(idDom, column, "font-weight", "normal"); }},
-            {label: "Bold", action: function(e, column) { setHeaderStyle(idDom, column, "font-weight", "bold"); }},
-            {label: "Bolder", action: function(e, column) { setHeaderStyle(idDom, column, "font-weight", "bolder"); }},
+          {label: "Normal", action: function(e, column) { setHeaderStyle(idDom, column, "fontWeight", "normal"); }},
+          {label: "Bold", action: function(e, column) { setHeaderStyle(idDom, column, "fontWeight", "bold"); }},
+          {label: "Bolder", action: function(e, column) { setHeaderStyle(idDom, column, "fontWeight", "bolder"); }},
         ]
       }
   ];
 }
-
 
 var groupHeaderContextMenu = [
   {
@@ -2110,27 +2229,128 @@ var groupHeaderContextMenu = [
 
 
 function setHeaderStyle(idDom, column, property, value) {
-
-    if (idDom == 'fav') {
-      const headerEl = column.getElement();
-      const textEl = headerEl.querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title');
-      textEl.style[property] = value;
-    } else {
-      column.getSubColumns().forEach(col => {
-        col.getElement().querySelector('.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title').style[property] = value;
-      });
-    }
-
-    table.redraw(true);
+  function applyStyleToColumn(col, prop, val) {
+    const colElements = getColumnElements(col);
     
-    // Store the style if you're using persistence
-    if (typeof headerStyles !== 'undefined') {
-
-        var field = column.getField();
-        console.log('zzzzzzzzzzzzzzzzzzzz', filed);
-        if (!headerStyles[field]) headerStyles[field] = {};
-        headerStyles[field][property] = value;
+    switch (prop) {
+      case "backgroundColor":
+        colElements.applyBackground(val);
+        break;
+      case "fontColor":
+        colElements.applyFontColor(val);
+        break;
+      case "fontSize":
+        colElements.applyFontSize(val);
+        break;
+      case "fontWeight":
+        colElements.applyFontWeight(val);
+        break;
+      default:
+        alert(`${prop} is not supported`);
+        return;
     }
+    updateColumnStyle(col, { [prop]: val });
+  }
+
+  if (idDom === 'fav') {
+    applyStyleToColumn(column, property, value);
+  } else {
+    column.getSubColumns().forEach(col => {
+      applyStyleToColumn(col, property, value);
+    });
+  }
+  table.redraw(true);
+}
+
+
+/**
+ * Gets all relevant column elements and provides styling methods
+ * @param {ColumnComponent} column - Tabulator column component
+ * @returns {Object} Column elements with styling methods
+ */
+function getColumnElements(column) {
+  const headerEl = column.getElement();
+
+  // Primary selector with fallback
+  let titleEl = headerEl.querySelector(
+      '.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title .tabulator-title-editor'
+  );
+  
+  // Fallback to parent title element if not found
+  if (!titleEl) {
+      titleEl = headerEl.querySelector(
+          '.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title'
+      );
+  }
+
+  return {
+    header: headerEl,
+    title: titleEl,
+    
+    /**
+     * Applies background color to header and title
+     * @param {string} color - CSS color value
+     */
+    applyBackground: function(color) {
+        this.header.style.backgroundColor = color;
+        if (this.title) {
+            this.title.style.backgroundColor = color;
+        }
+        return this; // For method chaining
+    },
+    
+    /**
+     * Applies font color to title
+     * @param {string} color - CSS color value
+     */
+    applyFontColor: function(color) {
+        if (this.title) {
+            this.title.style.color = color;
+        }
+        return this;
+    },
+    
+    /**
+     * Applies font size to title
+     * @param {string} size - CSS font-size value
+     */
+    applyFontSize: function(size) {
+        if (this.title) {
+            this.title.style.fontSize = size;
+        }
+        return this;
+    },
+    
+    /**
+     * Applies font weight to title
+     * @param {string|number} weight - CSS font-weight value
+     */
+    applyFontWeight: function(weight) {
+        if (this.title) {
+            this.title.style.fontWeight = weight;
+        }
+        return this;
+    },
+    
+    /**
+     * Applies multiple styles at once
+     * @param {Object} styles - Object with style properties
+     */
+    applyStyles: function(styles) {
+        if (this.title) {
+            Object.assign(this.title.style, styles);
+        }
+        return this;
+    },
+    
+    /**
+     * Gets current computed styles
+     * @returns {Object} Computed styles object
+     */
+    getStyles: function() {
+        return this.title ? window.getComputedStyle(this.title) : null;
+    }
+  };
 }
 
 //from stakoverflow https://stackoverflow.com/questions/61653534/javascript-rgb-string-rgbr-g-b-to-hex-rrggbb-conversion
@@ -2443,25 +2663,6 @@ function normalizer(normMethod, scaDir, data) {
   return normData;
 }
 
-const deepCopyFunction = inObject => {
-  let outObject, value, key;
-
-  if (typeof inObject !== 'object' || inObject === null) {
-    return inObject; // Return the value if inObject is not an object
-  }
-
-  // Create an array or object to hold the values
-  outObject = Array.isArray(inObject) ? [] : {};
-
-  for (key in inObject) {
-    value = inObject[key];
-
-    // Recursively (deep) copy for nested objects, including arrays
-    outObject[key] = deepCopyFunction(value);
-  }
-
-  return outObject;
-};
 
 function findMaxLevels() {
   var maxLevels = 0;
@@ -2519,7 +2720,6 @@ function expandCollapse(action) {
 }
 
 function setLevelExpand(row, level) {
-
   let timesExpl = lmtSettings["timesExpl"];
   if (level < timesExpl) {
     return true;
@@ -2527,30 +2727,7 @@ function setLevelExpand(row, level) {
 }
 
 function savetoHtml() {
-  //-var htmlTable = table.getHtml("active", true);
-  //-console.log(htmlTable);
-  //-var newwdw = window.open(htmlTable);
   table.download('html', 'test.html', { style: true });
-
-  //-table.download("pdf", "data.pdf", {
-  //-    orientation:"portrait", //set page orientation to portrait
-  //-    title:"Dynamics Quotation Report", //add title to report
-  //-    jsPDF:{
-  //-        unit:"in", //set units to inches
-  //-    },
-  //-    //autoTable:{ //advanced table styling
-  //-    //    styles: {
-  //-    //        fillColor: [100, 255, 255]
-  //-    //    },
-  //-    //    columnStyles: {
-  //-    //        id: {fillColor: 255}
-  //-    //    },
-  //-    //    margin: {top: 60},
-  //-    //},
-  //-    //documentProcessing:function(doc){
-  //-    //    //carry out an action on the doc object
-  //-    //}
-  //-});
 }
 
 
@@ -2651,27 +2828,41 @@ function setGroupColumns(groupValues) {
     return;
   }
 
-  //const currentColumns = table.getColumnDefinitions();
-  //const currentColumns = tabOption.columns;
-  //const fixedColumn = currentColumns.shift(); 
-
-
   const fixedColumn = tabOption.columns[0];
   const currentColumns = tabOption.columns.slice(1); 
 
   const flattenedColumns = flattenColumns(currentColumns);
 
+  const matchedColumns = new Set();
+
   groupColumns = [];
-  for (const value of groupValues) {
+  for (const value of [...groupValues].sort()) {
     const filterColumns = flattenedColumns.filter(col => col.title.includes(value));
     if (filterColumns.length > 0) {
       groupColumns.push({
-                          title: value, 
-                          columns: filterColumns,
-                          headerContextMenu: groupHeaderContextMenu,
-                          editableTitle:true
-                        });
+        title: _config.columnGroupValues?.[value] || value, 
+        columns: filterColumns,
+        headerContextMenu: groupHeaderContextMenu,
+        editableTitle:true
+      });
     }
+    // Track which columns we've already grouped
+    filterColumns.forEach(col => matchedColumns.add(col));
+  }
+
+  // Find columns that didn't match any groupValues
+  const remainingColumns = flattenedColumns.filter(col => 
+    !matchedColumns.has(col)
+  );
+
+  // Add remaining columns as "Other" group if any exist
+  if (remainingColumns.length > 0 && groupValues.includes('Other')) {
+    groupColumns.push({
+      title: _config.columnGroupValues?.["Other"] || "Other",
+      columns: remainingColumns,
+      headerContextMenu: groupHeaderContextMenu,
+      editableTitle: true
+    });
   }
 
   if (groupColumns.length > 0) {
@@ -2680,7 +2871,6 @@ function setGroupColumns(groupValues) {
 
     alert (`values:\n${groupValues.join('\n')} not found in the table titles`);
   }
-  
 }
 
 function updateButtonText() {
@@ -2769,4 +2959,76 @@ function resetGroupBtn() {
 }
 
 
+function reapplyColumnStyles() {
+  if (!table || !columnStyles) return;
+
+  const applyStylesToElement = (element, styles) => {
+    if (!element || !styles) return;
+    
+    if (styles.backgroundColor) {
+      element.style.backgroundColor = styles.backgroundColor;
+    }
+    if (styles.fontColor) {
+      element.style.color = styles.fontColor;
+    }
+    if (styles.fontSize) {
+      element.style.fontSize = styles.fontSize;
+    }
+    if (styles.fontWeight) {
+      element.style.fontWeight = styles.fontWeight;
+    }
+  };
+
+  const applyStylesToColumn = (column, styles) => {
+    if (!column || !styles) return;
+    
+    const headerEl = column.getElement();
+    if (!headerEl) return;
+
+    applyStylesToElement(headerEl, styles);
+
+    let textEl = headerEl.querySelector(
+      '.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title .tabulator-title-editor'
+    );
+
+    if (! textEl) {
+      textEl = headerEl.querySelector(
+        '.tabulator-col-content .tabulator-col-title-holder .tabulator-col-title'
+      );
+    };
+    applyStylesToElement(textEl, styles);
+  };
+
+  const processColumn = (column) => {
+    const columnTitle = column.getDefinition().title;
+    const styles = columnStyles.get(columnTitle);
+
+    // Handle parent groups
+    const parentGroup = column.getParentColumn();
+    if (parentGroup && parentGroup !== column) {
+      const parentTitle = parentGroup.getDefinition().title;
+      const parentStyles = columnStyles.get(parentTitle);
+      if (parentStyles) {
+        applyStylesToColumn(parentGroup, parentStyles);
+      }
+    }
+
+    // Handle current column
+    if (styles) {
+      applyStylesToColumn(column, styles);
+    }
+
+    // Handle subcolumns
+    if (column.getSubColumns) {
+      column.getSubColumns().forEach(subCol => {
+        const subStyles = columnStyles.get(subCol.getDefinition().title);
+        if (subStyles) {
+          applyStylesToColumn(subCol, subStyles);
+        }
+      });
+    }
+  };
+
+  table.getColumns().forEach(processColumn);
+}
 // end of lmt_tab.js

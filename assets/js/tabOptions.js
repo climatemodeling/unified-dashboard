@@ -54,7 +54,9 @@ var tabOption = {
 
   movableColumns: true, //enable user movable columns
 
-  layout: 'fitColumns',
+  //layout: 'fitColumns',
+  layout:"fitDataTable",
+  layoutColumnsOnNewData:true,
 
   tooltips: function (cell) {
     //cell - cell component
@@ -203,15 +205,18 @@ function cellClickFuncGenetic(e, cell) {
       var re = new RegExp(pattern, 'g')
      cellLinkTo = cellLinkTo.replace(re, dictLinkNames[item]); 
 
+
+
      console.log(item, dictLinkNames[item], cellLinkTo);
     }
+    window.open(cellLinkTo, '_blank');
   }
 
   console.log(clickInput, 'clickinput');
 
 
 
-  alert("stop for debug");
+  //alert("stop for debug");
 }
 
 
