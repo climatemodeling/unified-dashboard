@@ -1,0 +1,36 @@
+site_name: Unified Dashboard
+site_description: Document for unified dashboard
+site_author: Min Xu
+repo_url: https://github.com/climatemodeling/unified-dashboard
+site_url: http://unified-dashboard.readthedocs.org/
+theme:
+    name: readthedocs
+copyright: Unified-Dashboard 2025
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+nav:
+  - About: 'index.md'
+  - Documents:
+    - ILAMB-Hydro Unified Dashboard: ILAMB-Hydro/index.md
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist
+  - pymdownx.tilde
+
