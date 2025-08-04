@@ -18,19 +18,4 @@ nav:
 markdown_extensions:
   - toc:
       permalink: true
-  - pymdownx.arithmatex
-  - pymdownx.betterem
-  - pymdownx.caret
-  - pymdownx.details
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-  - pymdownx.highlight
-  - pymdownx.inlinehilite
-  - pymdownx.magiclink
-  - pymdownx.mark
-  - pymdownx.smartsymbols
-  - pymdownx.superfences
-  - pymdownx.tasklist
-  - pymdownx.tilde
 
