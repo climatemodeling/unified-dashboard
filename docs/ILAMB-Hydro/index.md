@@ -1,6 +1,6 @@
 # ILAMB-Hydro: International Land Model Benchmarking for Hydropower Applications
 
-This landing page displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al.
+This landing page (Figure 1) displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al.
 
 ![UD landing page](./figs/ilamb_hydro_ud.png)
 
@@ -10,7 +10,7 @@ This landing page displays average scores for GCMs and high-resolution downscale
 
 ## Controls
 
-A dropdown menu on the left allows users to customize the table by choosing the **X** and **Y** dimensions.
+A dropdown menu on the left (Figure 2a) allows users to customize the table by choosing the **X** and **Y** dimensions.
 
 The **X** and **Y** **dimensions**, as well as **Other dimensions** in the dropdown, can be set to **models** (e.g., GCMs or downscaled ensembles), **metrics** (e.g., daily precipitation, maximum/minimum temperature), **regions** (e.g., CONUS or HUC2 regions R01–R18), or **statistics** (e.g., annual mean score, seasonal mean score, overall mean score). Select the primary **X** and **Y** dimensions first; the options available in **Other dimensions** then depend on that choice.
 
@@ -21,7 +21,7 @@ The **X** and **Y** **dimensions**, as well as **Other dimensions** in the dropd
 
 ### Example selection
 
-The following settings produce the plot shown below.
+The following settings (Figure 3)  produce the plot shown below (Figure 4).
 
 ![Settings example](./figs/ud_settings_example01.png)
 
@@ -35,7 +35,7 @@ The following settings produce the plot shown below.
 
 ## Advanced options
 
-The lower portion of the dropdown offers advanced controls, including normalization choices, colormap adjustments, title placement, and whether to display values within each cell.
+The lower portion of the dropdown (Figure 2b) offers advanced controls, including normalization choices, colormap adjustments, title placement, and whether to display values within each cell.
 
 - **Group Header Title**: filter the table by entering a keyword.
 - **Toggle Sort Title**: sort labels alphabetically.
@@ -51,7 +51,7 @@ To view detailed results, select a **reference dataset** under the variable you 
 
 *Figure 5. Scalar table summarizing metrics for the selected variable across all model and downscaling combinations.*
 
-The scalar table is followed by **annual** and **seasonal** (not shown here) **spatial maps** of various metrics, and **mean time-series** plots for the chosen model–region combinations from the left menu.
+The scalar table (Figure 6) is followed by **annual** and **seasonal** (not shown here) **spatial maps** of various metrics, and **mean time-series** (Figure 7) plots for the chosen model–region combinations from the left menu.
 
 ![Annual/seasonal maps 1](./figs/Figure6.png)
 
@@ -59,11 +59,10 @@ The scalar table is followed by **annual** and **seasonal** (not shown here) **s
 
 ![Annual/seasonal maps 2](./figs/Figure7.png)
 
-*Figure 7. Additional spatial map (seasonal views available in the app).*
 
 ![Mean time series](./figs/Figure8.png)
 
-*Figure 8. Mean time-series plot for selected model–region combinations.*
+*Figure 7. Spatial map and  mean time-series plot for selected model–region combinations.*
 
 ---
 
@@ -73,29 +72,27 @@ Selecting **All Models (By Plot)** displays spatial maps of the chosen metric fo
 
 ![All models—panel 1](./figs/Figure9.png)
 
-*Figure 9. All-models view, panel 1.*
+*Figure 8. All-models selection
 
 ![All models—panel 2](./figs/Figure10.png)
 
-*Figure 10. All-models view, panel 2.*
 
 ![All models—panel 3](./figs/Figure11.png)
 
-*Figure 11. All-models view, panel 3.*
 
 ![All models—panel 4](./figs/Figure12.png)
 
-*Figure 12. All-models view, panel 4.*
+*Figure 9. All-models view
 
 ---
 
 ## Regional results (HUC2)
 
-You can also select one of the eighteen 2-digit **HUC** regions to focus the analysis.
+You can also select one of the eighteen 2-digit **HUC** regions for  the analysis (Figure 10).
 
 ![HUC selection](./figs/Figure13.png)
 
-*Figure 13. Regional selection for HUC2.*
+*Figure 10. Regional selection for HUC2.*
 
 ### Example: R17 — Pacific Northwest
 
@@ -103,23 +100,20 @@ Selecting **R17—Pacific Northwest** displays the regional scalar table followe
 
 ![R17 scalar table](./figs/Figure14.png)
 
-*Figure 14. R17 scalar table.*
+*Figure 11. R17 scalar table.*
 
 ![R17 results 1](./figs/Figure15.png)
 
-*Figure 15. R17 annual/seasonal results (panel 1).*
 
 ![R17 results 2](./figs/Figure16.png)
 
-*Figure 16. R17 annual/seasonal results (panel 2).*
 
 ![R17 results 3](./figs/Figure17.png)
 
-*Figure 17. R17 annual/seasonal results (panel 3).*
 
 ![R17 results 4](./figs/Figure18.png)
 
-*Figure 18. R17 annual/seasonal results (panel 4).*
+*Figure 12. R17 annual results.*
 
 ---
 
