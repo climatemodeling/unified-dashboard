@@ -78,7 +78,7 @@ Selecting **All Models (By Plot)** displays spatial maps of the chosen metric fo
 
 *Figure 8. All-models selection.*
 
-![All models—panel 2](./figs/Figure10.png){: style="width:60%; height:auto;" }
+![All models—panel 2](./figs/Figure10.png)
 
 
 ![All models—panel 3](./figs/Figure11.png)
@@ -94,7 +94,7 @@ Selecting **All Models (By Plot)** displays spatial maps of the chosen metric fo
 
 You can also select one of the eighteen 2-digit **HUC** regions for  the analysis (Figure 10).
 
-![HUC selection](./figs/Figure13.png)
+![HUC selection](./figs/Figure13.png){: style="width:60%; height:auto;" }
 
 *Figure 10. Regional selection for HUC2.*
 
