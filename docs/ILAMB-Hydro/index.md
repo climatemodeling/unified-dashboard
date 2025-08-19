@@ -1,6 +1,6 @@
 # ILAMB-Hydro: International Land Model Benchmarking for Hydropower Applications
 
-This landing page (Figure 1) displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al.
+This landing page (Figure 1) displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al. [add full citation].
 
 ![UD landing page](./figs/ilamb_hydro_ud.png)
 
@@ -10,17 +10,17 @@ This landing page (Figure 1) displays average scores for GCMs and high-resolutio
 
 ## Controls
 
-A dropdown menu on the left (Figure 2) allows users to customize the table by choosing the **X** and **Y** dimensions.
+A dropdown menu on the left (Figure 2) allows users to customize the table by choosing the **X and Y dimensions**.
 
-The **X** and **Y** **dimensions**, as well as **Other dimensions** in the dropdown, can be set to **models** (e.g., GCMs or downscaled ensembles), **metrics** (e.g., daily precipitation, maximum/minimum temperature), **regions** (e.g., CONUS or HUC2 regions R01–R18), or **statistics** (e.g., annual mean score, seasonal mean score, overall mean score). Select the primary **X** and **Y** dimensions first; the options available in **Other dimensions** then depend on that choice.
+The **X and Y dimensions**, as well as **Other dimensions** in the dropdown, can be set to **models** (e.g., GCMs or downscaled ensembles), **metrics** (e.g., daily precipitation, maximum/minimum temperature), **regions** (e.g., CONUS or HUC2 regions R01–R18), or **statistics** (e.g., annual mean score, seasonal mean score, overall mean score). Select the primary **X** and **Y** dimensions first; the options available in **Other dimensions** then depend on that choice.
 
-| ![UD settings dimension scaling](./figs/ud_settings_dimension_scaling.png) 
+![UD settings — dimension scaling](./figs/ud_settings_dimension_scaling.png)
 
-*Figure 2. Controls: (a) dimension scaling*
+*Figure 2. Dimension-scaling controls in the settings panel.*
 
 ### Example selection
 
-The following settings (Figure 3)  produce the plot shown below (Figure 4).
+The following settings (Figure 3) produce the plot shown below (Figure 4).
 
 ![Settings example](./figs/ud_settings_example01.png)
 
@@ -40,9 +40,9 @@ The lower portion of the dropdown (Figure 5) offers advanced controls, including
 - **Toggle Sort Title**: sort labels alphabetically.
 - **Save to Image**: export the displayed image in PNG, JPEG, or PDF.
 
- | ![UD settings option switch](./figs/ud_settings_option_switch.png) |
+![UD settings — option toggles](./figs/ud_settings_option_switch.png)
 
-*Figure 5. Controls: (a) dimension scaling; (b) option toggles.*
+*Figure 5. Advanced option toggles in the settings panel.*
 
 ---
 
