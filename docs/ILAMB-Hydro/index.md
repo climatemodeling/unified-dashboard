@@ -23,11 +23,11 @@ The **X and Y dimensions**, as well as **Other dimensions** in the dropdown, can
 
 The following settings (Figure 3) produce the plot shown below (Figure 4).
 
-![Settings example](./figs/ud_settings_example01.png){: width="520" }
+![Settings example](./figs/ud_settings_example01.png){: style="width:50%; height:auto;" }
 
 *Figure 3. Example settings.*
 
-![Example output](./figs/ud_example01.png){: width="520" }
+![Example output](./figs/ud_example01.png)
 
 *Figure 4. Resulting plot from the Figure 3 settings.*
 
@@ -41,7 +41,7 @@ The lower portion of the dropdown (Figure 5) offers advanced controls, including
 - **Toggle Sort Title**: sort labels alphabetically.
 - **Save to Image**: export the displayed image in PNG, JPEG, or PDF.
 
-![UD settings — option toggles](./figs/ud_settings_option_switch.png)
+![UD settings — option toggles](./figs/ud_settings_option_switch.png){: style="width:50%; height:auto;" }
 
 
 *Figure 5. Advanced option toggles in the settings panel.*
