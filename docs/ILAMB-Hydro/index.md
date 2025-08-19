@@ -14,7 +14,7 @@ A dropdown menu on the left (Figure 2) allows users to customize the table by ch
 
 The **X and Y dimensions**, as well as **Other dimensions** in the dropdown, can be set to **models** (e.g., GCMs or downscaled ensembles), **metrics** (e.g., daily precipitation, maximum/minimum temperature), **regions** (e.g., CONUS or HUC2 regions R01–R18), or **statistics** (e.g., annual mean score, seasonal mean score, overall mean score). Select the primary **X** and **Y** dimensions first; the options available in **Other dimensions** then depend on that choice.
 
-![Dimension-scaling controls](./figs/ud_settings_dimension_scaling.png){: style="width:70%; height:auto;" }
+![Dimension-scaling controls](./figs/ud_settings_dimension_scaling.png)
 
 
 *Figure 2. Dimension-scaling controls in the settings panel.*
@@ -42,7 +42,6 @@ The lower portion of the dropdown (Figure 5) offers advanced controls, including
 - **Save to Image**: export the displayed image in PNG, JPEG, or PDF.
 
 ![UD settings — option toggles](./figs/ud_settings_option_switch.png)
-<img src="./figs/ud_settings_option_switch.png" alt="Advanced option toggles" width="50%">
 
 
 *Figure 5. Advanced option toggles in the settings panel.*
