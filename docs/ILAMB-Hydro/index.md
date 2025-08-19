@@ -78,7 +78,7 @@ Selecting **All Models (By Plot)** displays spatial maps of the chosen metric fo
 
 *Figure 8. All-models selection.*
 
-![All models—panel 2](./figs/Figure10.png)
+![All models—panel 2](./figs/Figure10.png){: style="width:60%; height:auto;" }
 
 
 ![All models—panel 3](./figs/Figure11.png)
