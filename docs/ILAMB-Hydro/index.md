@@ -10,14 +10,13 @@ This landing page (Figure 1) displays average scores for GCMs and high-resolutio
 
 ## Controls
 
-A dropdown menu on the left (Figure 2a) allows users to customize the table by choosing the **X** and **Y** dimensions.
+A dropdown menu on the left (Figure 2) allows users to customize the table by choosing the **X** and **Y** dimensions.
 
 The **X** and **Y** **dimensions**, as well as **Other dimensions** in the dropdown, can be set to **models** (e.g., GCMs or downscaled ensembles), **metrics** (e.g., daily precipitation, maximum/minimum temperature), **regions** (e.g., CONUS or HUC2 regions R01–R18), or **statistics** (e.g., annual mean score, seasonal mean score, overall mean score). Select the primary **X** and **Y** dimensions first; the options available in **Other dimensions** then depend on that choice.
 
-| ![UD settings dimension scaling](./figs/ud_settings_dimension_scaling.png) | ![UD settings option switch](./figs/ud_settings_option_switch.png) |
-| --- | --- |
+| ![UD settings dimension scaling](./figs/ud_settings_dimension_scaling.png) 
 
-*Figure 2. Controls: (a) dimension scaling; (b) option toggles.*
+*Figure 2. Controls: (a) dimension scaling*
 
 ### Example selection
 
@@ -35,11 +34,15 @@ The following settings (Figure 3)  produce the plot shown below (Figure 4).
 
 ## Advanced options
 
-The lower portion of the dropdown (Figure 2b) offers advanced controls, including normalization choices, colormap adjustments, title placement, and whether to display values within each cell.
+The lower portion of the dropdown (Figure 5) offers advanced controls, including normalization choices, colormap adjustments, title placement, and whether to display values within each cell.
 
 - **Group Header Title**: filter the table by entering a keyword.
 - **Toggle Sort Title**: sort labels alphabetically.
 - **Save to Image**: export the displayed image in PNG, JPEG, or PDF.
+
+ | ![UD settings option switch](./figs/ud_settings_option_switch.png) |
+
+*Figure 5. Controls: (a) dimension scaling; (b) option toggles.*
 
 ---
 
@@ -49,13 +52,12 @@ To view detailed results, select a **reference dataset** under the variable you 
 
 ![Scalar table overview](./figs/Figure5.png)
 
-*Figure 5. Scalar table summarizing metrics for the selected variable across all model and downscaling combinations.*
+*Figure 6. Scalar table summarizing metrics for the selected variable across all model and downscaling combinations.*
 
 The scalar table (Figure 6) is followed by **annual** and **seasonal** (not shown here) **spatial maps** of various metrics, and **mean time-series** (Figure 7) plots for the chosen model–region combinations from the left menu.
 
 ![Annual/seasonal maps 1](./figs/Figure6.png)
 
-*Figure 6. Example annual spatial map.*
 
 ![Annual/seasonal maps 2](./figs/Figure7.png)
 
