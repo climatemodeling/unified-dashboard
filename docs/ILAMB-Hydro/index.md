@@ -56,10 +56,10 @@ To view detailed results, select a **reference dataset** under the variable you 
 
 The scalar table (Figure 6) is followed by **annual** and **seasonal** (not shown here) **spatial maps** of various metrics, and **mean time-series** (Figure 7) plots for the chosen model–region combinations from the left menu.
 
-![Annual/seasonal maps 1](./figs/Figure6.png)
+![Annual](./figs/Figure6.png)
 
 
-![Annual/seasonal maps 2](./figs/Figure7.png)
+![Annual](./figs/Figure7.png)
 
 
 ![Mean time series](./figs/Figure8.png)
