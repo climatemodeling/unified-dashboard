@@ -1,44 +1,126 @@
-title: ILAMB-Hydro Unified Dashboard
-
-
 # ILAMB-Hydro: International Land Model Benchmarking for Hydropower Applications
 
+This landing page displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al.
 
 ![UD landing page](./figs/ilamb_hydro_ud.png)
 
-This is the landing page for ILAMB-Hydro. By default, it displays the average scores for both GCMs and high-resolution downscaled outputs: statistically downscaled (DBCCA) and dynamically downscaled and bias-corrected (RegCM), evaluated against two observational datasets: Daymet and Livneh. Scores are computed following the methodology outlined in Collier et al. (cite).
+*Figure 1. Default landing page showing average scores across models and downscaling methods.*
 
-| ![UD settings dimension scaling](./figs/ud_settings_dimension_scaling.png) | ![UD settings option switch](./figs/ud_settings_option_switch.png) 
+---
+
+## Controls
+
+A dropdown menu on the left allows users to customize the table by choosing the **X** and **Y** dimensions.
+
+The **X** and **Y** **dimensions**, as well as **Other dimensions** in the dropdown, can be set to **models** (e.g., GCMs or downscaled ensembles), **metrics** (e.g., daily precipitation, maximum/minimum temperature), **regions** (e.g., CONUS or HUC2 regions R01–R18), or **statistics** (e.g., annual mean score, seasonal mean score, overall mean score). Select the primary **X** and **Y** dimensions first; the options available in **Other dimensions** then depend on that choice.
+
+| ![UD settings dimension scaling](./figs/ud_settings_dimension_scaling.png) | ![UD settings option switch](./figs/ud_settings_option_switch.png) |
 | --- | --- |
 
-A dropdown menu on the left allows users to customize the table by selecting different variables for the X and Y axes.
+*Figure 2. Controls: (a) dimension scaling; (b) option toggles.*
 
-The X and Y DIMENSIONS, as well as the “Other Dimensions” in the dropdown menu, can be selected as models (e.g., GCMs or downscaled ensembles), metrics (e.g., daily precipitation, maximum temperature, minimum temperature), regions (e.g., CONUS or HUC2 regions R01–R18), or statistics (e.g., annual mean score, seasonal mean score, or overall mean score). The primary X and Y dimensions are selected first, and the options available in the 'OTHER Dimensions' dropdown will then depend on the chosen X and Y axes.
+### Example selection
 
-For example, the selection shown below produces the following plot. 
+The following settings produce the plot shown below.
 
-![ud settings example01](./figs/ud_settings_example01.png)
-![ud example01](./figs/ud_example01.png)
+![Settings example](./figs/ud_settings_example01.png)
 
-The lower section of the dropdown menu offers advanced options such as whether and how to normalize values, adjust color mapping, choose title placement, and the display of values within each cell. Additionally, the "Group Header Title" allows to filter the table display by entering a keyword in the box below. The 'Toggle Sort Title' option allows you to sort the labels alphabetically. The “Save to Image” options option allows to download the displayed image in various formats, including PNG, JPEG, and PDF.
+*Figure 3. Example settings.*
 
-To view more detailed results, select a reference dataset under the variable you wish to evaluate.
-![Figure5](./figs/Figure5.png)
+![Example output](./figs/ud_example01.png)
 
-This will display a scalar table summarizing metrics calculated for the selected variable across all GCM and downscaling method combinations. Following the table, annual and seasonal (not shown here) spatial maps of various metrics and mean time series plots for the model–region combinations chosen from the menu on the left will be presented.
-![Figure6](./figs/Figure6.png)
-![Figure7](./figs/Figure7.png)
-![Figure8](./figs/Figure8.png)
-Selecting ‘All Models (By Plot)’ in the menu will display spatial maps of the chosen metric for the observations as well as for all GCM and downscaling method combinations as shown below. The menu can also be used to select the analysis type: ‘All’, ‘Annual’, or ‘Seasonal’.
-![Figure9](./figs/Figure9.png)
-![Figure10](./figs/Figure10.png)
-![Figure11](./figs/Figure11.png)
-![Figure12](./figs/Figure12.png)
-The menu can also be used to select and display results for one of the eighteen 2-digit Hydrologic Unit Code (HUC) regions.
-![Figure13](./figs/Figure13.png)
-For example, selecting ‘R17-Pacific Northwest’ displays the scalar table for the region followed by annual and seasonal (not shown here) plots.
-![Figure14](./figs/Figure14.png)
-![Figure15](./figs/Figure15.png)
-![Figure16](./figs/Figure16.png)
-![Figure17](./figs/Figure17.png)
-![Figure18](./figs/Figure18.png)
+*Figure 4. Resulting plot from the Figure 3 settings.*
+
+---
+
+## Advanced options
+
+The lower portion of the dropdown offers advanced controls, including normalization choices, colormap adjustments, title placement, and whether to display values within each cell.
+
+- **Group Header Title**: filter the table by entering a keyword.
+- **Toggle Sort Title**: sort labels alphabetically.
+- **Save to Image**: export the displayed image in PNG, JPEG, or PDF.
+
+---
+
+## Detailed results
+
+To view detailed results, select a **reference dataset** under the variable you wish to evaluate.
+
+![Scalar table overview](./figs/Figure5.png)
+
+*Figure 5. Scalar table summarizing metrics for the selected variable across all model and downscaling combinations.*
+
+The scalar table is followed by **annual** and **seasonal** (not shown here) **spatial maps** of various metrics, and **mean time-series** plots for the chosen model–region combinations from the left menu.
+
+![Annual/seasonal maps 1](./figs/Figure6.png)
+
+*Figure 6. Example annual spatial map.*
+
+![Annual/seasonal maps 2](./figs/Figure7.png)
+
+*Figure 7. Additional spatial map (seasonal views available in the app).*
+
+![Mean time series](./figs/Figure8.png)
+
+*Figure 8. Mean time-series plot for selected model–region combinations.*
+
+---
+
+## “All Models (By Plot)”
+
+Selecting **All Models (By Plot)** displays spatial maps of the chosen metric for the observations as well as all GCM and downscaling combinations. Use the menu to choose **All**, **Annual**, or **Seasonal** analyses.
+
+![All models—panel 1](./figs/Figure9.png)
+
+*Figure 9. All-models view, panel 1.*
+
+![All models—panel 2](./figs/Figure10.png)
+
+*Figure 10. All-models view, panel 2.*
+
+![All models—panel 3](./figs/Figure11.png)
+
+*Figure 11. All-models view, panel 3.*
+
+![All models—panel 4](./figs/Figure12.png)
+
+*Figure 12. All-models view, panel 4.*
+
+---
+
+## Regional results (HUC2)
+
+You can also select one of the eighteen 2-digit **HUC** regions to focus the analysis.
+
+![HUC selection](./figs/Figure13.png)
+
+*Figure 13. Regional selection for HUC2.*
+
+### Example: R17 — Pacific Northwest
+
+Selecting **R17—Pacific Northwest** displays the regional scalar table followed by annual and seasonal plots.
+
+![R17 scalar table](./figs/Figure14.png)
+
+*Figure 14. R17 scalar table.*
+
+![R17 results 1](./figs/Figure15.png)
+
+*Figure 15. R17 annual/seasonal results (panel 1).*
+
+![R17 results 2](./figs/Figure16.png)
+
+*Figure 16. R17 annual/seasonal results (panel 2).*
+
+![R17 results 3](./figs/Figure17.png)
+
+*Figure 17. R17 annual/seasonal results (panel 3).*
+
+![R17 results 4](./figs/Figure18.png)
+
+*Figure 18. R17 annual/seasonal results (panel 4).*
+
+---
+
+
