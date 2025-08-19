@@ -1,6 +1,6 @@
 # ILAMB-Hydro: International Land Model Benchmarking for Hydropower Applications
 
-This landing page (Figure 1) displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al. [add full citation].
+The landing page shown in Figure 1 displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al. [add full citation].
 
 ![UD landing page](./figs/ilamb_hydro_ud.png)
 
