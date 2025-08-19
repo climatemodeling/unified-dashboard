@@ -14,7 +14,7 @@ A dropdown menu on the left (Figure 2) allows users to customize the table by ch
 
 The **X and Y dimensions**, as well as **Other dimensions** in the dropdown, can be set to **models** (e.g., GCMs or downscaled ensembles), **metrics** (e.g., daily precipitation, maximum/minimum temperature), **regions** (e.g., CONUS or HUC2 regions R01–R18), or **statistics** (e.g., annual mean score, seasonal mean score, overall mean score). Select the primary **X** and **Y** dimensions first; the options available in **Other dimensions** then depend on that choice.
 
-![UD settings — dimension scaling](./figs/ud_settings_dimension_scaling.png)
+![UD settings — dimension scaling](./figs/ud_settings_dimension_scaling.png){: width="520" }
 
 *Figure 2. Dimension-scaling controls in the settings panel.*
 
@@ -22,11 +22,11 @@ The **X and Y dimensions**, as well as **Other dimensions** in the dropdown, can
 
 The following settings (Figure 3) produce the plot shown below (Figure 4).
 
-![Settings example](./figs/ud_settings_example01.png)
+![Settings example](./figs/ud_settings_example01.png){: width="520" }
 
 *Figure 3. Example settings.*
 
-![Example output](./figs/ud_example01.png)
+![Example output](./figs/ud_example01.png){: width="520" }
 
 *Figure 4. Resulting plot from the Figure 3 settings.*
 
