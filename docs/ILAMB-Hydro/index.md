@@ -74,7 +74,7 @@ The scalar table (Figure 6) is followed by **annual** and **seasonal** (not show
 
 Selecting **All Models (By Plot)** displays spatial maps of the chosen metric for the observations as well as all GCM and downscaling combinations. Use the menu to choose **All**, **Annual**, or **Seasonal** analyses.
 
-![All models—panel 1](./figs/Figure9.png)
+![All models—panel 1](./figs/Figure9.png){: style="width:60%; height:auto;" }
 
 *Figure 8. All-models selection.*
 
