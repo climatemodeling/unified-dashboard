@@ -42,7 +42,7 @@ The lower portion of the dropdown (Figure 5) offers advanced controls, including
 - **Save to Image**: export the displayed image in PNG, JPEG, or PDF.
 
 ![UD settings — option toggles](./figs/ud_settings_option_switch.png)
-<img src="./figs/ud_settings_option_switch.png" alt="Advanced option toggles" width="70%">
+<img src="./figs/ud_settings_option_switch.png" alt="Advanced option toggles" width="50%">
 
 
 *Figure 5. Advanced option toggles in the settings panel.*
