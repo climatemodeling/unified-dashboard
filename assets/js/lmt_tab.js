@@ -1962,6 +1962,7 @@ var setTabColumns = function (
     headerVertical: 'flip',
     resizable: false,
     headerSort: true,
+    sorter:"number",
     cellClick: tabOptions.cellClickFuncGenetic,
     cellMouseOver:function(e, cell) { 
       var headerCols = cell.getTable().columnManager.getHeadersElement().childNodes;
