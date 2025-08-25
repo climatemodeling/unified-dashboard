@@ -6,4 +6,9 @@ The Land Model Testbed (LMT) unified dashboard, powered by Tabulator and the jQu
 
 
 ## Documents
-  - [ILAMB-Hydro Unified Dashboard](./ILAMB-Hydro/index.md)
+
+  -  ILAMB:
+    - [Methods](https://ilamb.org/methods.html)
+    - [User's Guide](https://ilamb3.readthedocs.io/en/latest/)
+    - [Score](https://ilamb3.readthedocs.io/en/latest/bias.html)
+  -  [ILAMB-Hydro Unified Dashboard](./ILAMB-Hydro/index.md)

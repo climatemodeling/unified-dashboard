@@ -1,10 +1,23 @@
 # ILAMB-Hydro: International Land Model Benchmarking for Hydropower Applications
 
-The landing page shown in Figure 1 displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al. [add full citation].
+The landing page shown in Figure 1 displays average scores for GCMs and high-resolution downscaled outputs—statistically downscaled (**DBCCA**) and dynamically downscaled and bias-corrected (**RegCM**)—evaluated against two observational datasets: **Daymet** and **Livneh**. Scores are computed following the methodology in Collier et al. [^1].
+
+[^1]:  Collier, N., Hoffman, F. M., Lawrence, D. M., Keppel-Aleks, G., Koven, C. D., Riley, W. J., et al. (2018). The International Land Model Benchmarking (ILAMB) system: Design, theory, and implementation. Journal of Advances in Modeling Earth Systems, 10, 2731–2754. https://doi.org/10.1029/2018MS001354  
 
 ![UD landing page](./figs/ilamb_hydro_ud.png)
 
 *Figure 1. Default landing page showing average scores across models and downscaling methods.*
+
+!!! tip
+
+    - Moving the mouse to a column header and right-clicking it to:
+        - hide the column (reshow it by clicking the column title in the __Hide Columns__ in the menu section)
+        - change the background color of the column
+    - Moving the mouse to a column header, left-clicking it, and holding it to move it towards left or right
+    - Moving the mouse to a group column header and left-clicking it to edit the text in the header
+    - Moving the mouse to a group column header and right-clicking it to:
+        - change the background color, font size, color, and weight in the header
+        - change the background color, font size, color, and weight of all sub columns belong to the group header
 
 ---
 
@@ -40,6 +53,10 @@ The lower portion of the dropdown (Figure 5) offers advanced controls, including
 - **Group Header Title**: filter the table by entering a keyword.
 - **Toggle Sort Title**: sort labels alphabetically.
 - **Save to Image**: export the displayed image in PNG, JPEG, or PDF.
+
+!!! tip
+
+    Turn on/off the __FitScreen__ switch to see the changes of the table length
 
 ![UD settings — option toggles](./figs/ud_settings_option_switch.png){: style="width:50%; height:auto;" }
 
