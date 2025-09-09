@@ -45,8 +45,8 @@ jsonFileURL =
 const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // cors proxy to remove the cors limit
 
 const bgColorGroup = ['#ECFFE6', '#E6F9FF', '#FFECE6', '#EDEDED', '#FFF2E5'];
-const bgColorGroupFirstRow = ['#FFFF00', '#00FF00', '#FFFFFF'];
-const fgColorGroupFirstRow = ['#000000', '#000000', '#000000'];
+
+
 
 const class4Color = "p-1 h-6 w-6 inline bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700";
 const labelCode = "<label for='favcolor'> Background Color: </label>";
@@ -74,6 +74,11 @@ const GnRd = [
   '#5aae61',
   '#1b7837'
 ];
+
+
+let setModelColorCycle = true;
+let bgColorGroupFirstRow;
+let fgColorGroupFirstRow;
 
 var baseUrl = './';
 
@@ -351,7 +356,18 @@ async function setConfig() {
   try {
     const response = await fetch(udcUrl);
     _config = await response.json(); // Directly parse JSON
-    
+
+    if (_config.hasOwnProperty("setModelColorCycle")){
+      setModelColorCycle = _config.setModelColorCycle;
+    }
+    if (setModelColorCycle) {
+      bgColorGroupFirstRow = ['#FFFF00', '#00FF00', '#FFFFFF'];
+      fgColorGroupFirstRow = ['#000000', '#000000', '#000000'];
+    } else {
+      bgColorGroupFirstRow = ['#FFFFFF'];
+      fgColorGroupFirstRow = ['#000000'];
+    }
+
     if (_config.udcJsonLoc) {
       const jsonUrl = './' + _config.udcJsonLoc;
       console.log('UDEB: JSON URL', jsonUrl);
@@ -369,7 +385,7 @@ async function setConfig() {
       console.log('UDEB: No JSON data file in config');
     }
   } catch (err) {
-    alert('Error loading config: ' + err.message);
+    console.warn('Error loading config: ' + err.message);
   }
 }
 
