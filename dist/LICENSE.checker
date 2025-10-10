@@ -175,7 +175,7 @@
     "url": "https://sindresorhus.com",
     "licenseFile": "node_modules/binary-extensions/license"
   },
-  "brace-expansion@2.0.1": {
+  "brace-expansion@2.0.2": {
     "licenses": "MIT",
     "repository": "https://github.com/juliangruber/brace-expansion",
     "publisher": "Julian Gruber",

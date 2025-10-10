@@ -219,6 +219,13 @@ function initlmtUD() {
 
   setConfig(udcUrl);
 
+  if (setModelColorCycle) {
+    bgColorGroupFirstRow = ['#FFFF00', '#00FF00', '#FFFFFF'];
+    fgColorGroupFirstRow = ['#000000', '#000000', '#000000'];
+  } else {
+    bgColorGroupFirstRow = ['#FFFFFF'];
+    fgColorGroupFirstRow = ['#000000'];
+  }
 
 
   // Save image functions
@@ -359,13 +366,6 @@ async function setConfig() {
 
     if (_config.hasOwnProperty("setModelColorCycle")){
       setModelColorCycle = _config.setModelColorCycle;
-    }
-    if (setModelColorCycle) {
-      bgColorGroupFirstRow = ['#FFFF00', '#00FF00', '#FFFFFF'];
-      fgColorGroupFirstRow = ['#000000', '#000000', '#000000'];
-    } else {
-      bgColorGroupFirstRow = ['#FFFFFF'];
-      fgColorGroupFirstRow = ['#000000'];
     }
 
     if (_config.udcJsonLoc) {
