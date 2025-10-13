@@ -2738,6 +2738,8 @@ div.tabDiv{
   margin: 0 auto;
   justify-content: center;
   padding-top: 10px;
+  display: grid;
+  align-items: center;
 }
 
 div.legDiv{

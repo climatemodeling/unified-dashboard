@@ -93,7 +93,7 @@ var lmtSettings = {"tableBuilt": false, "normMethod":"-1", "cmapMethod":"-1", "l
                    "setTootip":false, "setTopTitle":false, "setBottomTitle":false, "setCellValue":false, "setFitScreen":true, 
 		   "timesExpl":1, "numClicks":1, 
 		   "stopFire":false,
-		   "stopFireNorm":false, "firstLoad":true, "xyChange":0};
+		   "stopFireNorm":false, "firstLoad":true, "xyChange":0, "includeColorBar":false};
 
 
 var tabTempJson = [];
@@ -239,25 +239,53 @@ function initlmtUD() {
      const tmpScale = Number(document.getElementById("download-image-dpi").value);
      //const imgScale = 3.;
      const imgScale = Math.floor(tmpScale/72.);
-     const node = document.getElementById('dashboard-table');
+
+     const node = lmtSettings.includeColorBar 
+       ? document.getElementById('mytab')
+       : document.getElementById('dashboard-table');
+
      const tempvalue = this.value;
+
      console.log('UDEB: ', tempvalue.toLowerCase());
 
-     width = (node.clientWidth+2);
-     height = (node.clientHeight+2); 
+
+     console.log('Node type:', lmtSettings.includeColorBar ? 'mytab' : 'dashboard-table');
+     console.log('Client dimensions:', {
+       width: node.clientWidth,
+       height: node.clientHeight,
+       scrollWidth: node.scrollWidth,
+       scrollHeight: node.scrollHeight,
+       offsetWidth: node.offsetWidth,
+       offsetHeight: node.offsetHeight
+     });
+
+
+     const rect = node.getBoundingClientRect();
+     const width = rect.width;
+     const width2 = lmtSettings.includeColorBar?rect.width*1.5:rect.width;
+     const height = rect.height + 2;
+
+
+     //width = (node.clientWidth+2);
+     //height = (node.clientHeight+2); 
      switch(this.value) {
        case "PNG":
          domtoimage 
            .toPng(node, {
-              height: (node.clientHeight+2) * imgScale + 0, 
-              width: (node.clientWidth+2) * imgScale + 0,
+              //height: (node.clientHeight+2) * imgScale + 0, 
+              //width: (node.clientWidth+2) * imgScale + 0,
+              height: height * imgScale + 0, 
+              width: width2 * imgScale + 0,
               style: {
                 transform: "scale(" + imgScale + ")",
                 transformOrigin: "top left",
                 overflow: "visible",
                 width: `${width}px`,
                 height: `${height}px`,
-              }})
+                //display: "block", // Override flex for rendering
+                //flex: "none",
+              },
+              quality:1})
            .then(function (dataUrl) {
               const dataFn = "output.png";
               downloadImage(dataUrl, dataFn);
@@ -283,8 +311,8 @@ function initlmtUD() {
          domtoimage 
            .toJpeg(node, {
               quality: 1.0,
-              height: node.clientHeight * imgScale + 5, 
-              width: node.clientWidth * imgScale + 5,
+              height: height * imgScale + 5, 
+              width: width2 * imgScale + 5,
               style: {
                 transform: "scale(" + imgScale + ")",
                 transformOrigin: "top left",
@@ -302,8 +330,8 @@ function initlmtUD() {
          const dataFn = "output.pdf";
          domtoimage 
            .toPng(node, {
-              height: node.clientHeight * imgScale, 
-              width: node.clientWidth * imgScale,
+              height: height * imgScale, 
+              width: width2 * imgScale,
               style: {
                 transform: "scale(" + imgScale + ")",
                 transformOrigin: "top left",
@@ -366,6 +394,14 @@ async function setConfig() {
 
     if (_config.hasOwnProperty("setModelColorCycle")){
       setModelColorCycle = _config.setModelColorCycle;
+    }
+
+    if (_config.hasOwnProperty("ydimOrder")){
+      lmtSettings["ydimOrder"] = _config.ydimOrder;
+    }
+
+    if (_config.hasOwnProperty("includeColorBar")){
+      lmtSettings["includeColorBar"] = _config.includeColorBar;
     }
 
     if (_config.udcJsonLoc) {
@@ -1483,19 +1519,15 @@ function initDim(cJson, dimSet) {
 
   console.log('UDEB: in initDim return', ini_xdim, ini_ydim);
 
-  metricOrder = [
-    "Temperature",
-    "Salinity",
-    "MixedLayerDepth",
-    "Alkalinity",
-    "DissolvedInorganicCarbon",
-    "Revellefactor",
-    "AMOC-timeseries",
-    "Stratification-timeseries",
-    "Southern_Ocean_Salinity"
-  ]; 
-  if (ini_ydim == "metric") {
-    tabTreeJson = sortLargeArrayByReference(tempJson, metricOrder, "row_name");
+  if (lmtSettings.hasOwnProperty("ydimOrder")) {
+    const keys = Object.keys(lmtSettings.ydimOrder);
+    const metricOrder = lmtSettings.ydimOrder[keys[0]];
+
+    if (ini_ydim == keys[0]) {
+      tabTreeJson = sortLargeArrayByReference(tempJson, metricOrder, "row_name");
+    } else {
+      tabTreeJson = tempJson;
+    }
   } else {
     tabTreeJson = tempJson;
   }
@@ -2419,7 +2451,31 @@ var firstColHeaderContextMenu = [
         document.getElementsByClassName('infoImage')[0].style.display = 'inline';
       }
     }
-  }
+  },
+
+
+  {   
+    label: function(column) { 
+      let colName = column.getField().replace(/\s+/g, '');
+      if (column.getElement().style.backgroundColor != undefined &&
+          column.getElement().style.backgroundColor.trim() !== '') {
+        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor' value='" + rgbToHex(column.getElement().style.backgroundColor) + "'/>";
+      } else {
+        return labelCode + "<input type='color' class='" + class4Color + "' id='favcolor' name='favcolor'>";
+      } 
+    },  
+    action: function (e, column) {
+      let colName = column.getField().replace(/\s+/g, '');
+      var elColor = document.getElementById("favcolor");
+
+      document.getElementById("favcolor").addEventListener('input', function (evt) {
+        column.getElement().style.backgroundColor = this.value;
+        updateColumnStyle(column, { backgroundColor: this.value });
+      });
+    }
+  } 
+
+
 ];
 
 function tableColor() {
