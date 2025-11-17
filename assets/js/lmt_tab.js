@@ -1129,7 +1129,7 @@ function initChoicesEvent(cJson) {
     },
   
     norm: (event) => {
-      console.log('UDEB: fire event for normalization', lmtSettings.stopFireNorm, !lmtSettings.stopFireNorm);
+      console.log('UDEB: fire event for normalization', lmtSettings.stopFireNorm, event.detail.value);
       lmtSettings.normMethod = event.detail.value;
   
       if (lmtSettings.stopFireNorm) {
@@ -1171,6 +1171,11 @@ function initChoicesEvent(cJson) {
       console.log("fire hide events");
       table.hideColumn(event.detail.value);
 
+      //newData = computeNormalization()
+      //table.setData(newData);
+      //table.redraw(true);
+      //draw_legend();
+
     },
     false
   );
@@ -1183,6 +1188,24 @@ function initChoicesEvent(cJson) {
     },
     false
   );
+}
+
+function filterVisibleColumns(rows, visibleCols) {
+    return rows.map(r => {
+        const filtered = {};
+
+        // copy only visible columns
+        visibleCols.forEach(col => {
+            if (col in r) filtered[col] = r[col];
+        });
+
+        // keep the _children recursively if present
+        if (r._children && r._children.length) {
+            filtered._children = filterVisibleColumns(r._children, visibleCols);
+        }
+
+        return filtered;
+    });
 }
 
 
@@ -1202,7 +1225,36 @@ function computeNormalization(
     tabTempJson = deepCopyFunction(tempData);
   }
 
-  const newData = Object.assign([], tempData);
+  let visibleCols = table.getColumns()
+      .filter(col => col.isVisible())
+      .map(col => col.getField());
+
+  //let visibleData = tempData.map(row => {
+  //    let filtered = {};
+  //    visibleCols.forEach(f => filtered[f] = row[f]);
+  //    return filtered;
+  //});
+
+
+  //-let colValues = {};
+  //-visibleCols.forEach(f => colValues[f] = []);
+  //-
+  //-function collectPerColumn(rows) {
+  //-    rows.forEach(r => {
+  //-        visibleCols.forEach(f => {
+  //-           colValues[f].push(r[f]);
+  //-        });
+  //-        if (r._children) collectPerColumn(r._children);
+  //-    });
+  //-}
+  //-
+  //-collectPerColumn(tempData);
+
+  //-visibleData = colValues;
+  const visibleData = filterVisibleColumns(tempData, visibleCols)
+
+  //const newData = Object.assign([], tempData);
+  const newData = Object.assign([], visibleData);
 
   // Validate normalization direction
   if (!normDirection) {
@@ -1212,7 +1264,8 @@ function computeNormalization(
 
   // Handle row normalization
   if (normDirection === 'row') {
-    const columnCount = Object.keys(tempData[0])
+    //const columnCount = Object.keys(tempData[0])
+    const columnCount = Object.keys(visibleData[0])
       .filter(key => key !== "row_name").length;
     
     if (normMethodValue == 1 && columnCount == 1) {
@@ -1223,7 +1276,8 @@ function computeNormalization(
       return false;
     }
 
-    tempData.forEach((data, j) => {
+    //tempData.forEach((data, j) => {
+    visibleData.forEach((data, j) => {
       newData[j] = normalizer(
         normMethodValue,
         normDirection,
@@ -1246,6 +1300,7 @@ function computeNormalization(
     });
   }
 
+  // new data save two datapoints, one is unnormalized, the other is normalized
   return newData; // Return status to indicate success
 
 }
