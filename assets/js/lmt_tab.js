@@ -2708,12 +2708,19 @@ function normalizer(normMethod, scaDir, data) {
         }
       };
 
+      const std = getStd(arr);
+      const isStdVerySmall = Math.abs(std) < 1e-10;
+
       if (arr.length == 1) {
         normArray = arr;
       } else {
         for (val of arr) {
           if (val > -999.0) {
-            newval = (val - getMean(arr)) / getStd(arr);
+            if (isStdVerySmall) {
+               newval = 0.0;
+            } else {
+               newval = (val - getMean(arr)) / getStd(arr);
+            }
           } else {
             newval = -999.0;
           }
@@ -2751,15 +2758,26 @@ function normalizer(normMethod, scaDir, data) {
       };
       const [vMin, vMax] = findMinMax();
 
+      const vRange = vMax - vMin;
+      const isRangeVerySmall = Math.abs(vRange) < 1e-10;
+
       for (val of arr) {
         if (val > -999.0) {
           if (vMax == vMin) {
             newval = 1.0;
           } else {
             if (normMethod == '3') {
-              newval = (val - vMin) / (vMax - vMin);
+              if (isRangeVerySmall) {
+                newval = 0.0;
+              } else {
+                newval = (val - vMin) / (vMax - vMin);
+              }
             } else {
-              newval = (val - 0.5 * (vMin + vMax)) / (0.5 * (vMax - vMin));
+              if (isRangeVerySmall) {
+                newval = 0.0;
+              } else {
+                newval = (val - 0.5 * (vMin + vMax)) / (0.5 * (vMax - vMin));
+              }
             }
           }
         } else {
