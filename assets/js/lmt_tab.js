@@ -409,7 +409,9 @@ async function setConfig() {
       console.log('UDEB: JSON URL', jsonUrl);
       loadtmpJson(jsonUrl);
 
-      lmtSettings["timesExpl"] = _config.timesExpl;
+      if (_config.timesExpl) {
+        lmtSettings["timesExpl"] = _config.timesExpl;
+      }
 
       const fileSection = document.querySelector('section input[type="file"]').closest('section');
       fileSection.hidden = true;
