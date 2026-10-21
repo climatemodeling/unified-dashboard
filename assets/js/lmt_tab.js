@@ -1594,36 +1594,67 @@ function initDim(cJson, dimSet) {
   return [ini_xdim, ini_ydim, ini_fxdm];
 }
 
-function sortLargeArrayByReference(objectsArray, referenceArray, propertyName) {
-  // Create a map from object value to all objects with that value
-  const valueToObjectsMap = new Map();
-  const unmatchedObjects = [];
-  
-  // First pass: group objects by their property value
-  objectsArray.forEach(obj => {
-    const value = obj[propertyName];
-    if (referenceArray.includes(value)) {
-      if (!valueToObjectsMap.has(value)) {
-        valueToObjectsMap.set(value, []);
-      }
-      valueToObjectsMap.get(value).push(obj);
-    } else {
-      unmatchedObjects.push(obj);
+function sortLargeArrayByReference(
+    objectsArray,
+    reference,
+    propertyName
+) {
+    // 1. Create a map for fast lookup of top-level objects.
+    const objectMap = new Map(
+        objectsArray.map(obj => [obj[propertyName], obj])
+    );
+
+    const sortedArray = [];
+
+    // 2. Sort top-level objects according to the keys in reference.
+    for (const parentName of Object.keys(reference)) {
+        const parent = objectMap.get(parentName);
+
+        // Skip reference entries that do not exist in objectsArray.
+        if (!parent) {
+            continue;
+        }
+
+        // 3. Sort only the immediate children of this parent.
+        if (Array.isArray(parent._children)) {
+            const childOrder = new Map(
+                reference[parentName].map(
+                    (childName, index) => [childName, index]
+                )
+            );
+
+            parent._children.sort((a, b) => {
+                const indexA = childOrder.get(a[propertyName]);
+                const indexB = childOrder.get(b[propertyName]);
+
+                // Put children absent from the reference list last.
+                if (indexA === undefined && indexB === undefined) {
+                    return 0;
+                }
+
+                if (indexA === undefined) {
+                    return 1;
+                }
+
+                if (indexB === undefined) {
+                    return -1;
+                }
+
+                return indexA - indexB;
+            });
+        }
+
+        sortedArray.push(parent);
     }
-  });
-  
-  // Second pass: build the result array in reference order
-  const result = [];
-  referenceArray.forEach(value => {
-    if (valueToObjectsMap.has(value)) {
-      result.push(...valueToObjectsMap.get(value));
+
+    // 4. Append top-level objects not specified in reference,
+    // preserving their original order.
+    for (const obj of objectsArray) {
+        if (!reference.hasOwnProperty(obj[propertyName])) {
+            sortedArray.push(obj);
+        }
     }
-  });
-  
-  // Add unmatched objects at the end
-  result.push(...unmatchedObjects);
-  
-  return result;
+    return sortedArray;
 }
 
 
@@ -3179,4 +3210,42 @@ function reapplyColumnStyles() {
 
   table.getColumns().forEach(processColumn);
 }
+
+const legendElement = document.getElementById("dragHandle");
+makeElementDraggable(legendElement);
+
+function makeElementDraggable(element) {
+  let currentX = 0, currentY = 0, initialX = 0, initialY = 0;
+
+  element.onmousedown = startDragging;
+
+  function startDragging(e) {
+    e.preventDefault();
+
+    // Track initial mouse position relative to current translation
+    initialX = e.clientX - currentX;
+    initialY = e.clientY - currentY;
+
+    document.onmousemove = dragElement;
+    document.onmouseup = stopDragging;
+  }
+
+  function dragElement(e) {
+    e.preventDefault();
+
+    // Calculate offset distance
+    currentX = e.clientX - initialX;
+    currentY = e.clientY - initialY;
+
+    // Translate the legend element independently of page flow
+    element.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+  }
+
+  function stopDragging() {
+    document.onmousemove = null;
+    document.onmouseup = null;
+  }
+}
+
+
 // end of lmt_tab.js

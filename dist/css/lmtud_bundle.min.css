@@ -1345,6 +1345,8 @@ body.tabulator-print-fullscreen-hide>:not(.tabulator-print-fullscreen){
   width:7px
 }
 
+/*# sourceMappingURL=tabulator.min.css.map */
+
 /*! Slideout Copyright (c) Mango
  * @license MIT
  * For the full copyright and license information,
@@ -2416,6 +2418,10 @@ video {
   display:block
 }
 
+.inline-block{
+  display:inline-block
+}
+
 .inline{
   display:inline
 }
@@ -2497,8 +2503,18 @@ video {
   transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))
 }
 
+.cursor-move{
+  cursor:move
+}
+
 .cursor-pointer{
   cursor:pointer
+}
+
+.select-none{
+  -webkit-user-select:none;
+     -moz-user-select:none;
+          user-select:none
 }
 
 .appearance-none{
@@ -3200,5 +3216,3 @@ p {
     --tw-ring-offset-color:#374151
   }
 }
-
-/*# sourceMappingURL=lmtud_bundle.min.css.map */

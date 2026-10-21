@@ -255,24 +255,27 @@
         <div class="tabDiv" id="mytab">
           <div id="dashboard-table"></div>
              <center>
-                 <div class="legDiv">
-                 <p>Relative Scale
-                 <table class="table-header-rotated" id="scoresLegend">
-                   <tbody>
-                     <tr>
-                       <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                     </tr>
-                   </tbody>
-                 </table>
-                 Worse Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Better Value
-                 <table class="table-header-rotated" id="missingLegend">
-                   <tbody>
-                     <tr>
-                       <td bgcolor="#808080"></td>
-                     </tr>
-                   </tbody>
-                 </table>Missing Data or Error
-                 </div>
+                <div
+                  class="legDiv relative inline-block cursor-move select-none border border-gray-300 bg-white p-2.5"
+                  id="dragHandle"
+                >
+                <p>Relative Scale
+                <table class="table-header-rotated" id="scoresLegend">
+                  <tbody>
+                    <tr>
+                      <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                  </tbody>
+                </table>
+                Worse Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Better Value
+                <table class="table-header-rotated" id="missingLegend">
+                  <tbody>
+                    <tr>
+                      <td bgcolor="#808080"></td>
+                    </tr>
+                  </tbody>
+                </table>Missing Data or Error
+                </div>
              </center>
         </div>
       </section>
