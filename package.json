@@ -35,7 +35,7 @@
     "jspdf": "^4.2.1",
     "slideout": "^1.0.1",
     "tabulator-tables": "^6.2.1",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
